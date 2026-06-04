@@ -55,4 +55,15 @@ const homepage = defineCollection({
     ]),
 });
 
-export const collections = { projects, portfolio, homepage };
+const personal = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/personal" }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      date: z.coerce.date(),
+      image: image(),
+    }),
+});
+
+export const collections = { projects, portfolio, homepage, personal };
