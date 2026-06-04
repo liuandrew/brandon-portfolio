@@ -1,0 +1,153 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+
+const pieces = await getCollection("personal");
+pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title="Personal — Brandon's Portfolio" description="A gallery of Brandon's personal illustrations.">
+  <main class="container mx-auto px-4 py-16">
+    <h1 class="text-4xl font-bold tracking-tight">Personal</h1>
+    <p class="mt-2 text-lg text-gray-600 max-w-prose">
+      A collection of personal illustrations, studies, and explorations.
+    </p>
+
+    {
+      pieces.length === 0 ? (
+        <p class="mt-12 text-gray-400">No pieces yet.</p>
+      ) : (
+        <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          {
+            pieces.map((piece) => (
+              <div class="masonry-item break-inside-avoid rounded-lg overflow-hidden">
+                <Image
+                  src={piece.data.image}
+                  alt={piece.data.title}
+                  widths={[400, 800]}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  loading="lazy"
+                  class="w-full h-auto"
+                />
+                <div class="p-3">
+                  <h2 class="font-semibold text-gray-900">{piece.data.title}</h2>
+                  {
+                    piece.data.description && (
+                      <p class="mt-1 text-sm text-gray-500">{piece.data.description}</p>
+                    )
+                  }
+                  <p class="mt-1 text-xs text-gray-400">
+                    {piece.data.date.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      )
+    }
+  </main>
+</Layout>
+
+<script>
+  (function () {
+    var masonry = document.getElementById("masonry");
+    if (!masonry) return;
+
+    var items = Array.from(masonry.querySelectorAll(".masonry-item"));
+    if (items.length === 0) return;
+
+    masonry.classList.remove("columns-1", "sm:columns-2", "lg:columns-3", "gap-6", "space-y-6");
+
+    var colsWrap = document.createElement("div");
+    colsWrap.className = "masonry-cols flex gap-6";
+    masonry.appendChild(colsWrap);
+
+    var currentCols = 0;
+    var columnEls = [];
+    var laidOut = false;
+
+    function getColumnCount() {
+      var w = window.innerWidth;
+      if (w >= 1024) return 3;
+      if (w >= 640) return 2;
+      return 1;
+    }
+
+    function getItemHeight(el) {
+      return el.getBoundingClientRect().height + 24;
+    }
+
+    function layout() {
+      var count = getColumnCount();
+      if (count === currentCols && laidOut) return;
+      currentCols = count;
+
+      columnEls.forEach(function (c) { c.el.remove(); });
+      columnEls = [];
+      colsWrap.innerHTML = "";
+
+      for (var i = 0; i < count; i++) {
+        var col = document.createElement("div");
+        col.className = "masonry-col";
+        col.style.flex = "1";
+        col.style.minWidth = "0";
+        col.style.display = "flex";
+        col.style.flexDirection = "column";
+        col.style.gap = "1.5rem";
+        colsWrap.appendChild(col);
+        columnEls.push({ el: col, h: 0 });
+      }
+
+      items.forEach(function (item) {
+        var shortest = columnEls[0];
+        for (var j = 1; j < columnEls.length; j++) {
+          if (columnEls[j].h < shortest.h) shortest = columnEls[j];
+        }
+        shortest.el.appendChild(item);
+        shortest.h += getItemHeight(item);
+      });
+
+      laidOut = true;
+    }
+
+    function attemptLayout() {
+      var allMeasurable = items.every(function (item) {
+        return item.getBoundingClientRect().height > 10;
+      });
+      if (allMeasurable) {
+        layout();
+        return true;
+      }
+      return false;
+    }
+
+    if (!attemptLayout()) {
+      var attempts = 0;
+      var checkTimer = setInterval(function () {
+        attempts++;
+        if (attemptLayout() || attempts > 40) {
+          clearInterval(checkTimer);
+        }
+      }, 100);
+    }
+
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        items.forEach(function (item) {
+          masonry.insertBefore(item, colsWrap);
+        });
+        laidOut = false;
+        currentCols = 0;
+        attemptLayout();
+      }, 300);
+    });
+  })();
+</script>
