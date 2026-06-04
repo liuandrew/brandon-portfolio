@@ -5,8 +5,8 @@ client: "Nexus Technologies"
 date: 2025-11-15
 tags: ["branding", "logo", "typography", "guidelines"]
 ndaLocked: false
-heroImage: "./placeholders/hero.svg"
+heroImage: "./images/hero.png"
 images:
-  - "./placeholders/gallery-1.svg"
-  - "./placeholders/gallery-2.svg"
+  - "./images/gallery-1.png"
+  - "./images/gallery-2.png"
 ---
