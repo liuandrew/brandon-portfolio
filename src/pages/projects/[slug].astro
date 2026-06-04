@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import Layout from "../../layouts/Layout.astro";
+import PasswordGate from "../../components/PasswordGate.astro";
 import sharp from "sharp";
 import { dirname, resolve } from "path";
 import { readFileSync } from "fs";
@@ -78,7 +79,8 @@ const hasAnyPlaceholder =
   title={`${data.title} — Brandon's Portfolio`}
   description={data.description}
 >
-  <main class="container mx-auto px-4 py-16">
+  <PasswordGate active={data.ndaLocked}>
+    <main class="container mx-auto px-4 py-16">
     <div
       class="blur-up mb-10 relative overflow-hidden rounded-lg"
       style="aspect-ratio: 4/3; max-height: 32rem; background: #1a1050;"
@@ -140,18 +142,6 @@ const hasAnyPlaceholder =
     </div>
 
     {
-      data.ndaLocked && (
-        <div class="mt-8 rounded-md border border-amber-200 bg-amber-50 p-4">
-          <p class="text-sm font-medium text-amber-800">NDA Protected</p>
-          <p class="mt-1 text-sm text-amber-700">
-            This project is protected under a non-disclosure agreement. Content
-            is only visible to authorized viewers.
-          </p>
-        </div>
-      )
-    }
-
-    {
       data.images.length > 0 && (
         <section class="mt-14">
           <h2 class="text-2xl font-bold">Gallery</h2>
@@ -210,6 +200,7 @@ const hasAnyPlaceholder =
       class="max-w-full max-h-full object-contain rounded-lg"
     />
   </div>
+  </PasswordGate>
 </Layout>
 
 {
