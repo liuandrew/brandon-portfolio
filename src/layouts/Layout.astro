@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import site from "../site.config";
+import Navigation from "../components/Navigation.astro";
 
 interface Props {
   title?: string;
@@ -40,6 +41,7 @@ const {
     )}
   </head>
   <body class="min-h-dvh w-full antialiased bg-white text-gray-900">
+    <Navigation />
     <slot />
   </body>
 </html>
