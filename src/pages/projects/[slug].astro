@@ -1,0 +1,95 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { data } = project;
+---
+
+<Layout
+  title={`${data.title} — Brandon's Portfolio`}
+  description={data.description}
+>
+  <main class="container mx-auto px-4 py-16">
+    <div class="mb-10">
+      <Image
+        src={data.heroImage}
+        alt={data.title}
+        class="w-full max-h-96 rounded-lg object-cover"
+      />
+    </div>
+
+    <h1 class="text-4xl font-bold tracking-tight">{data.title}</h1>
+    <p class="mt-4 max-w-prose text-lg leading-relaxed text-gray-600">
+      {data.description}
+    </p>
+
+    <dl class="mt-8 grid grid-cols-2 gap-6 max-w-sm">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Client</dt>
+        <dd class="mt-1 text-gray-900">{data.client}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Date</dt>
+        <dd class="mt-1 text-gray-900">
+          {data.date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="mt-8">
+      <h2 class="text-sm font-medium text-gray-500">Tags</h2>
+      <ul class="mt-2 flex flex-wrap gap-2">
+        {data.tags.map((tag) => (
+          <li>
+            <span class="inline-block rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
+              {tag}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {
+      data.ndaLocked && (
+        <div class="mt-8 rounded-md border border-amber-200 bg-amber-50 p-4">
+          <p class="text-sm font-medium text-amber-800">NDA Protected</p>
+          <p class="mt-1 text-sm text-amber-700">
+            This project is protected under a non-disclosure agreement. Content
+            is only visible to authorized viewers.
+          </p>
+        </div>
+      )
+    }
+
+    {
+      data.images.length > 0 && (
+        <section class="mt-14">
+          <h2 class="text-2xl font-bold">Gallery</h2>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {data.images.map((img, i) => (
+              <Image
+                src={img}
+                alt={`${data.title} gallery image ${i + 1}`}
+                class="w-full rounded-lg object-cover"
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </main>
+</Layout>

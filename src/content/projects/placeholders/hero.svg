@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#e5e7eb"/>
+  <rect width="800" height="600" fill="url(#g)" opacity="0.5"/>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+  <text x="400" y="290" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" fill="#6b7280">Hero Image</text>
+  <text x="400" y="325" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#9ca3af">800 × 600</text>
+</svg>
