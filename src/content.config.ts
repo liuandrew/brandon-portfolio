@@ -36,4 +36,23 @@ const portfolio = defineCollection({
     ]),
 });
 
-export const collections = { projects, portfolio };
+const homepage = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/homepage" }),
+  schema: ({ image }) =>
+    z.discriminatedUnion("type", [
+      z.object({
+        type: z.literal("project"),
+        project: z.string(),
+        overrideImage: image().optional(),
+      }),
+      z.object({
+        type: z.literal("standalone"),
+        image: image(),
+        title: z.string(),
+        caption: z.string().optional(),
+        link: z.string(),
+      }),
+    ]),
+});
+
+export const collections = { projects, portfolio, homepage };
