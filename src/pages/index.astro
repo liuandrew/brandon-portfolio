@@ -100,7 +100,7 @@ const hasItems = items.length > 0;
                 <button
                   class={`carousel-dot w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                     i === 0 ? "bg-white scale-125" : "bg-white/50"
-                  }`}
+                  } focus-visible:outline-2 focus-visible:outline-white/80`}
                   data-index={i}
                   aria-label={`Go to slide ${i + 1}`}
                 ></button>
@@ -110,17 +110,17 @@ const hasItems = items.length > 0;
 
           <button
             id="carousel-prev"
-            class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
+            class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-white/80"
             aria-label="Previous slide"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <button
             id="carousel-next"
-            class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
+            class="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-white/80"
             aria-label="Next slide"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </section>
       </>

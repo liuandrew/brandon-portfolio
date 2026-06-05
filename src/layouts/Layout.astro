@@ -41,7 +41,12 @@ const {
     )}
   </head>
   <body class="min-h-dvh w-full antialiased bg-white text-gray-900">
+    <a href="#main-content" class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:bg-gray-900 focus-visible:text-white focus-visible:px-4 focus-visible:py-2 focus-visible:rounded-md">
+      Skip to main content
+    </a>
     <Navigation />
-    <slot />
+    <div id="main-content">
+      <slot />
+    </div>
   </body>
 </html>
