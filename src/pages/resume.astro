@@ -15,7 +15,7 @@ import Layout from "../layouts/Layout.astro";
       <a
         href="/Brandon-Resume.pdf"
         download
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors focus-visible:outline-2 focus-visible:outline-white/80"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -27,6 +27,7 @@ import Layout from "../layouts/Layout.astro";
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          aria-hidden="true"
         >
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10"/>
