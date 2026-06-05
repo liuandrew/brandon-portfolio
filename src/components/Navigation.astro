@@ -3,7 +3,7 @@
 
 <nav
   id="navbar"
-  class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 transition-transform duration-300"
+  class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 transition-transform duration-100"
 >
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
@@ -178,17 +178,17 @@
     const SCROLL_THRESHOLD = 80;
     const BUTTON_THRESHOLD = 400;
 
+    var menuOpen_ = false;
+
     function update() {
       const currentY = window.scrollY;
 
       if (currentY <= 0) {
         navbar.classList.remove("-translate-y-full");
       } else if (currentY > lastScrollY && currentY > SCROLL_THRESHOLD) {
-        navbar.classList.add("-translate-y-full");
-        mobileMenu.classList.add("hidden");
-        menuOpen.classList.remove("hidden");
-        menuClose.classList.add("hidden");
-        mobileToggle.setAttribute("aria-expanded", "false");
+        if (!menuOpen_) {
+          navbar.classList.add("-translate-y-full");
+        }
       } else if (currentY < lastScrollY) {
         navbar.classList.remove("-translate-y-full");
       }
@@ -219,6 +219,7 @@
     });
 
     function openMobileMenu() {
+      menuOpen_ = true;
       mobileMenu.classList.remove("hidden");
       menuOpen.classList.add("hidden");
       menuClose.classList.remove("hidden");
@@ -228,6 +229,7 @@
     }
 
     function closeMobileMenu() {
+      menuOpen_ = false;
       mobileMenu.classList.add("hidden");
       menuOpen.classList.remove("hidden");
       menuClose.classList.add("hidden");
