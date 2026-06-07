@@ -12,6 +12,7 @@ const projects = defineCollection({
       date: z.coerce.date(),
       tags: z.array(z.string()),
       ndaLocked: z.boolean(),
+      portfolioTitle: z.string().optional(),
       logo: image().optional(),
       heroImage: image(),
       images: z.array(image()),

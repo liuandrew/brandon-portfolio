@@ -16,91 +16,94 @@ const nonLocked = projects.filter((p) => !p.data.ndaLocked);
         <p class="mt-8 text-gray-500">No projects to show yet.</p>
       ) : (
         <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {nonLocked.map((project) => (
-            <div class="flex flex-col">
-              {project.data.logo && (
-                <a
-                  href={`/projects/${project.id}`}
-                  class="mb-4 flex justify-center"
+          {nonLocked.map((project) => {
+            const displayTitle = project.data.portfolioTitle ?? project.data.title;
+            return (
+              <div class="flex flex-col">
+                {project.data.logo && (
+                  <a
+                    href={`/projects/${project.id}`}
+                    class="mb-4 flex justify-center"
+                  >
+                    <Image
+                      src={project.data.logo}
+                      alt={`${displayTitle} logo`}
+                      widths={[200, 400]}
+                      sizes="400px"
+                      loading="lazy"
+                      class="h-28 w-auto object-contain"
+                    />
+                  </a>
+                )}
+
+                <button
+                  class="lightbox-trigger relative overflow-hidden rounded-lg cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                  style="aspect-ratio: 16/9; background: #1a1050;"
+                  data-src={project.data.heroImage.src}
+                  data-alt={displayTitle}
                 >
                   <Image
-                    src={project.data.logo}
-                    alt={`${project.data.title} logo`}
-                    widths={[200, 400]}
-                    sizes="400px"
-                    loading="lazy"
-                    class="h-28 w-auto object-contain"
+                    src={project.data.heroImage}
+                    alt={displayTitle}
+                    widths={[400, 800]}
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    fetchpriority="high"
+                    loading="eager"
+                    class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
                   />
-                </a>
-              )}
+                </button>
 
-              <button
-                class="lightbox-trigger relative overflow-hidden rounded-lg cursor-pointer border-0 p-0 bg-transparent text-left w-full"
-                style="aspect-ratio: 16/9; background: #1a1050;"
-                data-src={project.data.heroImage.src}
-                data-alt={project.data.title}
-              >
-                <Image
-                  src={project.data.heroImage}
-                  alt={project.data.title}
-                  widths={[400, 800]}
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  fetchpriority="high"
-                  loading="eager"
-                  class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-              </button>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                  {project.data.images.slice(0, 2).map((img, i) => (
+                    <button
+                      class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                      style="aspect-ratio: 4/3; background: #1a1050;"
+                      data-src={img.src}
+                      data-alt={`${displayTitle} asset ${i + 1}`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${displayTitle} asset ${i + 1}`}
+                        widths={[300, 500]}
+                        sizes="(min-width: 768px) 17vw, 50vw"
+                        loading="lazy"
+                        class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </button>
+                  ))}
+                  {project.data.images.slice(2, 4).map((img, i) => (
+                    <button
+                      class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
+                      style="aspect-ratio: 4/3; background: #1a1050;"
+                      data-src={img.src}
+                      data-alt={`${displayTitle} asset ${i + 3}`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${displayTitle} asset ${i + 3}`}
+                        widths={[300, 500]}
+                        sizes="(min-width: 768px) 17vw, 0px"
+                        loading="lazy"
+                        class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </button>
+                  ))}
+                </div>
 
-              <div class="mt-4 grid grid-cols-2 gap-2">
-                {project.data.images.slice(0, 2).map((img, i) => (
-                  <button
-                    class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full"
-                    style="aspect-ratio: 4/3; background: #1a1050;"
-                    data-src={img.src}
-                    data-alt={`${project.data.title} asset ${i + 1}`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${project.data.title} asset ${i + 1}`}
-                      widths={[300, 500]}
-                      sizes="(min-width: 768px) 17vw, 50vw"
-                      loading="lazy"
-                      class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  </button>
-                ))}
-                {project.data.images.slice(2, 4).map((img, i) => (
-                  <button
-                    class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
-                    style="aspect-ratio: 4/3; background: #1a1050;"
-                    data-src={img.src}
-                    data-alt={`${project.data.title} asset ${i + 3}`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${project.data.title} asset ${i + 3}`}
-                      widths={[300, 500]}
-                      sizes="(min-width: 768px) 17vw, 0px"
-                      loading="lazy"
-                      class="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  </button>
-                ))}
+                <div class="mt-3">
+                  <a href={`/projects/${project.id}`} class="block hover:opacity-70 transition-opacity">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                      {displayTitle}
+                    </h2>
+                    <p class="mt-0.5 text-sm text-gray-500">
+                      {project.data.client}
+                    </p>
+                    See More &rsaquo;
+                  </a>
+                </div>
               </div>
-
-              <div class="mt-3">
-                <a href={`/projects/${project.id}`} class="block hover:opacity-70 transition-opacity">
-                  <h2 class="text-lg font-semibold text-gray-900">
-                    {project.data.title}
-                  </h2>
-                  <p class="mt-0.5 text-sm text-gray-500">
-                    {project.data.client}
-                  </p>
-                  See More &rsaquo;
-                </a>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )
     }
