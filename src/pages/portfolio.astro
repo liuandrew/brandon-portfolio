@@ -17,7 +17,7 @@ const items = (portfolioEntry?.data.projects ?? [])
 ---
 
 <Layout title="Portfolio — Brandon's Portfolio">
-  <main class="mx-auto max-w-[1400px] px-4 py-16">
+  <main class="mx-auto max-w-[1400px] px-4 py-6">
     <h1 class="text-4xl font-bold tracking-tight">Portfolio</h1>
 
     {
@@ -46,7 +46,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                 )}
 
                 <button
-                  class="lightbox-trigger relative overflow-hidden rounded-lg cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                  class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                   style="aspect-ratio: 16/9; background: #1a1050;"
                   data-src={project.data.heroImage.src}
                   data-alt={displayTitle}
@@ -65,7 +65,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                 <div class="mt-4 grid grid-cols-2 gap-2">
                   {project.data.images.slice(0, 2).map((img, i) => (
                     <button
-                      class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                      class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                       style="aspect-ratio: 4/3; background: #1a1050;"
                       data-src={img.src}
                       data-alt={`${displayTitle} asset ${i + 1}`}
@@ -82,7 +82,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                   ))}
                   {project.data.images.slice(2, 4).map((img, i) => (
                     <button
-                      class="lightbox-trigger relative overflow-hidden rounded cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
+                      class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
                       style="aspect-ratio: 4/3; background: #1a1050;"
                       data-src={img.src}
                       data-alt={`${displayTitle} asset ${i + 3}`}

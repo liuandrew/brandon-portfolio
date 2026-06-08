@@ -80,7 +80,7 @@ const hasAnyPlaceholder =
   description={data.description}
 >
   <PasswordGate active={data.ndaLocked}>
-    <main class="container mx-auto px-4 py-16">
+    <main class="container mx-auto px-4 py-4 md:py-16">
     {data.logo && (
       <div class="mb-6 flex justify-center">
         <Image
@@ -94,11 +94,11 @@ const hasAnyPlaceholder =
       </div>
     )}
 
-    <h1 class="text-4xl font-bold tracking-tight text-center">{data.title}</h1>
-    <p class="mt-2 text-center text-lg text-gray-500">{data.client}</p>
+    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-center">{data.title}</h1>
+    <p class="mt-2 text-center text-1xl sm:text-lg text-gray-500">{data.client}</p>
 
     <div
-      class="blur-up mt-8 relative overflow-hidden rounded-lg"
+      class="blur-up mt-4 md:mt-8 relative overflow-hidden"
       style="aspect-ratio: 16/9; max-height: 40rem; background: #1a1050;"
     >
       {
@@ -129,11 +129,11 @@ const hasAnyPlaceholder =
     {
       data.images.length > 0 && (
         <section class="mt-14">
-          <h2 class="text-2xl font-bold">Gallery</h2>
-          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* <h2 class="text-2xl font-bold">Gallery</h2> */}
+          <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {galleryImages.map(({ img, alt, placeholder, index }) => (
               <button
-                class="blur-up gallery-trigger relative overflow-hidden rounded-lg cursor-pointer border-0 p-0 bg-transparent text-left"
+                class="blur-up gallery-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left"
                 style="aspect-ratio: 4/3; background: #1a1050;"
                 data-index={index}
                 aria-label={`View ${alt}`}
@@ -182,7 +182,7 @@ const hasAnyPlaceholder =
       id="lightbox-img"
       src=""
       alt=""
-      class="max-w-full max-h-full object-contain rounded-lg"
+      class="max-w-full max-h-full object-contain"
     />
   </div>
   </PasswordGate>
