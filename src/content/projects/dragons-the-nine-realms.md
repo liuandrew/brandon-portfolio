@@ -12,4 +12,6 @@ images:
   - "./images/dreamworks/NDR_MineEntranceA_TextureCallout_v002_BL.webp"
   - "./images/dreamworks/NDR_CrossbowA_RUF_v001_BL.webp"
   - "./images/dreamworks/NDR_CrossbowA_TextureCallout_v005_BL.webp"
+  - "./images/dreamworks/NDR_MineEntranceA_Turnaround_v003_BL.webp"
+  - "./images/dreamworks/NDR_CrossbowA_Turnaround_v001_BL.webp"
 ---

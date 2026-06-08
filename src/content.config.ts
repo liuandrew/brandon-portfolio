@@ -21,21 +21,9 @@ const projects = defineCollection({
 
 const portfolio = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/portfolio" }),
-  schema: ({ image }) =>
-    z.discriminatedUnion("type", [
-      z.object({
-        type: z.literal("project"),
-        project: z.string(),
-        overrideImage: image().optional(),
-      }),
-      z.object({
-        type: z.literal("standalone"),
-        image: image(),
-        title: z.string(),
-        caption: z.string().optional(),
-        link: z.string(),
-      }),
-    ]),
+  schema: z.object({
+    projects: z.array(z.string()),
+  }),
 });
 
 const homepage = defineCollection({
