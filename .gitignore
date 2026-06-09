@@ -26,3 +26,6 @@ pnpm-debug.log*
 # lhci temp directories
 .lighthouseci/
 *lighthouse.*
+
+# generated PDF preview
+public/Resume.png

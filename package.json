@@ -19,6 +19,7 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
-    "@lhci/cli": "^0.15.1"
+    "@lhci/cli": "^0.15.1",
+    "pdf-to-img": "^6.1.0"
   }
 }
