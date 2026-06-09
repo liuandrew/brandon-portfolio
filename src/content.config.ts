@@ -56,4 +56,21 @@ const personal = defineCollection({
     }),
 });
 
-export const collections = { projects, portfolio, homepage, personal };
+const projectsNav = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/projects-nav" }),
+  schema: z.object({
+    sections: z.array(
+      z.object({
+        title: z.string(),
+        projects: z.array(
+          z.union([
+            z.string(),
+            z.object({ slug: z.string(), name: z.string() }),
+          ])
+        ),
+      })
+    ),
+  }),
+});
+
+export const collections = { projects, portfolio, homepage, personal, projectsNav };

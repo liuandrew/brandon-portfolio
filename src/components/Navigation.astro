@@ -1,4 +1,24 @@
 ---
+import { getCollection } from "astro:content";
+
+const [navEntry] = await getCollection("projectsNav");
+const allProjects = await getCollection("projects");
+const projectMap = new Map(allProjects.map((p) => [p.id, p]));
+
+const sections = (navEntry?.data.sections ?? [])
+  .map((section) => ({
+    ...section,
+    projects: section.projects
+      .map((entry) => {
+        const slug = typeof entry === "string" ? entry : entry.slug;
+        const overrideName = typeof entry === "object" ? entry.name : null;
+        const project = projectMap.get(slug);
+        if (!project) return null;
+        return { slug, title: overrideName ?? project.data.portfolioTitle ?? project.data.title };
+      })
+      .filter(Boolean),
+  }))
+  .filter((section) => section.projects.length > 0);
 ---
 
 <nav
@@ -62,6 +82,38 @@
       >
         <a href="/" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Home</a>
         <a href="/portfolio" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Portfolio</a>
+        <div class="relative" id="projects-dropdown-wrapper">
+          <button
+            id="projects-dropdown-trigger"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors inline-flex items-center gap-1"
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
+            Projects
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div
+            id="projects-dropdown-menu"
+            class="absolute left-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg py-2 hidden z-50"
+            role="menu"
+          >
+            {sections.map((section, i) => (
+              <div>
+                {i > 0 && <div class="border-t border-gray-100 my-1" />}
+                <div class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">{section.title}</div>
+                {section.projects.map((project) => (
+                  <a
+                    href={`/projects/${project.slug}`}
+                    class="block px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    role="menuitem"
+                  >
+                    {project.title}
+                  </a>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
         <a href="/personal" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Personal</a>
         <a href="/about" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">About</a>
         <a href="/resume" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Resume</a>
@@ -112,6 +164,32 @@
       <div class="flex flex-col gap-3 pt-4">
         <a href="/" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Home</a>
         <a href="/portfolio" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Portfolio</a>
+        <div>
+          <button
+            id="mobile-projects-toggle"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors inline-flex items-center gap-1 w-full"
+            aria-expanded="false"
+          >
+            Projects
+            <svg id="mobile-projects-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="mobile-projects-menu" class="hidden pl-3 mt-1 flex flex-col gap-2">
+            {sections.map((section, i) => (
+              <div>
+                {i > 0 && <div class="border-t border-gray-200 my-1" />}
+                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{section.title}</div>
+                {section.projects.map((project) => (
+                  <a
+                    href={`/projects/${project.slug}`}
+                    class="block py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    {project.title}
+                  </a>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
         <a href="/personal" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Personal</a>
         <a href="/about" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">About</a>
         <a href="/resume" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Resume</a>
@@ -172,6 +250,16 @@
     const mobileMenu = document.getElementById("mobile-menu");
     const menuOpen = document.getElementById("menu-icon-open");
     const menuClose = document.getElementById("menu-icon-close");
+
+    // Desktop dropdown
+    const dropdownWrapper = document.getElementById("projects-dropdown-wrapper");
+    const dropdownTrigger = document.getElementById("projects-dropdown-trigger");
+    const dropdownMenu = document.getElementById("projects-dropdown-menu");
+
+    // Mobile projects expandable
+    const mobileProjectsToggle = document.getElementById("mobile-projects-toggle");
+    const mobileProjectsMenu = document.getElementById("mobile-projects-menu");
+    const mobileProjectsChevron = document.getElementById("mobile-projects-chevron");
 
     let lastScrollY = window.scrollY;
     let ticking = false;
@@ -259,5 +347,61 @@
         }
       }
     });
+
+    // Desktop dropdown toggle
+    if (dropdownTrigger && dropdownMenu) {
+      let dropdownTimeout;
+      function openDropdown() {
+        clearTimeout(dropdownTimeout);
+        dropdownMenu.classList.remove("hidden");
+        dropdownTrigger.setAttribute("aria-expanded", "true");
+      }
+      function closeDropdown() {
+        dropdownTimeout = setTimeout(function () {
+          dropdownMenu.classList.add("hidden");
+          dropdownTrigger.setAttribute("aria-expanded", "false");
+        }, 150);
+      }
+      dropdownWrapper.addEventListener("mouseenter", openDropdown);
+      dropdownWrapper.addEventListener("mouseleave", closeDropdown);
+      dropdownTrigger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var isOpen = !dropdownMenu.classList.contains("hidden");
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+      document.addEventListener("click", function (e) {
+        if (!dropdownWrapper.contains(e.target)) {
+          dropdownMenu.classList.add("hidden");
+          dropdownTrigger.setAttribute("aria-expanded", "false");
+        }
+      });
+      dropdownMenu.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          dropdownMenu.classList.add("hidden");
+          dropdownTrigger.setAttribute("aria-expanded", "false");
+          dropdownTrigger.focus();
+        }
+      });
+    }
+
+    // Mobile projects expandable toggle
+    if (mobileProjectsToggle && mobileProjectsMenu) {
+      mobileProjectsToggle.addEventListener("click", function () {
+        var isOpen = !mobileProjectsMenu.classList.contains("hidden");
+        if (isOpen) {
+          mobileProjectsMenu.classList.add("hidden");
+          mobileProjectsToggle.setAttribute("aria-expanded", "false");
+          mobileProjectsChevron.style.transform = "";
+        } else {
+          mobileProjectsMenu.classList.remove("hidden");
+          mobileProjectsToggle.setAttribute("aria-expanded", "true");
+          mobileProjectsChevron.style.transform = "rotate(180deg)";
+        }
+      });
+    }
   })();
 </script>
