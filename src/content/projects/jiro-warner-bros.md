@@ -4,7 +4,7 @@ description: "Painted backgrounds for a semi-realistic comic book style."
 client: "Warner Bros."
 date: 2024-01-01
 tags: ["backgrounds", "painting", "comics"]
-ndaLocked: false
+ndaLocked: true
 portfolioTitle: "Warner Bros"
 logo: "./images/warner_bros/Warner_Bros_Logo.svg.png"
 heroImage: "./images/warner_bros/JIRO_TheFarmExtFrontEntranceA_Co_v01.webp"

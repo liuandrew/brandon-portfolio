@@ -4,7 +4,7 @@ description: "Developed organic and mechanical props for Dragons: The Nine Realm
 client: "DreamWorks Animation"
 date: 2024-01-01
 tags: ["props", "textures", "concept art"]
-ndaLocked: false
+ndaLocked: true
 logo: "./images/dreamworks/Dragons_The_Nine_Realms_Logo.webp"
 heroImage: "./images/dreamworks/NatureFruitTreeA_INT_Concept_v003_BL.webp"
 images:

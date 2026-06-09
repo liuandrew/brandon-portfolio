@@ -4,7 +4,7 @@ description: "Designed props, sets, and characters, working on matte paintings a
 client: "Nickelodeon"
 date: 2024-01-01
 tags: ["props", "sets", "characters", "matte paintings", "color keys"]
-ndaLocked: false
+ndaLocked: true
 logo: "./images/nickelodeon/the-fairly-oddparents-new-wish-logo.webp"
 heroImage: "./images/nickelodeon/FOPR_dentistryGalaEstablish_Color_v002_NK.webp"
 images:
