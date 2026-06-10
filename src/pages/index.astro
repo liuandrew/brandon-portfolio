@@ -1,12 +1,10 @@
 ---
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
-import bgPaint1 from "../assets/general/BG+Paint+1.webp";
-import bgPaint3 from "../assets/general/BG+Paint+3.webp";
-import bgPaint4 from "../assets/general/BG+Paint+4.webp";
-import bgPaint9 from "../assets/general/BG+paint+9.webp";
 
-const slides = [bgPaint1, bgPaint3, bgPaint4, bgPaint9];
+const homepage = await getCollection("homepage");
+const slides = homepage[0]?.data.images ?? [];
 ---
 
 <Layout title="Brandon's Portfolio">
