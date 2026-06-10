@@ -14,4 +14,12 @@ images:
   - "./images/dreamworks/NDR_CrossbowA_TextureCallout_v005_BL.webp"
   - "./images/dreamworks/NDR_MineEntranceA_Turnaround_v003_BL.webp"
   - "./images/dreamworks/NDR_CrossbowA_Turnaround_v001_BL.webp"
+  - "./images/dreamworks/NDR_SlingshotA_LineArt_v001_BL.webp"
+  - "./images/dreamworks/NDR_SlingshotA_Color_v001_BL.webp"
+  - "./images/dreamworks/NDR_EntranceDarkRealmA_Turnaround_v001_BL.webp"
+  - "./images/dreamworks/NDR_EntranceDarkRealmA_3QTR_v001_BL.webp"
+  - "./images/dreamworks/NDR_EntranceDarkRealmA_TextureCallout_v001_BL.webp"
+  - "./images/dreamworks/NDR_DesertCaveA_INT_Turnaround_NoPillar_v004_BL.webp"
+  - "./images/dreamworks/NDR_DragonsiteC_Turnaround_Break_v001_BL.webp"
+  - "./images/dreamworks/NDR_DragonsiteD_Color_v002_BL.webp"
 ---
