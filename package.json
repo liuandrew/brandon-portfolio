@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "prebuild": "node scripts/generate-lightbox-images.mjs && node scripts/pdf-to-image.mjs",
-    "build": "npm run prebuild && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lhci": "CHROME_PATH=/usr/bin/google-chrome lhci collect && CHROME_PATH=/usr/bin/google-chrome lhci assert",
