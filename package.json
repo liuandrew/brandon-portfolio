@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/generate-lightbox-images.mjs",
+    "prebuild": "node scripts/generate-lightbox-images.mjs && node scripts/pdf-to-image.mjs",
     "build": "npm run prebuild && astro build",
     "preview": "astro preview",
     "astro": "astro",
