@@ -47,7 +47,8 @@ function parseFrontmatter(filePath) {
   const content = readFileSync(filePath, 'utf-8');
   const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
-  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
+  // const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
+  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development ·Prop Design";
   const heroImage = fm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
   const images = [];
@@ -107,9 +108,19 @@ async function processPersonal() {
     const content = readFileSync(file, 'utf-8');
     const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
     const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(file, '.md');
-    const imagePath = fm.match(/^image:\s*"([^"]+)"/m)?.[1];
 
-    if (!imagePath) continue;
+    const images = [];
+    const imagesSection = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
+    if (imagesSection) {
+      const matches = imagesSection[1].match(/"([^"]+)"/g);
+      if (matches) {
+        for (const m of matches) {
+          images.push(m.replace(/"/g, ''));
+        }
+      }
+    }
+
+    if (images.length === 0) continue;
 
     const slug = basename(file, '.md');
     const pieceDir = dirname(resolve(file));
@@ -121,11 +132,14 @@ async function processPersonal() {
 
     console.log(`\nPersonal: ${title}`);
 
-    const inputPath = resolve(pieceDir, imagePath);
-    if (existsSync(inputPath)) {
-      await addFooter(inputPath, resolve(outputDir, `${slug}.webp`), title);
-    } else {
-      console.log(`  ⚠ image not found: ${inputPath}`);
+    for (let idx = 0; idx < images.length; idx++) {
+      const imgPath = images[idx];
+      const inputPath = resolve(pieceDir, imgPath);
+      if (existsSync(inputPath)) {
+        await addFooter(inputPath, resolve(outputDir, `${slug}-${idx}.webp`), title);
+      } else {
+        console.log(`  ⚠ image not found: ${inputPath}`);
+      }
     }
   }
 }

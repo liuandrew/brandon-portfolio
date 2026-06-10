@@ -49,7 +49,7 @@ const personal = defineCollection({
       title: z.string(),
       description: z.string().optional(),
       date: z.coerce.date(),
-      image: image(),
+      images: z.array(image()),
     }),
 });
 
