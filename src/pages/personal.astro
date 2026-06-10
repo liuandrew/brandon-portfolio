@@ -2,9 +2,61 @@
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
+import sharp from "sharp";
+import { dirname, resolve } from "path";
+import { readFileSync } from "fs";
 
 const pieces = await getCollection("personal");
 pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+async function makePlaceholder(filePath: string): Promise<string | null> {
+  try {
+    const buf = await sharp(filePath)
+      .resize(20)
+      .webp({ quality: 1 })
+      .toBuffer();
+    return `data:image/webp;base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+interface PersonalImage {
+  img: typeof pieces[number]["data"]["images"][number];
+  alt: string;
+  placeholder: string | null;
+}
+
+const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalImage[] }[] =
+  await Promise.all(
+    pieces.map(async (piece) => {
+      const mdAbsPath = resolve(piece.filePath!);
+      const pieceDir = dirname(mdAbsPath);
+      const rawFM = readFileSync(mdAbsPath, "utf-8");
+      const fmBody = rawFM.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+
+      const rawPaths: string[] = [];
+      const imagesSection = fmBody.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
+      if (imagesSection) {
+        const matches = imagesSection[1].match(/"([^"]+)"/g);
+        if (matches) {
+          for (const m of matches) {
+            rawPaths.push(m.replace(/"/g, ""));
+          }
+        }
+      }
+
+      const images: PersonalImage[] = await Promise.all(
+        piece.data.images.map(async (img, idx) => {
+          const raw = rawPaths[idx] ?? "";
+          const placeholder = raw ? await makePlaceholder(resolve(pieceDir, raw)) : null;
+          return { img, alt: `${piece.data.title} — ${idx + 1}`, placeholder };
+        }),
+      );
+
+      return { piece, images };
+    }),
+  );
 ---
 
 <Layout title="Personal — Brandon's Portfolio" description="A gallery of Brandon's personal illustrations.">
@@ -15,26 +67,35 @@ pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
     </p> -->
 
     {
-      pieces.length === 0 ? (
+      piecesWithPlaceholders.length === 0 ? (
         <p class="mt-12 text-gray-400">No pieces yet.</p>
       ) : (
         <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
           {
-            pieces.map((piece) =>
-              piece.data.images.map((img, idx) => (
+            piecesWithPlaceholders.map(({ piece, images }) =>
+              images.map(({ img, alt, placeholder }, idx) => (
                 <div class="masonry-item break-inside-avoid overflow-hidden">
                   <button
-                    class="lightbox-trigger cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                    class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                     data-lightbox-src={`/lightbox/personal/${piece.id}-${idx}.webp`}
-                    data-alt={`${piece.data.title} — ${idx + 1}`}
+                    data-alt={alt}
+                    style="background: #ffffff;"
                   >
+                    {placeholder && (
+                      <img
+                        src={placeholder}
+                        alt=""
+                        aria-hidden="true"
+                        class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
+                      />
+                    )}
                     <Image
                       src={img}
-                      alt={`${piece.data.title} — ${idx + 1}`}
+                      alt={alt}
                       widths={[400, 800]}
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       loading="lazy"
-                      class="w-full h-auto pointer-events-none"
+                      class="blur-up-full relative w-full h-auto pointer-events-none"
                     />
                   </button>
                 </div>
@@ -122,6 +183,25 @@ pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 </script>
 
 <style>
+  .blur-up {
+    position: relative;
+  }
+  .blur-up-placeholder {
+    filter: blur(20px);
+    transform: scale(1.1);
+    transition: opacity 0.4s ease;
+  }
+  .blur-up-full {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .blur-up-full.loaded {
+    opacity: 1;
+  }
+  .blur-up-full.loaded + .blur-up-placeholder,
+  .blur-up-placeholder:has(+ .blur-up-full.loaded) {
+    opacity: 0;
+  }
   .lightbox-overlay {
     will-change: opacity;
   }
@@ -230,4 +310,15 @@ pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
       }, 300);
     });
   })();
+</script>
+
+<script>
+  document.querySelectorAll(".blur-up-full").forEach((img) => {
+    const full = img;
+    if (full.complete) {
+      full.classList.add("loaded");
+    } else {
+      full.addEventListener("load", () => full.classList.add("loaded"));
+    }
+  });
 </script>
