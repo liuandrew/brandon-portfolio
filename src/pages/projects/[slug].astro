@@ -100,7 +100,7 @@ const hasAnyPlaceholder =
 
     <div
       class="blur-up mt-4 md:mt-4 relative overflow-hidden"
-      style="aspect-ratio: 16/9; max-height: 40rem; background: #1a1050;"
+      style="aspect-ratio: 16/9; max-height: 40rem; background: #ffffff;"
     >
       {
         heroPlaceholder && (
@@ -108,18 +108,18 @@ const hasAnyPlaceholder =
             src={heroPlaceholder}
             alt=""
             aria-hidden="true"
-            class="absolute inset-0 w-full h-full object-cover blur-up-placeholder"
-          />
-        )
-      }
-      <Image
-        src={data.heroImage}
-        alt={data.title}
-        widths={[400, 800, 1200, 1600]}
-        sizes="100vw"
-        fetchpriority="high"
-        loading="eager"
-        class="blur-up-full relative w-full h-full object-cover"
+class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
+            />
+          )
+        }
+        <Image
+          src={data.heroImage}
+          alt={data.title}
+          widths={[400, 800, 1200, 1600]}
+          sizes="100vw"
+          fetchpriority="high"
+          loading="eager"
+          class="blur-up-full relative w-full h-full object-contain"
       />
     </div>
 
@@ -135,7 +135,7 @@ const hasAnyPlaceholder =
             {galleryImages.map(({ img, alt, placeholder, index }) => (
               <button
                 class="blur-up gallery-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left"
-                style="aspect-ratio: 4/3; background: #1a1050;"
+                style="aspect-ratio: 4/3; background: #ffffff;"
                 data-index={index}
                 data-lightbox-src={`/lightbox/${project.id}/gallery-${index}.webp`}
                 aria-label={`View ${alt}`}
@@ -146,17 +146,17 @@ const hasAnyPlaceholder =
                       src={placeholder}
                       alt=""
                       aria-hidden="true"
-                      class="absolute inset-0 w-full h-full object-cover blur-up-placeholder"
-                    />
-                  )
-                }
-                <Image
-                  src={img}
-                  alt={alt}
-                  widths={[400, 800, 1200]}
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  loading="lazy"
-                  class="blur-up-full relative w-full h-full object-cover"
+class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
+                  />
+                )
+              }
+              <Image
+                src={img}
+                alt={alt}
+                widths={[400, 800, 1200]}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                loading="lazy"
+                class="blur-up-full relative w-full h-full object-contain"
                 />
               </button>
             ))}
