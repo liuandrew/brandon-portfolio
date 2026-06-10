@@ -27,5 +27,6 @@ pnpm-debug.log*
 .lighthouseci/
 *lighthouse.*
 
-# generated PDF preview
+# generated PDF preview and copy
 public/Resume.png
+public/Brandon-Resume.pdf
