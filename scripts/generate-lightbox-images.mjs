@@ -48,7 +48,7 @@ function parseFrontmatter(filePath) {
   const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
   // const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
-  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development ·Prop Design";
+  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development · Prop Design";
   const heroImage = fm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
   const images = [];
@@ -136,7 +136,7 @@ async function processPersonal() {
       const imgPath = images[idx];
       const inputPath = resolve(pieceDir, imgPath);
       if (existsSync(inputPath)) {
-        await addFooter(inputPath, resolve(outputDir, `${slug}-${idx}.webp`), title);
+        await addFooter(inputPath, resolve(outputDir, `${slug}-${idx}.webp`), 'Background Painting · Illustration · Visual Development · Prop Design');
       } else {
         console.log(`  ⚠ image not found: ${inputPath}`);
       }

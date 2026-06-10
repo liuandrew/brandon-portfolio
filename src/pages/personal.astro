@@ -50,7 +50,8 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
         piece.data.images.map(async (img, idx) => {
           const raw = rawPaths[idx] ?? "";
           const placeholder = raw ? await makePlaceholder(resolve(pieceDir, raw)) : null;
-          return { img, alt: `${piece.data.title} — ${idx + 1}`, placeholder };
+          const title = piece.data.title ?? piece.id;
+          return { img, alt: `${title} — ${idx + 1}`, placeholder };
         }),
       );
 
