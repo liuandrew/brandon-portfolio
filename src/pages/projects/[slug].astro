@@ -137,6 +137,7 @@ const hasAnyPlaceholder =
                 class="blur-up gallery-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left"
                 style="aspect-ratio: 4/3; background: #1a1050;"
                 data-index={index}
+                data-lightbox-src={`/lightbox/${project.id}/gallery-${index}.webp`}
                 aria-label={`View ${alt}`}
               >
                 {
@@ -268,12 +269,10 @@ const hasAnyPlaceholder =
 
     triggers.forEach((btn) => {
       btn.addEventListener("click", () => {
+        const src = btn.dataset.lightboxSrc;
         const fullImg = btn.querySelector(".blur-up-full");
-        if (fullImg) {
-          const src = fullImg.currentSrc || fullImg.src;
-          const alt = fullImg.alt || "";
-          openLightbox(src, alt);
-        }
+        const alt = (fullImg && fullImg.alt) || "";
+        if (src) openLightbox(src, alt);
       });
     });
 

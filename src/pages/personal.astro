@@ -22,14 +22,20 @@ pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
           {
             pieces.map((piece) => (
               <div class="masonry-item break-inside-avoid rounded-lg overflow-hidden">
-                <Image
-                  src={piece.data.image}
-                  alt={piece.data.title}
-                  widths={[400, 800]}
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  loading="lazy"
-                  class="w-full h-auto"
-                />
+                <button
+                  class="lightbox-trigger cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                  data-lightbox-src={`/lightbox/personal/${piece.id}.webp`}
+                  data-alt={piece.data.title}
+                >
+                  <Image
+                    src={piece.data.image}
+                    alt={piece.data.title}
+                    widths={[400, 800]}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    loading="lazy"
+                    class="w-full h-auto pointer-events-none"
+                  />
+                </button>
                 <div class="p-3">
                   <h2 class="font-semibold text-gray-900">{piece.data.title}</h2>
                   {
@@ -52,7 +58,94 @@ pieces.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
       )
     }
   </main>
+
+  <div
+    id="lightbox"
+    class="lightbox-overlay fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 sm:p-8"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Image lightbox"
+  >
+    <button
+      id="lightbox-close"
+      class="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors focus-visible:outline-2 focus-visible:outline-white/80"
+      aria-label="Close lightbox"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <img
+      id="lightbox-img"
+      src=""
+      alt=""
+      class="max-w-full max-h-full object-contain rounded-lg"
+    />
+  </div>
 </Layout>
+
+<script>
+  function initLightbox() {
+    var lightbox = document.getElementById("lightbox");
+    var lightboxImg = document.getElementById("lightbox-img");
+    var closeBtn = document.getElementById("lightbox-close");
+    var triggers = document.querySelectorAll(".lightbox-trigger");
+    var lastFocused = null;
+
+    function openLightbox(src, alt) {
+      lastFocused = document.activeElement;
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightbox.classList.remove("hidden");
+      lightbox.classList.add("flex");
+      document.documentElement.style.overflow = "clip";
+      document.addEventListener("keydown", onKeyDown);
+      setTimeout(function () { closeBtn.focus(); }, 50);
+    }
+
+    function closeLightbox() {
+      lightbox.classList.add("hidden");
+      lightbox.classList.remove("flex");
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
+      lightboxImg.src = "";
+      if (lastFocused) lastFocused.focus();
+    }
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeLightbox();
+      }
+    }
+
+    triggers.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var src = btn.dataset.lightboxSrc;
+        var alt = btn.dataset.alt || "";
+        if (src) openLightbox(src, alt);
+      });
+    });
+
+    closeBtn.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", function (e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+
+  initLightbox();
+</script>
+
+<style>
+  .lightbox-overlay {
+    will-change: opacity;
+  }
+  .lightbox-overlay.flex {
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
 
 <script>
   (function () {

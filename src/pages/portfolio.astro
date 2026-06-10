@@ -48,7 +48,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                 <button
                   class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                   style="aspect-ratio: 16/9; background: #1a1050;"
-                  data-src={project.data.heroImage.src}
+                  data-lightbox-src={`/lightbox/${project.id}/hero.webp`}
                   data-alt={displayTitle}
                 >
                   <Image
@@ -67,7 +67,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                     <button
                       class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                       style="aspect-ratio: 4/3; background: #1a1050;"
-                      data-src={img.src}
+                      data-lightbox-src={`/lightbox/${project.id}/gallery-${i}.webp`}
                       data-alt={`${displayTitle} asset ${i + 1}`}
                     >
                       <Image
@@ -84,7 +84,7 @@ const items = (portfolioEntry?.data.projects ?? [])
                     <button
                       class="lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
                       style="aspect-ratio: 4/3; background: #1a1050;"
-                      data-src={img.src}
+                      data-lightbox-src={`/lightbox/${project.id}/gallery-${i + 2}.webp`}
                       data-alt={`${displayTitle} asset ${i + 3}`}
                     >
                       <Image
@@ -178,7 +178,7 @@ const items = (portfolioEntry?.data.projects ?? [])
 
     triggers.forEach((btn) => {
       btn.addEventListener("click", () => {
-        const src = (btn as HTMLElement).dataset.src;
+        const src = (btn as HTMLElement).dataset.lightboxSrc;
         const alt = (btn as HTMLElement).dataset.alt;
         if (src) openLightbox(src, alt ?? "");
       });

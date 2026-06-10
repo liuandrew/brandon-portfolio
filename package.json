@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "prebuild": "node scripts/generate-lightbox-images.mjs",
+    "build": "npm run prebuild && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lhci": "CHROME_PATH=/usr/bin/google-chrome lhci collect && CHROME_PATH=/usr/bin/google-chrome lhci assert",
