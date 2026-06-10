@@ -30,3 +30,6 @@ pnpm-debug.log*
 # generated PDF preview and copy
 public/Resume.png
 public/Brandon-Resume.pdf
+
+# generated lightbox images
+public/lightbox/
