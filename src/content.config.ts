@@ -22,7 +22,15 @@ const projects = defineCollection({
 const portfolio = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/portfolio" }),
   schema: z.object({
-    projects: z.array(z.string()),
+    projects: z.array(
+      z.union([
+        z.string(),
+        z.object({
+          slug: z.string(),
+          images: z.array(z.string()).optional(),
+        }),
+      ])
+    ),
   }),
 });
 

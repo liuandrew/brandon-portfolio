@@ -58,7 +58,7 @@ interface GalleryItem {
   img: typeof data.images[number];
   alt: string;
   placeholder: string | null;
-  index: number;
+  outName: string;
 }
 
 const galleryRawPaths = fmArray("images");
@@ -67,7 +67,8 @@ const galleryImages: GalleryItem[] = await Promise.all(
   data.images.map(async (img, i) => {
     const raw = galleryRawPaths[i] ?? "";
     const placeholder = raw ? await makePlaceholder(resolveSourcePath(raw)) : null;
-    return { img, alt: `${data.title} gallery image ${i + 1}`, placeholder, index: i };
+    const outName = raw ? raw.split('/').pop()!.replace(/\.[^.]+$/, '.webp') : `gallery-${i}.webp`;
+    return { img, alt: `${data.title} gallery image ${i + 1}`, placeholder, outName };
   }),
 );
 
@@ -132,12 +133,11 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
         <section class="mt-14">
           {/* <h2 class="text-2xl font-bold">Gallery</h2> */}
           <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryImages.map(({ img, alt, placeholder, index }) => (
+            {galleryImages.map(({ img, alt, placeholder, outName }) => (
               <button
                 class="blur-up gallery-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left"
                 style="aspect-ratio: 4/3; background: #ffffff;"
-                data-index={index}
-                data-lightbox-src={`/lightbox/${project.id}/gallery-${index}.webp`}
+                data-lightbox-src={`/lightbox/${project.id}/${outName}`}
                 aria-label={`View ${alt}`}
               >
                 {

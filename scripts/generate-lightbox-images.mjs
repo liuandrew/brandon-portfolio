@@ -88,10 +88,11 @@ async function processProjects() {
       }
     }
 
-    for (let i = 0; i < images.length; i++) {
-      const inputPath = resolve(projectDir, images[i]);
+    for (const imgPath of images) {
+      const inputPath = resolve(projectDir, imgPath);
       if (existsSync(inputPath)) {
-        await addFooter(inputPath, resolve(outputDir, `gallery-${i}.webp`), title);
+        const outName = basename(imgPath).replace(/\.[^.]+$/, '.webp');
+        await addFooter(inputPath, resolve(outputDir, outName), title);
       } else {
         console.log(`  ⚠ gallery image not found: ${inputPath}`);
       }
