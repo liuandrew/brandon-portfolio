@@ -25,6 +25,7 @@ interface PersonalImage {
   img: typeof pieces[number]["data"]["images"][number];
   alt: string;
   placeholder: string | null;
+  outName: string;
 }
 
 const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalImage[] }[] =
@@ -51,7 +52,8 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
           const raw = rawPaths[idx] ?? "";
           const placeholder = raw ? await makePlaceholder(resolve(pieceDir, raw)) : null;
           const title = piece.data.title ?? piece.id;
-          return { img, alt: `${title} — ${idx + 1}`, placeholder };
+          const outName = raw ? raw.split('/').pop()!.replace(/\.[^.]+$/, '.webp') : `${piece.id}-${idx}.webp`;
+          return { img, alt: `${title} — ${idx + 1}`, placeholder, outName };
         }),
       );
 
@@ -74,11 +76,11 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
         <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
           {
             piecesWithPlaceholders.map(({ piece, images }) =>
-              images.map(({ img, alt, placeholder }, idx) => (
+              images.map(({ img, alt, placeholder, outName }, idx) => (
                 <div class="masonry-item break-inside-avoid overflow-hidden">
                   <button
                     class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
-                    data-lightbox-src={`/lightbox/personal/${piece.id}-${idx}.webp`}
+                    data-lightbox-src={`/lightbox/personal/${outName}`}
                     data-alt={alt}
                     style="background: #ffffff;"
                   >
