@@ -8,5 +8,6 @@ sections:
       - slug: dragons-the-nine-realms
         name: How to Train Your Dragon
   - title: "Personal"
-    projects: []
+    projects: 
+      - legend-of-zelda
 ---

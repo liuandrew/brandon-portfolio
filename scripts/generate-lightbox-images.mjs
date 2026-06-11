@@ -44,15 +44,15 @@ async function addFooter(inputPath, outputPath, title) {
 }
 
 function parseFrontmatter(filePath) {
-  const content = readFileSync(filePath, 'utf-8');
+  const content = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
   const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+  const nonCommentFm = fm.replace(/^#.*$/gm, '');
 
-  // const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
-  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development · Prop Design";
-  const heroImage = fm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
+  const title = nonCommentFm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development · Prop Design";
+  const heroImage = nonCommentFm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
   const images = [];
-  const imagesSection = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
+  const imagesSection = nonCommentFm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
   if (imagesSection) {
     const matches = imagesSection[1].match(/"([^"]+)"/g);
     if (matches) {
