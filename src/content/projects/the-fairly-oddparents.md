@@ -1,6 +1,6 @@
 ---
 title: "The Fairly OddParents: A New Wish"
-description: "Designed props, sets, and characters, working on matte paintings and color keys."
+description: "August 2022 - November 2023\n Worked across the full asset spectrum, including matte paintings, props, sets, characters, and graphics, over a 15 month production for <i>The Fairly OddParents</i>.\n Produced select color keys establishing lighting and mood palette for scenes."
 client: "Nickelodeon"
 date: 2024-01-01
 tags: ["props", "sets", "characters", "matte paintings", "color keys"]

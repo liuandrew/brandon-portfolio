@@ -1,6 +1,6 @@
 ---
 title: "Dragons: The Nine Realms"
-description: "Developed organic and mechanical props for Dragons: The Nine Realms, generating textures with material research."
+description: "July 2021 - July 2022\n Developed organic and mechanical props for <i>Dragons: The Nine Realms</i>, generating textures with material research.\n Gained front-of-pipeline visual development experience."
 client: "DreamWorks Animation"
 date: 2024-01-01
 tags: ["props", "textures", "concept art"]

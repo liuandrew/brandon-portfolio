@@ -7,6 +7,7 @@ tags: ["backgrounds", "painting",]
 ndaLocked: false
 portfolioTitle: "Studies"
 layout: "masonry"
+footer: "Background Painting · Illustration · Visual Development · Prop Design"
 logo: ""
 heroImage: ""
 images:

@@ -102,34 +102,34 @@ const isMasonry = data.layout === "masonry";
     </div>
 
     {!isMasonry && (
-      <div
-        class="blur-up mt-4 md:mt-4 relative overflow-hidden"
-        style="aspect-ratio: 16/9; max-height: 40rem; background: #ffffff;"
-      >
-        {
-          heroPlaceholder && (
-            <img
-              src={heroPlaceholder}
-              alt=""
-              aria-hidden="true"
-class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
-            />
-          )
-        }
-        <Image
-          src={data.heroImage}
-          alt={data.title}
-          widths={[400, 800, 1200, 1600]}
-          sizes="100vw"
-          fetchpriority="high"
-          loading="eager"
-          class="blur-up-full relative w-full h-full object-contain"
-      />
-      </div>
+      <div class="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div
+          class="blur-up relative overflow-hidden lg:w-2/3 shrink-0"
+          style="aspect-ratio: 16/9; max-height: 40rem; background: #ffffff;"
+        >
+          {
+            heroPlaceholder && (
+              <img
+                src={heroPlaceholder}
+                alt=""
+                aria-hidden="true"
+  class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
+              />
+            )
+          }
+          <Image
+            src={data.heroImage}
+            alt={data.title}
+            widths={[400, 800, 1200, 1600]}
+            sizes="100vw"
+            fetchpriority="high"
+            loading="eager"
+            class="blur-up-full relative w-full h-full object-contain"
+          />
+        </div>
 
-      <p class="mt-8 max-w-prose text-lg leading-relaxed text-gray-600">
-        {data.description}
-      </p>
+        <p class="max-w-prose text-lg leading-relaxed text-gray-600 lg:w-1/3 whitespace-pre-line" set:html={data.description}>
+      </div>
     )}
 
     {

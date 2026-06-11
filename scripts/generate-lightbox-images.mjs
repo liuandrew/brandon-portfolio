@@ -49,6 +49,7 @@ function parseFrontmatter(filePath) {
   const nonCommentFm = fm.replace(/^#.*$/gm, '');
 
   const title = nonCommentFm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? "Background Painting · Illustration · Visual Development · Prop Design";
+  const footer = nonCommentFm.match(/^footer:\s*"([^"]+)"/m)?.[1] ?? null;
   const heroImage = nonCommentFm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
   const images = [];
@@ -62,14 +63,14 @@ function parseFrontmatter(filePath) {
     }
   }
 
-  return { title, heroImage, images };
+  return { title, footer, heroImage, images };
 }
 
 async function processProjects() {
   const files = readdirSync('src/content/projects').filter(f => f.endsWith('.md')).map(f => resolve('src/content/projects', f));
 
   for (const file of files) {
-    const { title, heroImage, images } = parseFrontmatter(file);
+    const { title, footer, heroImage, images } = parseFrontmatter(file);
     const slug = basename(file, '.md');
     const projectDir = dirname(resolve(file));
     const outputDir = resolve(`public/lightbox/${slug}`);
@@ -83,7 +84,7 @@ async function processProjects() {
     if (heroImage) {
       const inputPath = resolve(projectDir, heroImage);
       if (existsSync(inputPath)) {
-        await addFooter(inputPath, resolve(outputDir, 'hero.webp'), title);
+        await addFooter(inputPath, resolve(outputDir, 'hero.webp'), footer ?? title);
       } else {
         console.log(`  ⚠ hero image not found: ${inputPath}`);
       }
@@ -93,7 +94,7 @@ async function processProjects() {
       const inputPath = resolve(projectDir, imgPath);
       if (existsSync(inputPath)) {
         const outName = basename(imgPath).replace(/\.[^.]+$/, '.webp');
-        await addFooter(inputPath, resolve(outputDir, outName), title);
+        await addFooter(inputPath, resolve(outputDir, outName), footer ?? title);
       } else {
         console.log(`  ⚠ gallery image not found: ${inputPath}`);
       }
@@ -136,7 +137,8 @@ async function processPersonal() {
       const imgPath = images[idx];
       const inputPath = resolve(pieceDir, imgPath);
       if (existsSync(inputPath)) {
-        await addFooter(inputPath, resolve(outputDir, `${slug}-${idx}.webp`), 'Background Painting · Illustration · Visual Development · Prop Design');
+        const outName = basename(imgPath).replace(/\.[^.]+$/, '.webp');
+        await addFooter(inputPath, resolve(outputDir, outName), 'Background Painting · Illustration · Visual Development · Prop Design');
       } else {
         console.log(`  ⚠ image not found: ${inputPath}`);
       }

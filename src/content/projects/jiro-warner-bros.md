@@ -1,6 +1,6 @@
 ---
 title: "Get Jiro!"
-description: "Painted backgrounds for a semi-realistic comic book style."
+description: "\nApril 2025 - August 2025 \n Painted backgrounds and sets in a semi-realistic comic book style for <i>Get Jiro!</i> delivering 3+ detailed backgrounds per week ahead of schedule, capturing art director vision with high independence."
 client: "Warner Bros."
 date: 2024-01-01
 tags: ["backgrounds", "painting", "comics"]
