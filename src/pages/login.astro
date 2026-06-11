@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import PasswordGate from "../components/PasswordGate.astro";
+
+const redirect = Astro.url.searchParams.get("redirect") || "/";
 ---
 
 <Layout title="Login — Brandon's Portfolio" description="Enter the shared password to access NDA-protected content.">
-  <PasswordGate mode="standalone" />
+  <PasswordGate mode="standalone" redirect={redirect} />
 </Layout>

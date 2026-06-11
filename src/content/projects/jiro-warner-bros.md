@@ -5,6 +5,7 @@ client: "Warner Bros."
 date: 2024-01-01
 tags: ["backgrounds", "painting", "comics"]
 ndaLocked: true
+portfolioLocked: true
 portfolioTitle: "Warner Bros"
 logo: "../../assets/warner_bros/Warner_Bros_Logo.svg.png"
 heroImage: "../../assets/warner_bros/JIRO_TheFarmExtFrontEntranceA_Co_v01.webp"
