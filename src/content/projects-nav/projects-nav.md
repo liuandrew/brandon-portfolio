@@ -10,4 +10,5 @@ sections:
   - title: "Personal"
     projects: 
       - legend-of-zelda
+      - studies
 ---

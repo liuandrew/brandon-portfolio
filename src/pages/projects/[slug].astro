@@ -20,7 +20,7 @@ const { data } = project;
 
 const mdAbsPath = resolve(project.filePath!);
 const projectDir = dirname(mdAbsPath);
-const rawFM = readFileSync(mdAbsPath, "utf-8");
+const rawFM = readFileSync(mdAbsPath, "utf-8").replace(/\r\n/g, "\n");
 const fmBody = rawFM.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
 
 function fmString(key: string): string | null {
