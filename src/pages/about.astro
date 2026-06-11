@@ -1,5 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import aboutImage from "../assets/studies/April+15,+2022+2+02.webp";
 ---
 
 <Layout
@@ -12,31 +14,25 @@ import Layout from "../layouts/Layout.astro";
     <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-12">
       <div class="lg:col-span-2 space-y-6 text-gray-700 leading-relaxed">
         <p class="text-lg">
-          Brandon is a digital illustrator based in the Pacific Northwest. His
-          work bridges technical precision and expressive storytelling, drawing
-          on a background in both traditional fine arts and contemporary design.
+          Brandon is a digital illustrator based in Southern California. With over 
+          5 years of industry experience working on TV productions, he emphasizes
+          high independence, fast turnover, and the ability to clearly capture
+          director vision.  
         </p>
-        <p>
-          With over a decade of experience working with clients across editorial
-          publishing, brand identity, and interactive media, Brandon brings a
-          meticulous eye for composition and color to every project. He is
-          equally comfortable executing tight creative briefs and developing
-          original visual concepts from scratch.
-        </p>
-        <p>
-          Brandon's approach emphasizes clarity, intention, and atmosphere. He
-          believes that the best illustrations don't just depict a subject
-          &mdash; they make the viewer feel something. Whether it's a
-          high-energy editorial piece or a subdued portrait study, every image
-          is built around a strong emotional core.
-        </p>
-        <p>
-          When not at the drawing tablet, Brandon can be found hiking Pacific
-          Northwest trails, collecting mid-century design books, or sketching in
-          coffee shops.
+        <p class="text-lg">
+          Brandon has worked in a variety of styles, from comic book to expressionism. 
+          He has painted backgrounds, characters, props, and worked throughout the full
+          production pipeline. Beyond industry work, he is frequently painting for his
+          personal satisfaction and skill development on his
+        <a
+          href="https://instagram.com/civilizedyapper/"
+          target="_blank"
+        >
+        Instagram.
+        </a>
         </p>
 
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 pt-4">
+        <!-- <h2 class="text-2xl font-bold tracking-tight text-gray-900 pt-4">
           Skills &amp; Tools
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -92,37 +88,19 @@ import Layout from "../layouts/Layout.astro";
               <li>Mentorship</li>
             </ul>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <aside class="lg:col-span-1">
-        <div
-          class="rounded-lg border border-gray-200 overflow-hidden"
-          style="aspect-ratio: 3/4; background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%);"
-        >
-          <div class="flex items-center justify-center h-full text-gray-400">
-            <div class="text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="mx-auto"
-                role="img"
-                aria-label="Self-portrait placeholder"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <p class="mt-3 text-sm text-gray-500">Self-portrait placeholder</p>
-            </div>
-          </div>
-        </div>
+        <Image
+          src={aboutImage}
+          alt="About Brandon"
+          widths={[400, 800]}
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          loading="lazy"
+          class="w-full h-auto rounded-lg object-cover"
+          style="aspect-ratio: 3/4;"
+        />
       </aside>
     </div>
   </main>
