@@ -6,9 +6,11 @@ date: 2024-01-01
 tags: ["backgrounds", "painting",]
 ndaLocked: false
 portfolioTitle: "Studies"
+layout: "masonry"
 logo: ""
-heroImage: "../../assets/studies/char+ill+1+backp.webp"
+heroImage: ""
 images:
+  - "../../assets/studies/char+ill+1+backp.webp"
   - "../../assets/studies/G+Doll+dark.webp"
   - "../../assets/studies/Januaru+4+02+02.webp"
   - "../../assets/studies/unknown7.webp"
@@ -28,6 +30,5 @@ images:
   - "../../assets/studies/june+30+2020.webp"
   - "../../assets/studies/may+20+2020+4.webp"
   - "../../assets/studies/mini+astrolizard+2.webp"
-  - "../../assets/studies/june+13+2020+5.webp"
   - "../../assets/studies/june+13+2020+5.webp"
 ---

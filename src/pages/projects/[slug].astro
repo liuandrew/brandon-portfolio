@@ -74,6 +74,8 @@ const galleryImages: GalleryItem[] = await Promise.all(
 
 const hasAnyPlaceholder =
   heroPlaceholder !== null || galleryImages.some((g) => g.placeholder !== null);
+
+const isMasonry = data.layout === "masonry";
 ---
 
 <Layout
@@ -99,16 +101,17 @@ const hasAnyPlaceholder =
       )}
     </div>
 
-    <div
-      class="blur-up mt-4 md:mt-4 relative overflow-hidden"
-      style="aspect-ratio: 16/9; max-height: 40rem; background: #ffffff;"
-    >
-      {
-        heroPlaceholder && (
-          <img
-            src={heroPlaceholder}
-            alt=""
-            aria-hidden="true"
+    {!isMasonry && (
+      <div
+        class="blur-up mt-4 md:mt-4 relative overflow-hidden"
+        style="aspect-ratio: 16/9; max-height: 40rem; background: #ffffff;"
+      >
+        {
+          heroPlaceholder && (
+            <img
+              src={heroPlaceholder}
+              alt=""
+              aria-hidden="true"
 class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
             />
           )
@@ -122,14 +125,50 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
           loading="eager"
           class="blur-up-full relative w-full h-full object-contain"
       />
-    </div>
+      </div>
 
-    <p class="mt-8 max-w-prose text-lg leading-relaxed text-gray-600">
-      {data.description}
-    </p>
+      <p class="mt-8 max-w-prose text-lg leading-relaxed text-gray-600">
+        {data.description}
+      </p>
+    )}
 
     {
-      data.images.length > 0 && (
+      data.images.length > 0 && isMasonry && (
+        <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          {galleryImages.map(({ img, alt, placeholder, outName }) => (
+            <div class="masonry-item break-inside-avoid overflow-hidden">
+              <button
+                class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
+                data-lightbox-src={`/lightbox/${project.id}/${outName}`}
+                data-alt={alt}
+                style="background: #ffffff;"
+                aria-label={`View ${alt}`}
+              >
+                {placeholder && (
+                  <img
+                    src={placeholder}
+                    alt=""
+                    aria-hidden="true"
+                    class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
+                  />
+                )}
+                <Image
+                  src={img}
+                  alt={alt}
+                  widths={[400, 800]}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  loading="lazy"
+                  class="blur-up-full relative w-full h-auto pointer-events-none"
+                />
+              </button>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      data.images.length > 0 && !isMasonry && (
         <section class="mt-14">
           {/* <h2 class="text-2xl font-bold">Gallery</h2> */}
           <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -210,7 +249,7 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
     const lightbox = document.getElementById("lightbox");
     const lightboxImg = document.getElementById("lightbox-img");
     const closeBtn = document.getElementById("lightbox-close");
-    const triggers = document.querySelectorAll(".gallery-trigger");
+    const triggers = document.querySelectorAll(".gallery-trigger, .lightbox-trigger");
     let lastFocused;
     const focusableSelectors =
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -271,7 +310,7 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
       btn.addEventListener("click", () => {
         const src = btn.dataset.lightboxSrc;
         const fullImg = btn.querySelector(".blur-up-full");
-        const alt = (fullImg && fullImg.alt) || "";
+        const alt = btn.dataset.alt || (fullImg && fullImg.alt) || "";
         if (src) openLightbox(src, alt);
       });
     });
@@ -285,6 +324,106 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
 
   initLightbox();
 </script>
+
+{isMasonry && (
+<script>
+  (function () {
+    var masonry = document.getElementById("masonry");
+    if (!masonry) return;
+
+    var items = Array.from(masonry.querySelectorAll(".masonry-item"));
+    if (items.length === 0) return;
+
+    masonry.classList.remove("columns-1", "sm:columns-2", "lg:columns-3", "gap-6", "space-y-6");
+
+    var colsWrap = document.createElement("div");
+    colsWrap.className = "masonry-cols flex gap-6";
+    masonry.appendChild(colsWrap);
+
+    var currentCols = 0;
+    var columnEls = [];
+    var laidOut = false;
+
+    function getColumnCount() {
+      var w = window.innerWidth;
+      if (w >= 1024) return 3;
+      if (w >= 640) return 2;
+      return 1;
+    }
+
+    function getItemHeight(el) {
+      return el.getBoundingClientRect().height + 24;
+    }
+
+    function layout() {
+      var count = getColumnCount();
+      if (count === currentCols && laidOut) return;
+      currentCols = count;
+
+      columnEls.forEach(function (c) { c.el.remove(); });
+      columnEls = [];
+      colsWrap.innerHTML = "";
+
+      for (var i = 0; i < count; i++) {
+        var col = document.createElement("div");
+        col.className = "masonry-col";
+        col.style.flex = "1";
+        col.style.minWidth = "0";
+        col.style.display = "flex";
+        col.style.flexDirection = "column";
+        col.style.gap = "1.5rem";
+        colsWrap.appendChild(col);
+        columnEls.push({ el: col, h: 0 });
+      }
+
+      items.forEach(function (item) {
+        var shortest = columnEls[0];
+        for (var j = 1; j < columnEls.length; j++) {
+          if (columnEls[j].h < shortest.h) shortest = columnEls[j];
+        }
+        shortest.el.appendChild(item);
+        shortest.h += getItemHeight(item);
+      });
+
+      laidOut = true;
+    }
+
+    function attemptLayout() {
+      var allMeasurable = items.every(function (item) {
+        return item.getBoundingClientRect().height > 10;
+      });
+      if (allMeasurable) {
+        layout();
+        return true;
+      }
+      return false;
+    }
+
+    if (!attemptLayout()) {
+      var attempts = 0;
+      var checkTimer = setInterval(function () {
+        attempts++;
+        if (attemptLayout() || attempts > 40) {
+          clearInterval(checkTimer);
+        }
+      }, 100);
+    }
+
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        items.forEach(function (item) {
+          masonry.insertBefore(item, colsWrap);
+        });
+        laidOut = false;
+        currentCols = 0;
+        attemptLayout();
+      }, 300);
+    });
+  })();
+</script>
+)}
 
 <style>
   .blur-up {

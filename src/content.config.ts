@@ -16,6 +16,7 @@ const projects = defineCollection({
       logo: image().optional(),
       heroImage: image(),
       images: z.array(image()),
+      layout: z.enum(["standard", "masonry"]).optional(),
     }),
 });
 
