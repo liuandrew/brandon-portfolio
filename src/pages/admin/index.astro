@@ -460,6 +460,7 @@ const tabs = [
               break;
             case "projects":
               panel.innerHTML = renderProjects(data);
+              requestAnimationFrame(() => setupGalleryReorder());
               break;
             case "library":
               panel.innerHTML = renderLibraryHTML();
@@ -757,47 +758,65 @@ const tabs = [
           return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
         }
 
+        window.__autoSlug = function (formId) {
+          const title = document.getElementById(`${formId}-title`)?.value || "";
+          const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const slugField = document.getElementById(`${formId}-slug`);
+          if (slugField) slugField.value = slug;
+        };
+
+        window.__syncFormField = function (field, value) {
+          if (editingState.projects !== "new") return;
+          const fd = editingState.newFormData;
+          if (!fd) return;
+          if (field === "date") fd[field] = value;
+          else if (field === "ndaLocked" || field === "portfolioLocked") fd[field] = value;
+          else fd[field] = value;
+        };
+
         function renderProjectForm() {
           const isNew = editingState.projects === "new";
           const slug = isNew ? (editingState.newSlug || "") : editingState.editSlug;
-          const projData = isNew
-            ? { title: "", description: "", client: "", date: new Date().toISOString().split("T")[0], tags: [], ndaLocked: false, portfolioLocked: false, portfolioTitle: "", logo: "", heroImage: "", images: [], layout: "standard", footer: "" }
-            : (currentContent.projects?.[slug]?.data || {});
+          const projData = _getProjectFormData();
+          if (!projData) return `<div class="content-view"><p>No project data</p></div>`;
           const tags = Array.isArray(projData.tags) ? projData.tags : [];
           const images = Array.isArray(projData.images) ? projData.images : [];
           const formId = isNew ? "project-form-new" : `project-form-${slug}`;
           let html = `<div class="content-view project-form">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
               <h3>${isNew ? "New Project" : "Edit: " + slug}</h3>
-              <button class="btn btn-secondary btn-sm" onclick="window.__backToProjects()">Back to list</button>
+              <div style="display:flex;gap:8px">
+                ${!isNew ? `<button class="btn btn-danger btn-sm" onclick="window.__deleteProject('${escHtml(slug)}')">Delete Project</button>` : ""}
+                <button class="btn btn-secondary btn-sm" onclick="window.__backToProjects()">Back to list</button>
+              </div>
             </div>
             <div class="form-section">
               <h4>Basic Info</h4>
               ${isNew ? `<div class="field"><label>Slug (URL identifier, e.g. my-project)</label>
                 <input type="text" id="${formId}-slug" value="${escHtml(slug)}" placeholder="my-project" /></div>` : ""}
               <div class="field"><label>Title *</label>
-                <input type="text" id="${formId}-title" value="${escHtml(projData.title)}" /></div>
+                <input type="text" id="${formId}-title" value="${escHtml(projData.title)}" ${isNew ? `oninput="window.__autoSlug('${formId}'); window.__syncFormField('title', this.value)"` : ""} /></div>
               <div class="field"><label>Description</label>
-                <textarea id="${formId}-desc" style="min-height:100px">${escHtml(projData.description)}</textarea></div>
+                <textarea id="${formId}-desc" style="min-height:100px" ${isNew ? `oninput="window.__syncFormField('description', this.value)"` : ""}>${escHtml(projData.description)}</textarea></div>
               <div class="field-row">
                 <div class="field"><label>Client</label>
-                  <input type="text" id="${formId}-client" value="${escHtml(projData.client)}" /></div>
+                  <input type="text" id="${formId}-client" value="${escHtml(projData.client)}" ${isNew ? `oninput="window.__syncFormField('client', this.value)"` : ""} /></div>
                 <div class="field"><label>Date</label>
-                  <input type="date" id="${formId}-date" value="${projData.date ? String(projData.date).split("T")[0] : new Date().toISOString().split("T")[0]}" /></div>
+                  <input type="date" id="${formId}-date" value="${projData.date ? String(projData.date).split("T")[0] : new Date().toISOString().split("T")[0]}" ${isNew ? `onchange="window.__syncFormField('date', this.value)"` : ""} /></div>
               </div>
             </div>
             <div class="form-section">
               <h4>Visibility</h4>
               <div class="field"><div class="checkbox-row">
-                <input type="checkbox" id="${formId}-nda" ${projData.ndaLocked ? "checked" : ""} />
+                <input type="checkbox" id="${formId}-nda" ${projData.ndaLocked ? "checked" : ""} ${isNew ? `onchange="window.__syncFormField('ndaLocked', this.checked)"` : ""} />
                 <label for="${formId}-nda">NDA locked (requires password)</label>
               </div></div>
               <div class="field"><div class="checkbox-row">
-                <input type="checkbox" id="${formId}-plock" ${projData.portfolioLocked ? "checked" : ""} />
+                <input type="checkbox" id="${formId}-plock" ${projData.portfolioLocked ? "checked" : ""} ${isNew ? `onchange="window.__syncFormField('portfolioLocked', this.checked)"` : ""} />
                 <label for="${formId}-plock">Portfolio locked (requires password to view on Portfolio)</label>
               </div></div>
               <div class="field"><label>Portfolio Title (optional, shown instead of title on grid)</label>
-                <input type="text" id="${formId}-ptitle" value="${escHtml(projData.portfolioTitle || "")}" /></div>
+                <input type="text" id="${formId}-ptitle" value="${escHtml(projData.portfolioTitle || "")}" ${isNew ? `oninput="window.__syncFormField('portfolioTitle', this.value)"` : ""} /></div>
             </div>
             <div class="form-section">
               <h4>Tags</h4>
@@ -821,8 +840,8 @@ const tabs = [
                 <input type="hidden" id="${formId}-hero" value="${escHtml(projData.heroImage || "")}" />
               </div>
               <div class="field"><label>Gallery Images</label>
-                <div class="img-picker-multi" onclick="window.__pickMultiImage('${formId}-gallery')">
-                  ${images.length > 0 ? images.map(img => `<div class="thumb"><img src="${imgUrl(img, 100)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
+                <div class="img-picker-multi" id="${formId}-gallery-grid" onclick="if(event.target===this) window.__pickMultiImage('${formId}-gallery')">
+                  ${images.length > 0 ? images.map(img => `<div class="thumb" data-path="${escHtml(img)}"><img src="${imgUrl(img, 100)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
                 </div>
                 <input type="hidden" id="${formId}-gallery" value='${escHtml(JSON.stringify(images))}' />
               </div>
@@ -831,13 +850,13 @@ const tabs = [
               <h4>Layout</h4>
               <div class="field-row">
                 <div class="field"><label>Gallery Layout</label>
-                  <select id="${formId}-layout">
+                  <select id="${formId}-layout" ${isNew ? `onchange="window.__syncFormField('layout', this.value)"` : ""}>
                     <option value="standard" ${projData.layout === "standard" ? "selected" : ""}>Standard</option>
                     <option value="masonry" ${projData.layout === "masonry" ? "selected" : ""}>Masonry</option>
                   </select>
                 </div>
                 <div class="field"><label>Footer Text (optional)</label>
-                  <input type="text" id="${formId}-footer" value="${escHtml(projData.footer || "")}" /></div>
+                  <input type="text" id="${formId}-footer" value="${escHtml(projData.footer || "")}" ${isNew ? `oninput="window.__syncFormField('footer', this.value)"` : ""} /></div>
               </div>
             </div>
             <button class="btn btn-primary" onclick="window.__saveProjectForm('${isNew ? "new" : slug}', ${isNew})">Save Project</button>
@@ -848,54 +867,104 @@ const tabs = [
         window.__newProject = function () {
           editingState.projects = "new";
           editingState.newSlug = "";
+          editingState.newFormData = {
+            title: "", description: "", client: "",
+            date: new Date().toISOString().split("T")[0],
+            tags: [], ndaLocked: false, portfolioLocked: false,
+            portfolioTitle: "", logo: "", heroImage: "", images: [],
+            layout: "standard", footer: "",
+          };
           renderTab("projects");
         };
 
         window.__backToProjects = function () {
           editingState.projects = "list";
+          editingState.newFormData = null;
           renderTab("projects");
         };
 
+        window.__deleteProject = async function (slug) {
+          const confirmed = await showConfirm(`Delete project "${slug}"? This will remove the .md file. Images are NOT deleted.`, "Delete Project");
+          if (!confirmed) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "DELETE", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ slug }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Project "${slug}" deleted`, "success");
+              editingState.projects = "list";
+              await loadContent();
+              checkStatus();
+            } else {
+              showToast("Delete failed: " + json.error, "error");
+            }
+          } catch (e) { showToast("Delete failed: " + e.message, "error"); }
+        };
+
+        function _getProjectFormData() {
+          if (editingState.projects === "new") {
+            if (!editingState.newFormData) {
+              editingState.newFormData = {
+                title: "", description: "", client: "",
+                date: new Date().toISOString().split("T")[0],
+                tags: [], ndaLocked: false, portfolioLocked: false,
+                portfolioTitle: "", logo: "", heroImage: "", images: [],
+                layout: "standard", footer: "",
+              };
+            }
+            return editingState.newFormData;
+          }
+          const slug = editingState.editSlug;
+          return currentContent.projects?.[slug]?.data;
+        }
+
         window.__pickImage = function (fieldId) {
           openLibraryPicker({ mode: "single", onSelect: (path) => {
-            const slug = editingState.editSlug;
-            const projData = currentContent.projects?.[slug]?.data;
+            const projData = _getProjectFormData();
             if (projData) {
-              if (fieldId.endsWith("-logo")) projData.logo = path;
-              else if (fieldId.endsWith("-hero")) projData.heroImage = path;
+              const cPath = path.startsWith("src/") ? contentPath(path) : path;
+              if (fieldId.endsWith("-logo")) projData.logo = cPath;
+              else if (fieldId.endsWith("-hero")) projData.heroImage = cPath;
             }
             renderTab("projects");
+            requestAnimationFrame(() => setupGalleryReorder());
           }});
         };
 
         window.__pickMultiImage = function (fieldId) {
           openLibraryPicker({ mode: "multi", onSelect: (paths) => {
-            const slug = editingState.editSlug;
-            const projData = currentContent.projects?.[slug]?.data;
+            const projData = _getProjectFormData();
             if (projData) {
               if (!Array.isArray(projData.images)) projData.images = [];
-              projData.images.push(...paths);
+              paths.forEach(p => {
+                projData.images.push(p.startsWith("src/") ? contentPath(p) : p);
+              });
             }
             renderTab("projects");
+            requestAnimationFrame(() => setupGalleryReorder());
           }});
         };
 
         window.__removeGalleryImage = function (fieldId, imgPath) {
-          const slug = editingState.editSlug;
-          const projData = currentContent.projects?.[slug]?.data;
+          const projData = _getProjectFormData();
           if (projData && Array.isArray(projData.images)) {
             projData.images = projData.images.filter(p => p !== imgPath);
           }
           renderTab("projects");
+          requestAnimationFrame(() => setupGalleryReorder());
         };
 
         window.__saveProjectForm = async function (slug, isNew) {
           const formId = isNew ? "project-form-new" : `project-form-${slug}`;
-          const newSlug = isNew ? document.getElementById(`${formId}-slug`)?.value || slug : slug;
-          const title = document.getElementById(`${formId}-title`)?.value || "";
-          const description = document.getElementById(`${formId}-desc`)?.value || "";
-          const client = document.getElementById(`${formId}-client`)?.value || "";
-          const date = document.getElementById(`${formId}-date`)?.value || new Date().toISOString().split("T")[0];
+          const projData = _getProjectFormData();
+          if (!projData) { showToast("No project data", "error"); return; }
+
+          const title = document.getElementById(`${formId}-title`)?.value || projData.title || "";
+          const description = document.getElementById(`${formId}-desc`)?.value || projData.description || "";
+          const client = document.getElementById(`${formId}-client`)?.value || projData.client || "";
+          const date = document.getElementById(`${formId}-date`)?.value || projData.date || new Date().toISOString().split("T")[0];
 
           const tagContainer = document.getElementById(`${formId}-tags`);
           const tags = [];
@@ -904,31 +973,50 @@ const tabs = [
               const text = el.childNodes[0]?.textContent?.trim();
               if (text) tags.push(text);
             });
+          } else if (Array.isArray(projData.tags)) {
+            tags.push(...projData.tags);
           }
 
-          const ndaLocked = document.getElementById(`${formId}-nda`)?.checked || false;
-          const portfolioLocked = document.getElementById(`${formId}-plock`)?.checked || false;
-          const portfolioTitle = document.getElementById(`${formId}-ptitle`)?.value || undefined;
-          const logo = document.getElementById(`${formId}-logo`)?.value || "";
-          const heroImage = document.getElementById(`${formId}-hero`)?.value || "";
-          const galleryRaw = document.getElementById(`${formId}-gallery`)?.value || "[]";
-          const images = JSON.parse(galleryRaw);
-          const layout = document.getElementById(`${formId}-layout`)?.value || "standard";
-          const footer = document.getElementById(`${formId}-footer`)?.value || undefined;
+          const ndaLocked = document.getElementById(`${formId}-nda`)?.checked ?? projData.ndaLocked ?? false;
+          const portfolioLocked = document.getElementById(`${formId}-plock`)?.checked ?? projData.portfolioLocked ?? false;
+          const portfolioTitle = document.getElementById(`${formId}-ptitle`)?.value || projData.portfolioTitle || undefined;
+          const logo = projData.logo || "";
+          const heroImage = projData.heroImage || "";
+          const images = Array.isArray(projData.images) ? projData.images : [];
+          const layout = document.getElementById(`${formId}-layout`)?.value || projData.layout || "standard";
+          const footer = document.getElementById(`${formId}-footer`)?.value || projData.footer || undefined;
+
+          const missing = [];
+          if (!title) missing.push("Title");
+          if (!description) missing.push("Description");
+          if (!client) missing.push("Client");
+          if (!heroImage) missing.push("Hero Image");
+          if (missing.length > 0) {
+            showToast(`Required fields: ${missing.join(", ")}`, "error");
+            return;
+          }
+
+          let newSlug = slug;
+          if (isNew) {
+            const slugInput = document.getElementById(`${formId}-slug`);
+            newSlug = slugInput?.value?.trim() || "";
+            if (!newSlug) {
+              newSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            }
+            if (!newSlug) {
+              showToast("Could not generate slug from title", "error");
+              return;
+            }
+          }
 
           const data = {
             title, description, client, date, tags, ndaLocked, portfolioLocked,
             ...(portfolioTitle ? { portfolioTitle } : {}),
-            ...(logo ? { logo: contentPath(logo) } : {}),
-            heroImage: contentPath(heroImage),
-            images: images.map(p => contentPath(p)),
+            ...(logo ? { logo } : {}),
+            heroImage,
+            images: [...images],
             layout, ...(footer ? { footer } : {}),
           };
-
-          if (!data.title || !data.heroImage) {
-            showToast("Title and Hero Image are required", "error");
-            return;
-          }
 
           try {
             const res = await fetch("/admin/api/content", {
@@ -939,6 +1027,7 @@ const tabs = [
             if (json.success) {
               showToast(`Project "${newSlug}" saved`, "success");
               editingState.projects = "list";
+              editingState.newFormData = null;
               await loadContent();
               checkStatus();
             } else {
@@ -1231,6 +1320,25 @@ const tabs = [
           });
         }
 
+        function setupGalleryReorder() {
+          const formId = editingState.projects === "new" ? "project-form-new" : `project-form-${editingState.editSlug}`;
+          const gridId = `${formId}-gallery-grid`;
+          if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+          const grid = document.getElementById(gridId);
+          if (!grid || grid.querySelectorAll(".thumb").length < 2) return;
+          sortableInstances[gridId] = new Sortable(grid, {
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            onEnd: () => {
+              const projData = _getProjectFormData();
+              if (!projData) return;
+              const thumbs = [...grid.querySelectorAll(".thumb[data-path]")];
+              projData.images = thumbs.map(t => t.dataset.path);
+              const hiddenInput = document.getElementById(`${formId}-gallery`);
+              if (hiddenInput) hiddenInput.value = JSON.stringify(projData.images);
+            }
+          });
+        }
+
         function showConfirm(message, title = "Confirm") {
           return new Promise((resolve) => {
             const overlay = document.createElement("div");
@@ -1353,10 +1461,26 @@ const tabs = [
             if (tag) {
               const tagEl = document.createElement("span");
               tagEl.className = "tag";
-              tagEl.innerHTML = `${tag}<span class="remove-tag">&times;</span>`;
+              tagEl.innerHTML = `${escHtml(tag)}<span class="remove-tag">&times;</span>`;
               tagInput.parentNode.insertBefore(tagEl, tagInput);
             }
             tagInput.value = "";
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const tagInput = e.target.closest(".tag-input input");
+            if (!tagInput) return;
+            e.preventDefault();
+            const tag = tagInput.value.trim();
+            if (tag) {
+              const tagEl = document.createElement("span");
+              tagEl.className = "tag";
+              tagEl.innerHTML = `${escHtml(tag)}<span class="remove-tag">&times;</span>`;
+              tagInput.parentNode.insertBefore(tagEl, tagInput);
+              tagInput.value = "";
+            }
           }
         });
 

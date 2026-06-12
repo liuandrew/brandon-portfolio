@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, unlinkSync } from "fs";
 import { resolve, dirname, basename, extname } from "path";
 import { fileURLToPath } from "url";
 import yaml from "js-yaml";
@@ -141,6 +141,7 @@ export function deleteProject(slug) {
   const fp = resolve(SRC_CONTENT, "projects", `${slug}.md`);
   if (!existsSync(fp)) return false;
   const rel = fp.replace(ROOT + "/", "");
+  unlinkSync(fp);
   markChanged(rel);
   return true;
 }
