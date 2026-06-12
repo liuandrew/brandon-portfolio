@@ -455,7 +455,8 @@ const tabs = [
 
         function imgUrl(contentRelPath, width = 0) {
           if (!contentRelPath) return "";
-          const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "src/");
+          const normalized = contentRelPath.replace(/\\/g, "/");
+          const rootRel = normalized.replace(/^\.\.\/\.\.\//, "src/");
           const base = `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
           return width > 0 ? `${base}&w=${width}` : base;
         }
@@ -468,14 +469,15 @@ const tabs = [
 
         function rootPath(contentRelPath) {
           if (!contentRelPath) return "";
-          return contentRelPath.replace(/^\.\.\/\.\.\//, "");
+          return contentRelPath.replace(/\\/g, "/").replace(/^\.\.\/\.\.\//, "");
         }
 
         function contentPath(rootRelPath) {
           if (!rootRelPath) return "";
-          if (rootRelPath.startsWith("../../")) return rootRelPath;
-          if (rootRelPath.startsWith("src/")) return `../../${rootRelPath.replace(/^src\//, "")}`;
-          return rootRelPath;
+          const p = rootRelPath.replace(/\\/g, "/");
+          if (p.startsWith("../../")) return p;
+          if (p.startsWith("src/")) return `../../${p.replace(/^src\//, "")}`;
+          return p;
         }
 
         buttons.forEach((btn) => {
@@ -1388,7 +1390,8 @@ const tabs = [
           openLibraryPicker({ mode: "single", alreadyIncluded: currentVal ? [currentVal] : [], onSelect: (path) => {
             const projData = _getProjectFormData();
             if (projData) {
-              const cPath = path.startsWith("src/") ? contentPath(path) : path;
+              const normalized = path.replace(/\\/g, "/");
+              const cPath = normalized.startsWith("src/") ? contentPath(normalized) : normalized;
               if (fieldId.endsWith("-logo")) projData.logo = cPath;
               else if (fieldId.endsWith("-hero")) projData.heroImage = cPath;
             }
@@ -1405,7 +1408,8 @@ const tabs = [
             if (projData) {
               if (!Array.isArray(projData.images)) projData.images = [];
               paths.forEach(p => {
-                const contentRelPath = p.startsWith("src/") ? contentPath(p) : p;
+                const normalized = p.replace(/\\/g, "/");
+                const contentRelPath = normalized.startsWith("src/") ? contentPath(normalized) : normalized;
                 projData.images.push(contentRelPath);
               });
             }
@@ -1543,8 +1547,9 @@ const tabs = [
           _libraryPickerResolve = onSelect;
 
           const includedSet = new Set((alreadyIncluded || []).map(p => {
-            if (p.startsWith("../../")) return "src/" + p.replace("../../", "");
-            return p;
+            const normalized = p.replace(/\\/g, "/");
+            if (normalized.startsWith("../../")) return "src/" + normalized.replace("../../", "");
+            return normalized;
           }));
 
           const overlay = document.createElement("div");
