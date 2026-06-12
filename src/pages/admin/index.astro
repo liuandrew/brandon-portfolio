@@ -86,84 +86,84 @@ const tabs = [
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
       }
-      .content-view { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; }
-      .content-view h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-      .field { margin-bottom: 16px; }
-      .field label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
-      .field input, .field textarea, .field select {
+      :global(.content-view) { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; }
+      :global(.content-view h3) { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+      :global(.field) { margin-bottom: 16px; }
+      :global(.field label) { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+      :global(.field input), :global(.field textarea), :global(.field select) {
         width: 100%; padding: 10px 12px; font-size: 14px;
         border: 1px solid #d0d0d0; border-radius: 6px; font-family: inherit;
       }
-      .field textarea { min-height: 80px; resize: vertical; }
-      .field input[type="checkbox"] { width: auto; margin-right: 8px; }
-      .field .checkbox-row { display: flex; align-items: center; gap: 8px; }
-      .field .checkbox-row input { width: auto; }
-      .field .inline-group { display: flex; flex-wrap: wrap; gap: 8px; }
-      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .project-list { list-style: none; }
-      .project-item {
+      :global(.field textarea) { min-height: 80px; resize: vertical; }
+      :global(.field input[type="checkbox"]) { width: auto; margin-right: 8px; }
+      :global(.field .checkbox-row) { display: flex; align-items: center; gap: 8px; }
+      :global(.field .checkbox-row input) { width: auto; }
+      :global(.field .inline-group) { display: flex; flex-wrap: wrap; gap: 8px; }
+      :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      :global(.project-list) { list-style: none; }
+      :global(.project-item) {
         display: flex; align-items: center; justify-content: space-between;
         padding: 12px 16px; border-bottom: 1px solid #eee;
       }
-      .project-item:last-child { border-bottom: none; }
-      .project-item .slug { font-weight: 500; font-size: 14px; }
-      .project-item .title { color: #666; font-size: 13px; }
-      .project-list-header {
+      :global(.project-item:last-child) { border-bottom: none; }
+      :global(.project-item .slug) { font-weight: 500; font-size: 14px; }
+      :global(.project-item .title) { color: #666; font-size: 13px; }
+      :global(.project-list-header) {
         display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
       }
-      .image-grid {
+      :global(.image-grid) {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 12px; margin-top: 12px;
       }
-      .image-grid-item {
+      :global(.image-grid-item) {
         position: relative; border: 2px solid #e0e0e0; border-radius: 8px;
         overflow: hidden; background: #fff; cursor: grab; transition: border-color 0.15s;
       }
-      .image-grid-item:hover { border-color: #999; }
-      .image-grid-item.dragging { opacity: 0.4; }
-      .image-grid-item.drag-over { border-color: #2563eb; }
-      .image-grid-item img { width: 100%; height: 100px; object-fit: cover; display: block; }
-      .image-grid-item .name {
+      :global(.image-grid-item:hover) { border-color: #999; }
+      :global(.image-grid-item.dragging) { opacity: 0.4; }
+      :global(.image-grid-item.drag-over) { border-color: #2563eb; }
+      :global(.image-grid-item img) { width: 100%; height: 100px; object-fit: cover; display: block; }
+      :global(.image-grid-item .name) {
         padding: 4px 8px; font-size: 11px; color: #666;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .image-grid-item .remove-btn {
+      :global(.image-grid-item .remove-btn) {
         position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
         border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff;
         font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity 0.15s;
       }
-      .image-grid-item:hover .remove-btn { opacity: 1; }
-      .library-dir { margin-bottom: 24px; }
-      .library-dir h4 {
+      :global(.image-grid-item:hover .remove-btn) { opacity: 1; }
+      :global(.library-dir) { margin-bottom: 24px; }
+      :global(.library-dir h4) {
         font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
         padding-bottom: 4px; border-bottom: 1px solid #eee;
       }
-      .library-grid {
+      :global(.library-grid) {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;
       }
-      .library-item {
+      :global(.library-item) {
         position: relative; border: 2px solid transparent; border-radius: 6px;
         overflow: hidden; cursor: pointer; background: #fff;
         transition: border-color 0.15s;
       }
-      .library-item:hover { border-color: #999; }
-      .library-item.selected { border-color: #2563eb; }
-      .library-item img { width: 100%; height: 80px; object-fit: cover; display: block; }
-      .library-item .name { padding: 3px 6px; font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .library-item .delete-btn {
+      :global(.library-item:hover) { border-color: #999; }
+      :global(.library-item.selected) { border-color: #2563eb; }
+      :global(.library-item img) { width: 100%; height: 80px; object-fit: cover; display: block; }
+      :global(.library-item .name) { padding: 3px 6px; font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      :global(.library-item .delete-btn) {
         position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
         border-radius: 50%; border: none; background: rgba(220,38,38,0.8); color: #fff;
         font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity 0.15s;
       }
-      .library-item:hover .delete-btn { opacity: 1; }
-      .upload-zone {
+      :global(.library-item:hover .delete-btn) { opacity: 1; }
+      :global(.upload-zone) {
         border: 2px dashed #d0d0d0; border-radius: 8px; padding: 24px;
         text-align: center; color: #999; cursor: pointer; transition: border-color 0.15s; margin-bottom: 16px;
       }
-      .upload-zone:hover { border-color: #2563eb; color: #2563eb; }
-      .upload-zone input { display: none; }
+      :global(.upload-zone:hover) { border-color: #2563eb; color: #2563eb; }
+      :global(.upload-zone input) { display: none; }
 
       .modal-overlay {
         position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900;
@@ -176,62 +176,113 @@ const tabs = [
       .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
       .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
-      .portfolio-project {
+      :global(.portfolio-project) {
         display: flex; align-items: center; gap: 12px;
         padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px;
         margin-bottom: 8px; background: #fff; cursor: grab;
         transition: border-color 0.15s, box-shadow 0.15s;
       }
-      .portfolio-project.dragging { opacity: 0.4; }
-      .portfolio-project.drag-over { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
-      .portfolio-project .drag-handle { cursor: grab; color: #999; font-size: 16px; }
-      .portfolio-project .info { flex: 1; }
-      .portfolio-project .info .name { font-size: 14px; font-weight: 500; }
-      .portfolio-project .info .client { font-size: 12px; color: #666; }
-      .portfolio-project .toggle { margin-left: auto; }
-      .portfolio-project .image-override { display: flex; align-items: center; gap: 6px; }
+      :global(.portfolio-project.dragging) { opacity: 0.4; }
+      :global(.portfolio-project.drag-over) { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+      :global(.portfolio-project .drag-handle) { cursor: grab; color: #999; font-size: 16px; }
+      :global(.portfolio-project .info) { flex: 1; }
+      :global(.portfolio-project .info .name) { font-size: 14px; font-weight: 500; }
+      :global(.portfolio-project .info .client) { font-size: 12px; color: #666; }
+      :global(.portfolio-project .toggle) { margin-left: auto; }
+      :global(.portfolio-project .image-override) { display: flex; align-items: center; gap: 6px; }
 
-      .project-form { max-width: 720px; }
-      .project-form .form-section { margin-bottom: 24px; }
-      .project-form .form-section h4 {
+      :global(.project-form) { max-width: 720px; }
+      :global(.project-form .form-section) { margin-bottom: 24px; }
+      :global(.project-form .form-section h4) {
         font-size: 14px; font-weight: 600; color: #444; margin-bottom: 12px;
         padding-bottom: 4px; border-bottom: 1px solid #eee;
       }
-      .img-picker {
+      :global(.img-picker) {
         display: flex; align-items: center; gap: 10px;
         padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
         min-height: 44px; cursor: pointer; transition: border-color 0.15s;
       }
-      .img-picker:hover { border-color: #2563eb; }
-      .img-picker img { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
-      .img-picker .placeholder { color: #999; font-size: 13px; }
-      .img-picker-multi {
+      :global(.img-picker:hover) { border-color: #2563eb; }
+      :global(.img-picker img) { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
+      :global(.img-picker .placeholder) { color: #999; font-size: 13px; }
+      :global(.img-picker-multi) {
         display: flex; flex-wrap: wrap; gap: 8px;
         padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
         min-height: 44px; cursor: pointer; transition: border-color 0.15s;
       }
-      .img-picker-multi:hover { border-color: #2563eb; }
-      .img-picker-multi .thumb {
+      :global(.img-picker-multi:hover) { border-color: #2563eb; }
+      :global(.img-picker-multi .thumb) {
         position: relative; width: 64px; height: 48px; border-radius: 4px; overflow: hidden;
       }
-      .img-picker-multi .thumb img { width: 100%; height: 100%; object-fit: cover; }
-      .img-picker-multi .thumb .remove {
+      :global(.img-picker-multi .thumb img) { width: 100%; height: 100%; object-fit: cover; }
+      :global(.img-picker-multi .thumb .remove) {
         position: absolute; top: 0; right: 0; width: 16px; height: 16px;
         background: rgba(220,38,38,0.8); color: #fff; border: none; border-radius: 0 0 0 4px;
         font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
       }
-      .img-picker-multi .placeholder { color: #999; font-size: 13px; }
+      :global(.img-picker-multi .placeholder) { color: #999; font-size: 13px; }
 
-      .tag-input { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; min-height: 42px; }
-      .tag-input .tag { display: flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e5e5e5; border-radius: 4px; font-size: 12px; }
-      .tag-input .tag .remove-tag { cursor: pointer; color: #666; font-size: 14px; line-height: 1; }
-      .tag-input input { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; font-family: inherit; }
+      :global(.tag-input) { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; min-height: 42px; }
+      :global(.tag-input .tag) { display: flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e5e5e5; border-radius: 4px; font-size: 12px; }
+      :global(.tag-input .tag .remove-tag) { cursor: pointer; color: #666; font-size: 14px; line-height: 1; }
+      :global(.tag-input input) { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; font-family: inherit; }
 
-      .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; color: #999; text-align: center; }
-      .empty-state h2 { font-size: 20px; font-weight: 600; color: #666; margin-bottom: 8px; }
-      .empty-state p { font-size: 14px; max-width: 360px; line-height: 1.5; }
+      :global(.empty-state) { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; color: #999; text-align: center; }
+      :global(.empty-state h2) { font-size: 20px; font-weight: 600; color: #666; margin-bottom: 8px; }
+      :global(.empty-state p) { font-size: 14px; max-width: 360px; line-height: 1.5; }
 
-      .sortable-ghost { opacity: 0.3; }
+      :global(.sortable-ghost) { opacity: 0.3; }
+      :global(.sortable-drag) { opacity: 0.8; }
+
+      /* Lightbox */
+      .lightbox-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
+        cursor: zoom-out;
+      }
+      .lightbox-overlay img {
+        max-width: 92vw; max-height: 92vh; object-fit: contain;
+        border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      }
+      .lightbox-overlay .lightbox-close {
+        position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
+        border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff;
+        font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s;
+      }
+      .lightbox-overlay .lightbox-close:hover { background: rgba(0,0,0,0.8); }
+
+      /* Confirmation modal */
+      .confirm-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 950;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .confirm-modal {
+        background: #fff; border-radius: 12px; padding: 24px;
+        max-width: 420px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      }
+      .confirm-modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+      .confirm-modal p { font-size: 14px; color: #555; margin-bottom: 20px; line-height: 1.5; }
+      .confirm-modal .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+      /* Compact thumbnails */
+      :global(.image-grid) { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      :global(.image-grid-item img) { height: 80px; }
+
+      /* Loading shimmer */
+      :global(.image-grid-item.loading img) { opacity: 0.3; }
+      :global(.image-grid-item.loading) {
+        background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+        background-size: 200% 100%; animation: shimmer 1.2s ease-in-out infinite;
+      }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+      /* Toast slide-out */
+      .toast.removing { animation: slideOut 0.2s ease forwards; }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
     </style>
   </head>
   <body>
@@ -267,7 +318,9 @@ const tabs = [
     </main>
 
     <div class="toast-container" id="toastContainer"></div>
+    <div id="lightboxContainer"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
     <script>
       (function () {
         const buttons = document.querySelectorAll(".tab-btn");
@@ -279,10 +332,11 @@ const tabs = [
         let currentContent = {};
         let libraryData = { tree: {}, flat: [], byDir: {} };
         let editingState = { projects: "list" };
+        let sortableInstances = {};
 
         function imgUrl(contentRelPath) {
           if (!contentRelPath) return "";
-          const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "");
+          const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "src/");
           return `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
         }
 
@@ -321,7 +375,10 @@ const tabs = [
           el.className = `toast ${type}`;
           el.innerHTML = message;
           toastContainer.appendChild(el);
-          setTimeout(() => { el.remove(); }, duration);
+          setTimeout(() => {
+            el.classList.add("removing");
+            setTimeout(() => { el.remove(); }, 200);
+          }, duration);
         }
 
         async function checkStatus() {
@@ -379,7 +436,10 @@ const tabs = [
           switch (tabId) {
             case "homepage":
               panel.innerHTML = renderHomepage(data);
-              requestAnimationFrame(() => setupHomepageDnD());
+              requestAnimationFrame(() => {
+                setupHomepageDnD();
+                setupLightboxClicks(panel);
+              });
               break;
             case "portfolio":
               panel.innerHTML = renderPortfolio(data);
@@ -387,14 +447,20 @@ const tabs = [
               break;
             case "personal":
               panel.innerHTML = renderPersonal(data);
-              requestAnimationFrame(() => setupPersonalDnD());
+              requestAnimationFrame(() => {
+                setupPersonalDnD();
+                setupLightboxClicks(panel);
+              });
               break;
             case "projects":
               panel.innerHTML = renderProjects(data);
               break;
             case "library":
               panel.innerHTML = renderLibraryHTML();
-              requestAnimationFrame(() => setupUpload());
+              requestAnimationFrame(() => {
+                setupUpload();
+                setupLightboxClicks(panel);
+              });
               break;
           }
         }
@@ -409,8 +475,8 @@ const tabs = [
             </div>
             <div class="image-grid" id="homepage-grid">`;
           images.forEach((img, i) => {
-            html += `<div class="image-grid-item" draggable="true" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img)}" alt="" loading="lazy" />
+            html += `<div class="image-grid-item loading" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img)}" alt="" loading="lazy" onload="this.closest('.image-grid-item').classList.remove('loading')" onerror="this.closest('.image-grid-item').classList.remove('loading')" />
               <div class="name">${img.split("/").pop()}</div>
               <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
             </div>`;
@@ -444,7 +510,9 @@ const tabs = [
           }});
         };
 
-        window.__removeHomepageImage = function (index) {
+        window.__removeHomepageImage = async function (index) {
+          const confirmed = await showConfirm("Remove this image from the homepage carousel?", "Remove Image");
+          if (!confirmed) return;
           const data = currentContent.homepage?.data || { images: [] };
           data.images.splice(index, 1);
           renderTab("homepage");
@@ -472,7 +540,7 @@ const tabs = [
             const title = project?.data?.title || slug;
             const client = project?.data?.client || "";
             const isIncluded = true;
-            html += `<div class="portfolio-project" draggable="true" data-slug="${slug}">
+            html += `<div class="portfolio-project" data-slug="${slug}">
               <span class="drag-handle">&#9776;</span>
               <div class="info">
                 <div class="name">${title}</div>
@@ -505,7 +573,9 @@ const tabs = [
           return html;
         }
 
-        window.__removePortfolioProject = function (slug) {
+        window.__removePortfolioProject = async function (slug) {
+          const confirmed = await showConfirm(`Remove "${slug}" from the portfolio grid?`, "Remove Project");
+          if (!confirmed) return;
           const data = currentContent.portfolio?.data || { projects: [] };
           data.projects = data.projects.filter(e => (typeof e === "string" ? e : e.slug) !== slug);
           renderTab("portfolio");
@@ -585,8 +655,8 @@ const tabs = [
             </div>
             <div class="image-grid" id="personal-grid">`;
           images.forEach((img, i) => {
-            html += `<div class="image-grid-item" draggable="true" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img)}" alt="" loading="lazy" />
+            html += `<div class="image-grid-item loading" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img)}" alt="" loading="lazy" onload="this.closest('.image-grid-item').classList.remove('loading')" onerror="this.closest('.image-grid-item').classList.remove('loading')" />
               <div class="name">${img.split("/").pop()}</div>
               <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
             </div>`;
@@ -613,7 +683,9 @@ const tabs = [
           }});
         };
 
-        window.__removePersonalImage = function (index) {
+        window.__removePersonalImage = async function (index) {
+          const confirmed = await showConfirm("Remove this image from the personal gallery?", "Remove Image");
+          if (!confirmed) return;
           const data = currentContent.personal?.data || { images: [] };
           data.images.splice(index, 1);
           renderTab("personal");
@@ -966,6 +1038,28 @@ const tabs = [
           return html;
         }
 
+        function fileToBase64(file) {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        async function uploadFile(file) {
+          const base64 = await fileToBase64(file);
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: file.name, data: base64, subdir: "general" }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) showToast(`Uploaded ${file.name}`, "success");
+            else showToast(`Upload failed: ${json.error}`, "error");
+          } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
+        }
+
         function setupUpload() {
           const zone = document.getElementById("upload-zone");
           const input = document.getElementById("upload-input");
@@ -974,17 +1068,7 @@ const tabs = [
           input.addEventListener("change", async () => {
             const files = input.files;
             if (!files.length) return;
-            for (const file of files) {
-              const fd = new FormData();
-              fd.append("file", file);
-              fd.append("subdir", "general");
-              try {
-                const res = await fetch("/admin/api/library", { method: "POST", body: fd });
-                const json = await safeJsonResponse(res);
-                if (json.success) showToast(`Uploaded ${file.name}`, "success");
-                else showToast(`Upload failed: ${json.error}`, "error");
-              } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
-            }
+            for (const file of files) await uploadFile(file);
             input.value = "";
             await refreshLibrary();
           });
@@ -995,23 +1079,14 @@ const tabs = [
             zone.style.borderColor = "#d0d0d0";
             const files = e.dataTransfer.files;
             if (!files.length) return;
-            for (const file of files) {
-              const fd = new FormData();
-              fd.append("file", file);
-              fd.append("subdir", "general");
-              try {
-                const res = await fetch("/admin/api/library", { method: "POST", body: fd });
-                const json = await safeJsonResponse(res);
-                if (json.success) showToast(`Uploaded ${file.name}`, "success");
-                else showToast(`Upload failed: ${json.error}`, "error");
-              } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
-            }
+            for (const file of files) await uploadFile(file);
             await refreshLibrary();
           });
         }
 
         window.__deleteLibraryImage = async function (path) {
-          if (!confirm("Delete this image?")) return;
+          const confirmed = await showConfirm("Delete this image? This cannot be undone.", "Delete Image");
+          if (!confirmed) return;
           try {
             const res = await fetch("/admin/api/library", {
               method: "DELETE", headers: { "Content-Type": "application/json" },
@@ -1035,90 +1110,81 @@ const tabs = [
         }
 
         function setupSortableGrid(gridId, onReorder) {
+          if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
           const grid = document.getElementById(gridId);
           if (!grid) return;
-          let dragEl = null;
-          grid.addEventListener("dragstart", (e) => {
-            const item = e.target.closest("[draggable]");
-            if (!item) return;
-            dragEl = item;
-            item.classList.add("dragging");
-            e.dataTransfer.effectAllowed = "move";
-          });
-          grid.addEventListener("dragend", (e) => {
-            const item = e.target.closest("[draggable]");
-            if (item) item.classList.remove("dragging");
-            grid.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-          });
-          grid.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            const target = e.target.closest("[draggable]");
-            if (!target || target === dragEl) return;
-            target.classList.add("drag-over");
-          });
-          grid.addEventListener("dragleave", (e) => {
-            const target = e.target.closest("[draggable]");
-            if (target) target.classList.remove("drag-over");
-          });
-          grid.addEventListener("drop", (e) => {
-            e.preventDefault();
-            grid.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-            const target = e.target.closest("[draggable]");
-            if (!target || !dragEl || target === dragEl) return;
-            const parent = target.parentNode;
-            const children = [...parent.querySelectorAll("[draggable]")];
-            const fromIdx = children.indexOf(dragEl);
-            const toIdx = children.indexOf(target);
-            if (fromIdx < toIdx) {
-              target.parentNode.insertBefore(dragEl, target.nextSibling);
-            } else {
-              target.parentNode.insertBefore(dragEl, target);
+          sortableInstances[gridId] = new Sortable(grid, {
+            animation: 200, ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            onEnd: () => {
+              const items = [...grid.querySelectorAll("[data-path]")];
+              onReorder(items);
             }
-            const newOrder = [...parent.querySelectorAll("[draggable]")];
-            onReorder(newOrder);
           });
         }
 
         function setupSortableList(listId, onReorder) {
+          if (sortableInstances[listId]) sortableInstances[listId].destroy();
           const list = document.getElementById(listId);
           if (!list) return;
-          let dragEl = null;
-          list.addEventListener("dragstart", (e) => {
-            const item = e.target.closest("[draggable]");
-            if (!item) return;
-            dragEl = item;
-            item.classList.add("dragging");
-            e.dataTransfer.effectAllowed = "move";
-          });
-          list.addEventListener("dragend", (e) => {
-            const item = e.target.closest("[draggable]");
-            if (item) item.classList.remove("dragging");
-            list.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-          });
-          list.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            const target = e.target.closest("[draggable]");
-            if (!target || target === dragEl) return;
-            target.classList.add("drag-over");
-          });
-          list.addEventListener("dragleave", (e) => {
-            const target = e.target.closest("[draggable]");
-            if (target) target.classList.remove("drag-over");
-          });
-          list.addEventListener("drop", (e) => {
-            e.preventDefault();
-            list.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-            const target = e.target.closest("[draggable]");
-            if (!target || !dragEl || target === dragEl) return;
-            const rect = target.getBoundingClientRect();
-            const midY = rect.top + rect.height / 2;
-            if (e.clientY < midY) {
-              target.parentNode.insertBefore(dragEl, target);
-            } else {
-              target.parentNode.insertBefore(dragEl, target.nextSibling);
+          sortableInstances[listId] = new Sortable(list, {
+            animation: 200, ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            handle: ".drag-handle", direction: "vertical",
+            onEnd: () => {
+              const items = [...list.querySelectorAll("[data-slug]")];
+              onReorder(items);
             }
-            const newOrder = [...list.querySelectorAll("[draggable]")];
-            onReorder(newOrder);
+          });
+        }
+
+        function showConfirm(message, title = "Confirm") {
+          return new Promise((resolve) => {
+            const overlay = document.createElement("div");
+            overlay.className = "confirm-overlay";
+            overlay.innerHTML = `<div class="confirm-modal">
+              <h3>${escHtml(title)}</h3>
+              <p>${escHtml(message)}</p>
+              <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+              </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            overlay.querySelector("#confirm-cancel").addEventListener("click", () => {
+              overlay.remove(); resolve(false);
+            });
+            overlay.querySelector("#confirm-ok").addEventListener("click", () => {
+              overlay.remove(); resolve(true);
+            });
+            overlay.addEventListener("click", (e) => {
+              if (e.target === overlay) { overlay.remove(); resolve(false); }
+            });
+          });
+        }
+
+        function openLightbox(imgUrl) {
+          const container = document.getElementById("lightboxContainer");
+          container.innerHTML = `<div class="lightbox-overlay">
+            <button class="lightbox-close" id="lightbox-close">&times;</button>
+            <img src="${escHtml(imgUrl)}" alt="" />
+          </div>`;
+          const overlay = container.querySelector(".lightbox-overlay");
+          overlay.addEventListener("click", (e) => {
+            if (e.target === overlay || e.target.id === "lightbox-close") container.innerHTML = "";
+          });
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") container.innerHTML = "";
+          }, { once: true });
+        }
+
+        function setupLightboxClicks(containerEl) {
+          if (!containerEl) return;
+          containerEl.querySelectorAll("img").forEach((img) => {
+            img.style.cursor = "zoom-in";
+            img.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const src = img.getAttribute("src") || img.src;
+              if (src) openLightbox(src);
+            });
           });
         }
 
