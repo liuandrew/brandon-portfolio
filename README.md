@@ -1,46 +1,69 @@
-# Astro Starter Kit: Basics
+# Brandon Portfolio
+
+Digital illustrator portfolio site built with Astro.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v22.12.0 or higher
+
+### Installing Node.js on Windows
+
+1. Download the **LTS** installer from [nodejs.org](https://nodejs.org/)
+2. Run the installer, accept the license agreement, and click through the defaults
+3. Verify installation by opening PowerShell and running:
+
+```powershell
+node -v
+```
+
+This should print `v22.x.x` or higher. `npm` is included automatically.
+
+## Quick Setup (Windows)
+
+1. Run `setup.ps1` from the repo root. It will:
+   - Download the repo from GitHub
+   - Install dependencies
+   - Create a desktop shortcut for the admin
+
+```powershell
+.\setup.ps1
+```
+
+The script reads a `GITHUB_PAT` from `.env` in the repo root (see [Admin Token Setup](#admin-token-setup) below).
+
+## Manual Setup
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The site runs at `http://localhost:4321`.
 
-## 🚀 Project Structure
+## Commands
 
-Inside of your Astro project, you'll see the following folders and files:
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Install dependencies                         |
+| `npm run dev`     | Start dev server at `localhost:4321`         |
+| `npm run build`   | Build production site to `./dist/`           |
+| `npm run preview` | Preview build locally                        |
+| `npm run admin`   | Start admin server (dev server + admin UI)   |
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+## Admin Token Setup
+
+The admin page uses the GitHub API to commit and push changes. No git CLI required.
+
+1. Go to **GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens**
+2. Click **Generate new token**
+   - **Token name**: `portfolio-admin`
+   - **Repository access**: Only `brandon-portfolio`
+   - **Repository permissions**: Set **Contents** to **Read and Write**
+3. Generate and copy the token
+4. Create a `.env` file in the project root:
+
+```
+GITHUB_PAT=ghp_your_token_here
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The `.env` file is gitignored and will not be committed.
