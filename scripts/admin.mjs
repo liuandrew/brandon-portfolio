@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from "fs";
-import { spawn } from "child_process";
+import { spawn, exec } from "child_process";
 import { createServer } from "net";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -66,12 +66,13 @@ function openBrowser(url) {
 loadEnv();
 process.env.ADMIN = "true";
 
-const isWin = process.platform === "win32";
-const child = spawn(isWin ? "npx.cmd" : "npx", ["astro", "dev", "--host", "--port", String(PORT)], {
+const child = exec(`npx astro dev --host --port ${PORT}`, {
   cwd: CWD,
-  stdio: "inherit",
   env: { ...process.env },
 });
+
+child.stdout?.pipe(process.stdout);
+child.stderr?.pipe(process.stderr);
 
 child.on("exit", (code) => {
   process.exit(code ?? 0);
