@@ -1410,7 +1410,7 @@ const tabs = [
               paths.forEach(p => {
                 const normalized = p.replace(/\\/g, "/");
                 const contentRelPath = normalized.startsWith("src/") ? contentPath(normalized) : normalized;
-                projData.images.push(contentRelPath);
+                projData.images.push({ src: contentRelPath });
               });
             }
             renderTab("projects");
@@ -1508,11 +1508,8 @@ const tabs = [
             ...(logo ? { logo } : {}),
             heroImage,
             images: images.map(img => {
-              if (typeof img === "string") return img;
-              if (typeof img === "object" && img.description) {
-                return { src: img.src, description: img.description };
-              }
-              return typeof img === "string" ? img : img.src;
+              if (typeof img === "string") return { src: img };
+              return img.description ? { src: img.src, description: img.description } : { src: img.src };
             }),
             layout, ...(footer ? { footer } : {}),
           };
