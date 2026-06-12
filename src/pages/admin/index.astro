@@ -159,6 +159,7 @@ const tabs = [
       }
       :global(.library-item:hover) { border-color: #999; }
       :global(.library-item.selected) { border-color: #2563eb; }
+      :global(.picker-item.already-included) { opacity: 0.55; }
       :global(.library-item img) { width: 100%; height: 80px; object-fit: cover; display: block; }
       :global(.library-item .name) { padding: 3px 6px; font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       :global(.library-item .delete-btn) {
@@ -168,6 +169,12 @@ const tabs = [
         opacity: 0;
       }
       :global(.library-item:hover .delete-btn) { opacity: 1; }
+      :global(.picker-item .already-badge) {
+        position: absolute; top: 4px; right: 4px; z-index: 2;
+        background: rgba(34,197,94,0.9); color: #fff; border-radius: 50%;
+        width: 20px; height: 20px; font-size: 12px; display: flex;
+        align-items: center; justify-content: center; pointer-events: none;
+      }
       :global(.upload-zone) {
         border: 2px dashed #d0d0d0; border-radius: 8px; padding: 24px;
         text-align: center; color: #999; cursor: pointer; margin-bottom: 16px;
@@ -620,7 +627,8 @@ const tabs = [
         };
 
         window.__addHomepageImage = function () {
-          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+          const data = currentContent.homepage?.data || { images: [] };
+          openLibraryPicker({ mode: "multi", alreadyIncluded: data.images || [], onSelect: (paths) => {
             const data = currentContent.homepage?.data || { images: [] };
             if (!data.images) data.images = [];
             paths.forEach(path => data.images.push(contentPath(path)));
@@ -753,7 +761,8 @@ const tabs = [
         window.__setPortfolioOverride = function (slug) {
           const data = currentContent.portfolio?.data || { projects: [] };
           const existing = data.projects.find(e => (typeof e === "string" ? e : e.slug) === slug);
-          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+          const existingImages = (typeof existing === "object" && Array.isArray(existing.images)) ? existing.images : [];
+          openLibraryPicker({ mode: "multi", alreadyIncluded: existingImages, onSelect: (paths) => {
             const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
             data.projects[idx] = { slug, images: paths.map(p => contentPath(p)) };
             renderTab("portfolio");
@@ -783,7 +792,10 @@ const tabs = [
 
         window.__addOverrideImage = function (slug) {
           const data = currentContent.portfolio?.data || { projects: [] };
-          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+          const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+          const entry = idx !== -1 ? data.projects[idx] : null;
+          const existingImages = (typeof entry === "object" && Array.isArray(entry.images)) ? entry.images : [];
+          openLibraryPicker({ mode: "multi", alreadyIncluded: existingImages, onSelect: (paths) => {
             const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
             if (idx === -1) return;
             const entry = data.projects[idx];
@@ -1075,7 +1087,8 @@ const tabs = [
         };
 
         window.__addPersonalImage = function () {
-          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+          const data = currentContent.personal?.data || { images: [] };
+          openLibraryPicker({ mode: "multi", alreadyIncluded: data.images || [], onSelect: (paths) => {
             const data = currentContent.personal?.data || { images: [], date: "2024-01-01" };
             if (!data.images) data.images = [];
             paths.forEach(path => data.images.push(contentPath(path)));
@@ -1304,7 +1317,9 @@ const tabs = [
         }
 
         window.__pickImage = function (fieldId) {
-          openLibraryPicker({ mode: "single", onSelect: (path) => {
+          const projData = _getProjectFormData();
+          const currentVal = fieldId.endsWith("-logo") ? projData?.logo : projData?.heroImage;
+          openLibraryPicker({ mode: "single", alreadyIncluded: currentVal ? [currentVal] : [], onSelect: (path) => {
             const projData = _getProjectFormData();
             if (projData) {
               const cPath = path.startsWith("src/") ? contentPath(path) : path;
@@ -1317,7 +1332,8 @@ const tabs = [
         };
 
         window.__pickMultiImage = function (fieldId) {
-          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+          const projData = _getProjectFormData();
+          openLibraryPicker({ mode: "multi", alreadyIncluded: projData?.images || [], onSelect: (paths) => {
             const projData = _getProjectFormData();
             if (projData) {
               if (!Array.isArray(projData.images)) projData.images = [];
@@ -1426,9 +1442,15 @@ const tabs = [
           if (dir) dir.classList.toggle("collapsed");
         };
 
-        function openLibraryPicker({ mode, onSelect }) {
+        function openLibraryPicker({ mode, onSelect, alreadyIncluded }) {
           if (document.getElementById("library-picker-overlay")) return;
           _libraryPickerResolve = onSelect;
+
+          const includedSet = new Set((alreadyIncluded || []).map(p => {
+            if (p.startsWith("../../")) return "src/" + p.replace("../../", "");
+            return p;
+          }));
+
           const overlay = document.createElement("div");
           overlay.className = "modal-overlay";
           overlay.id = "library-picker-overlay";
@@ -1443,9 +1465,11 @@ const tabs = [
               <h4 onclick="window.__toggleLibraryDir(this)">${escHtml(dir || "general")} <span style="font-weight:400;color:#999;font-size:12px">(${files.length})</span></h4>
               <div class="library-grid">`;
             for (const file of files) {
-              const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" />` : "";
-              html += `<div class="library-item picker-item" data-path="${escHtml(file.path)}">
-                ${sel}
+              const already = includedSet.has(file.path);
+              const badge = already ? `<div class="already-badge">✓</div>` : "";
+              const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" ${already ? "disabled" : ""} />` : "";
+              html += `<div class="library-item picker-item${already ? " already-included" : ""}" data-path="${escHtml(file.path)}">
+                ${sel}${badge}
                 <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
                 <div class="name">${escHtml(file.name)}</div>
               </div>`;
