@@ -494,19 +494,17 @@ const tabs = [
         };
 
         window.__addHomepageImage = function () {
-          openLibraryPicker({ mode: "single", onSelect: (path) => {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
             const data = currentContent.homepage?.data || { images: [] };
             if (!data.images) data.images = [];
-            data.images.push(contentPath(path));
+            paths.forEach(path => data.images.push(contentPath(path)));
             currentContent.homepage = { data, body: "", filePath: "" };
             renderTab("homepage");
             setupHomepageDnD();
           }});
         };
 
-        window.__removeHomepageImage = async function (index) {
-          const confirmed = await showConfirm("Remove this image from the homepage carousel?", "Remove Image");
-          if (!confirmed) return;
+        window.__removeHomepageImage = function (index) {
           const data = currentContent.homepage?.data || { images: [] };
           data.images.splice(index, 1);
           renderTab("homepage");
@@ -667,19 +665,17 @@ const tabs = [
         };
 
         window.__addPersonalImage = function () {
-          openLibraryPicker({ mode: "single", onSelect: (path) => {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
             const data = currentContent.personal?.data || { images: [], date: "2024-01-01" };
             if (!data.images) data.images = [];
-            data.images.push(contentPath(path));
+            paths.forEach(path => data.images.push(contentPath(path)));
             currentContent.personal = { data, body: "", filePath: "" };
             renderTab("personal");
             setupPersonalDnD();
           }});
         };
 
-        window.__removePersonalImage = async function (index) {
-          const confirmed = await showConfirm("Remove this image from the personal gallery?", "Remove Image");
-          if (!confirmed) return;
+        window.__removePersonalImage = function (index) {
           const data = currentContent.personal?.data || { images: [] };
           data.images.splice(index, 1);
           renderTab("personal");
@@ -772,7 +768,7 @@ const tabs = [
               </div></div>
               <div class="field"><div class="checkbox-row">
                 <input type="checkbox" id="${formId}-plock" ${projData.portfolioLocked ? "checked" : ""} />
-                <label for="${formId}-plock">Portfolio locked (hidden from portfolio grid)</label>
+                <label for="${formId}-plock">Portfolio locked (requires password to view on Portfolio)</label>
               </div></div>
               <div class="field"><label>Portfolio Title (optional, shown instead of title on grid)</label>
                 <input type="text" id="${formId}-ptitle" value="${escHtml(projData.portfolioTitle || "")}" /></div>
@@ -836,10 +832,11 @@ const tabs = [
 
         window.__pickImage = function (fieldId) {
           openLibraryPicker({ mode: "single", onSelect: (path) => {
-            const input = document.getElementById(fieldId);
-            if (input) {
-              input.value = path;
-              input.dispatchEvent(new Event("change"));
+            const slug = editingState.editSlug;
+            const projData = currentContent.projects?.[slug]?.data;
+            if (projData) {
+              if (fieldId.endsWith("-logo")) projData.logo = path;
+              else if (fieldId.endsWith("-hero")) projData.heroImage = path;
             }
             renderTab("projects");
           }});
@@ -847,22 +844,21 @@ const tabs = [
 
         window.__pickMultiImage = function (fieldId) {
           openLibraryPicker({ mode: "multi", onSelect: (paths) => {
-            const input = document.getElementById(fieldId);
-            if (input) {
-              const existing = JSON.parse(input.value || "[]");
-              const combined = [...existing, ...paths];
-              input.value = JSON.stringify(combined);
-              input.dispatchEvent(new Event("change"));
+            const slug = editingState.editSlug;
+            const projData = currentContent.projects?.[slug]?.data;
+            if (projData) {
+              if (!Array.isArray(projData.images)) projData.images = [];
+              projData.images.push(...paths);
             }
             renderTab("projects");
           }});
         };
 
         window.__removeGalleryImage = function (fieldId, imgPath) {
-          const input = document.getElementById(fieldId);
-          if (input) {
-            const existing = JSON.parse(input.value || "[]");
-            input.value = JSON.stringify(existing.filter(p => p !== imgPath));
+          const slug = editingState.editSlug;
+          const projData = currentContent.projects?.[slug]?.data;
+          if (projData && Array.isArray(projData.images)) {
+            projData.images = projData.images.filter(p => p !== imgPath);
           }
           renderTab("projects");
         };
@@ -970,9 +966,18 @@ const tabs = [
 
           if (mode === "single") {
             overlay.querySelectorAll(".picker-item").forEach(el => {
-              el.addEventListener("click", () => {
+              el.addEventListener("click", (e) => {
+                if (e.target.classList.contains("picker-cb")) return;
                 overlay.querySelectorAll(".picker-item").forEach(e => e.classList.remove("selected"));
                 el.classList.add("selected");
+              });
+            });
+          } else {
+            overlay.querySelectorAll(".picker-item").forEach(el => {
+              el.addEventListener("click", (e) => {
+                if (e.target.classList.contains("picker-cb")) return;
+                const cb = el.querySelector(".picker-cb");
+                if (cb) cb.checked = !cb.checked;
               });
             });
           }
