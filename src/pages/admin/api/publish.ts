@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { publish } from "../../../../scripts/github-publish.mjs";
 
+export const prerender = false;
+
 export const POST: APIRoute = async () => {
   try {
     const result = await publish();

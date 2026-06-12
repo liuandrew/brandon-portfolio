@@ -20,6 +20,8 @@ const MIME_MAP = {
   ".avif": "image/avif",
 };
 
+export const prerender = false;
+
 export const GET: APIRoute = async ({ request, url: routeUrl }) => {
   try {
     const url = new URL(request.url, routeUrl.origin);
