@@ -52,12 +52,19 @@ function serializeFrontmatter(data) {
       cleaned[key] = val.toISOString().split("T")[0];
     }
   }
-  const frontmatter = yaml.dump(cleaned, {
+  let frontmatter = yaml.dump(cleaned, {
     lineWidth: -1,
     quotingType: '"',
     forceQuotes: false,
     noRefs: true,
     sortKeys: false,
+  });
+  frontmatter = frontmatter.replace(/^tags:\n((?:  - .+\n)+)/gm, (_, items) => {
+    const arr = items
+      .split("\n")
+      .filter(Boolean)
+      .map((s) => s.replace(/^  - /, "").trim());
+    return `tags: [${arr.join(", ")}]\n`;
   });
   return `---\n${frontmatter}---\n`;
 }
