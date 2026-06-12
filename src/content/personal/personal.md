@@ -27,5 +27,4 @@ images:
   - ../../assets/general/pages_0019_Layer+Comp+20.png
   - ../../assets/general/pages_0020_Layer+Comp+21.png
   - ../../assets/general/pages_0022_Layer+Comp+23.png
-  - ../../assets/general/Feb+8+2024.webp
 ---
