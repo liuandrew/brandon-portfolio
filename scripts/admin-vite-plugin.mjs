@@ -214,13 +214,18 @@ async function handlePublish(req, res) {
 
 function handleRevert(req, res) {
   try {
-    const files = getChanged();
-    if (files.length === 0) {
+    const tracked = getChanged();
+    let hasUntracked = false;
+    try {
+      const out = execSync("git status --porcelain src/assets/", { cwd: ROOT, encoding: "utf-8" }).trim();
+      hasUntracked = out.length > 0;
+    } catch {}
+    if (tracked.length === 0 && !hasUntracked) {
       return sendJson(res, { success: false, error: "No changes to revert" }, 400);
     }
     execSync("git checkout -- . && git clean -fd src/assets/", { cwd: ROOT, encoding: "utf-8" });
     clearChanged();
-    sendJson(res, { success: true, revertedCount: files.length });
+    sendJson(res, { success: true, revertedCount: tracked.length });
   } catch (e) {
     sendJson(res, { success: false, error: e.message }, 500);
   }
