@@ -6,5 +6,4 @@ images:
   - ../../assets/general/4-1.png
   - ../../assets/general/Feb+8+2024.webp
   - ../../assets/general/3.png
-  - ../../assets/general/BG+paint+9.webp
 ---
