@@ -55,7 +55,7 @@ function serializeFrontmatter(data) {
   let frontmatter = yaml.dump(cleaned, {
     lineWidth: -1,
     quotingType: '"',
-    forceQuotes: false,
+    forceQuotes: true,
     noRefs: true,
     sortKeys: false,
   });
@@ -66,6 +66,7 @@ function serializeFrontmatter(data) {
       .map((s) => s.replace(/^  - /, "").trim());
     return `tags: [${arr.join(", ")}]\n`;
   });
+  frontmatter = frontmatter.replace(/^date: "(\d{4}-\d{2}-\d{2})"$/m, 'date: $1');
   return `---\n${frontmatter}---\n`;
 }
 
