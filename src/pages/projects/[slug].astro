@@ -28,10 +28,32 @@ function fmString(key: string): string | null {
   return fmBody.match(re)?.[1] ?? null;
 }
 
-function fmArray(key: string): string[] {
-  const re = new RegExp(`^${key}:\\s*\\n((?:\\s*-\\s*[^\\n]+\\n?)+)`, "m");
+function fmImages(key: string): { path: string; description: string | null }[] {
+  const re = new RegExp(`^${key}:\\s*\\n((?:\\s*-\\s*[^\\n]+\\n?(?:\\s+[^\\-\\s][^\\n]*\\n?)*)+)`, "m");
   const section = fmBody.match(re)?.[1] ?? "";
-  return [...section.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  const items: { path: string; description: string | null }[] = [];
+  const lines = section.split("\n").filter((l) => l.trim());
+  for (let i = 0; i < lines.length; i++) {
+    const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+    if (srcMatch) {
+      let description: string | null = null;
+      const nextLine = lines[i + 1];
+      if (nextLine) {
+        const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+        if (descMatch) {
+          description = descMatch[1];
+          i++;
+        }
+      }
+      items.push({ path: srcMatch[1], description });
+      continue;
+    }
+    const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+    if (stringMatch) {
+      items.push({ path: stringMatch[1], description: null });
+    }
+  }
+  return items;
 }
 
 function resolveSourcePath(rel: string): string {
@@ -54,21 +76,28 @@ const heroRawPath = fmString("heroImage");
 const heroPlaceholder =
   heroRawPath ? await makePlaceholder(resolveSourcePath(heroRawPath)) : null;
 
+function resolveImg(entry: (typeof data.images)[number]): typeof data.images[number] {
+  return entry && typeof entry === "object" && "src" in entry ? entry.src : entry;
+}
+
 interface GalleryItem {
   img: typeof data.images[number];
   alt: string;
   placeholder: string | null;
   outName: string;
+  description: string | null;
 }
 
-const galleryRawPaths = fmArray("images");
+const galleryRawEntries = fmImages("images");
 
 const galleryImages: GalleryItem[] = await Promise.all(
-  data.images.map(async (img, i) => {
-    const raw = galleryRawPaths[i] ?? "";
+  data.images.map(async (entry, i) => {
+    const img = resolveImg(entry);
+    const raw = galleryRawEntries[i]?.path ?? "";
+    const description = galleryRawEntries[i]?.description ?? null;
     const placeholder = raw ? await makePlaceholder(resolveSourcePath(raw)) : null;
     const outName = raw ? raw.split('/').pop()!.replace(/\.[^.]+$/, '.webp') : `gallery-${i}.webp`;
-    return { img, alt: `${data.title} gallery image ${i + 1}`, placeholder, outName };
+    return { img, alt: `${data.title} gallery image ${i + 1}`, placeholder, outName, description };
   }),
 );
 
@@ -135,12 +164,13 @@ const isMasonry = data.layout === "masonry";
     {
       data.images.length > 0 && isMasonry && (
         <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-          {galleryImages.map(({ img, alt, placeholder, outName }) => (
+          {galleryImages.map(({ img, alt, placeholder, outName, description }) => (
             <div class="masonry-item break-inside-avoid overflow-hidden">
               <button
                 class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                 data-lightbox-src={`/lightbox/${project.id}/${outName}`}
                 data-alt={alt}
+                data-description={description ?? ""}
                 style="background: #ffffff;"
                 aria-label={`View ${alt}`}
               >
@@ -172,11 +202,13 @@ const isMasonry = data.layout === "masonry";
         <section class="mt-14">
           {/* <h2 class="text-2xl font-bold">Gallery</h2> */}
           <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryImages.map(({ img, alt, placeholder, outName }) => (
+            {galleryImages.map(({ img, alt, placeholder, outName, description }) => (
               <button
                 class="blur-up gallery-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left"
                 style="aspect-ratio: 4/3; background: #ffffff;"
                 data-lightbox-src={`/lightbox/${project.id}/${outName}`}
+                data-alt={alt}
+                data-description={description ?? ""}
                 aria-label={`View ${alt}`}
               >
                 {
@@ -219,12 +251,18 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <img
-      id="lightbox-img"
-      src=""
-      alt=""
-      class="max-w-full max-h-full object-contain"
-    />
+    <div class="flex flex-col items-center max-h-full">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-[85vh] object-contain"
+      />
+      <p
+        id="lightbox-desc"
+        class="hidden text-white text-sm mt-3 text-center max-w-2xl"
+      ></p>
+    </div>
   </div>
   </PasswordGate>
 </Layout>
@@ -277,10 +315,20 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
       }
     }
 
-    function openLightbox(imgSrc, imgAlt) {
+    function openLightbox(imgSrc, imgAlt, description) {
       lastFocused = document.activeElement;
       lightboxImg.src = imgSrc;
       lightboxImg.alt = imgAlt;
+      const descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        if (description) {
+          descEl.textContent = description;
+          descEl.classList.remove("hidden");
+        } else {
+          descEl.textContent = "";
+          descEl.classList.add("hidden");
+        }
+      }
       lightbox.classList.remove("hidden");
       lightbox.classList.add("flex");
       document.body.style.overflow = "hidden";
@@ -296,6 +344,11 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
       document.removeEventListener("keydown", onKeyDown);
       lightbox.removeEventListener("keydown", trapFocus);
       lightboxImg.src = "";
+      const descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        descEl.textContent = "";
+        descEl.classList.add("hidden");
+      }
       if (lastFocused) lastFocused.focus();
     }
 
@@ -311,7 +364,8 @@ class="absolute inset-0 w-full h-full object-contain blur-up-placeholder"
         const src = btn.dataset.lightboxSrc;
         const fullImg = btn.querySelector(".blur-up-full");
         const alt = btn.dataset.alt || (fullImg && fullImg.alt) || "";
-        if (src) openLightbox(src, alt);
+        const description = btn.dataset.description || "";
+        if (src) openLightbox(src, alt, description);
       });
     });
 

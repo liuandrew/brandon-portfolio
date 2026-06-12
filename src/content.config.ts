@@ -16,7 +16,12 @@ const projects = defineCollection({
       portfolioTitle: z.string().optional(),
       logo: image().optional(),
       heroImage: image(),
-      images: z.array(image()),
+      images: z.array(
+        z.union([
+          image(),
+          z.object({ src: image(), description: z.string().optional() }),
+        ])
+      ),
       layout: z.enum(["standard", "masonry"]).optional(),
       footer: z.string().optional(),
     }),
@@ -52,7 +57,12 @@ const personal = defineCollection({
       title: z.string().optional(),
       description: z.string().optional(),
       date: z.coerce.date(),
-      images: z.array(image()),
+      images: z.array(
+        z.union([
+          image(),
+          z.object({ src: image(), description: z.string().optional() }),
+        ])
+      ),
     }),
 });
 

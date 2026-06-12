@@ -10,11 +10,33 @@ const [portfolioEntry] = await getCollection("portfolio");
 const projects = await getCollection("projects");
 const projectMap = new Map(projects.map((p) => [p.id, p]));
 
-function parseFmImages(filePath: string): string[] {
+function parseFmImages(filePath: string): { path: string; description: string | null }[] {
   const raw = readFileSync(filePath, "utf-8");
   const fm = raw.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
-  const section = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m)?.[1] ?? "";
-  return [...section.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  const section = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m)?.[1] ?? "";
+  const entries: { path: string; description: string | null }[] = [];
+  const lines = section.split("\n").filter((l) => l.trim());
+  for (let i = 0; i < lines.length; i++) {
+    const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+    if (srcMatch) {
+      let description: string | null = null;
+      const nextLine = lines[i + 1];
+      if (nextLine) {
+        const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+        if (descMatch) {
+          description = descMatch[1];
+          i++;
+        }
+      }
+      entries.push({ path: srcMatch[1], description });
+      continue;
+    }
+    const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+    if (stringMatch) {
+      entries.push({ path: stringMatch[1], description: null });
+    }
+  }
+  return entries;
 }
 
 function parseFmHero(filePath: string): string | null {
@@ -37,6 +59,10 @@ async function makePlaceholder(filePath: string): Promise<string | null> {
 
 type PortfolioEntry = string | { slug: string; images?: string[] };
 
+function resolveImg(entry: any): any {
+  return entry && typeof entry === "object" && "src" in entry ? entry.src : entry;
+}
+
 const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).map(async (entry: PortfolioEntry) => {
   const slug = typeof entry === "string" ? entry : entry.slug;
   const overrides = typeof entry === "object" ? entry.images : undefined;
@@ -45,12 +71,12 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
 
   const mdDir = dirname(project.filePath);
   const heroRawPath = parseFmHero(project.filePath);
-  const galleryRawPaths = parseFmImages(project.filePath);
+  const galleryRawEntries = parseFmImages(project.filePath);
   const displayTitle = project.data.portfolioTitle ?? project.data.title;
 
   const imagePaths = overrides && overrides.length > 0
     ? overrides
-    : galleryRawPaths.slice(0, 4);
+    : galleryRawEntries.slice(0, 4).map((e) => e.path);
 
   const displayImages = await Promise.all(imagePaths.map(async (overridePath, i) => {
     const absOverride = resolve(mdDir, overridePath);
@@ -62,23 +88,25 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
       lightboxSrc = "hero.webp";
       isHero = true;
     } else {
-      galleryIdx = galleryRawPaths.findIndex((p) => resolve(mdDir, p) === absOverride);
+      galleryIdx = galleryRawEntries.findIndex((e) => resolve(mdDir, e.path) === absOverride);
       if (galleryIdx !== -1) {
-        lightboxSrc = galleryRawPaths[galleryIdx].split("/").pop()!.replace(/\.[^.]+$/, ".webp");
+        lightboxSrc = galleryRawEntries[galleryIdx].path.split("/").pop()!.replace(/\.[^.]+$/, ".webp");
       } else {
         lightboxSrc = overridePath.split("/").pop()!.replace(/\.[^.]+$/, ".webp");
       }
     }
 
+    const description = galleryIdx !== -1 ? galleryRawEntries[galleryIdx]?.description ?? null : null;
+
     const img = isHero
       ? project.data.heroImage
       : galleryIdx !== -1
-        ? project.data.images[galleryIdx]
-        : project.data.images[0];
+        ? resolveImg(project.data.images[galleryIdx])
+        : resolveImg(project.data.images[0]);
 
     const placeholder = await makePlaceholder(absOverride);
 
-    return { img, lightboxSrc, alt: `${displayTitle} asset ${i + 1}`, placeholder };
+    return { img, lightboxSrc, alt: `${displayTitle} asset ${i + 1}`, placeholder, description };
   }));
 
   const heroPlaceholder = heroRawPath ? await makePlaceholder(resolve(mdDir, heroRawPath)) : null;
@@ -159,12 +187,13 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
                 </div>
 
                 <div class={`mt-4 grid grid-cols-2 gap-2 ${project.data.portfolioLocked ? 'hidden locked-gallery' : ''}`}>
-                  {displayImages.slice(0, 2).map(({ img, lightboxSrc, alt, placeholder }, i) => (
+                  {displayImages.slice(0, 2).map(({ img, lightboxSrc, alt, placeholder, description }, i) => (
                     <button
                       class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                       style="aspect-ratio: 4/3; background: #ffffff;"
                       data-lightbox-src={`/lightbox/${project.id}/${lightboxSrc}`}
                       data-alt={alt}
+                      data-description={description ?? ""}
                     >
                       {placeholder && (
                         <img
@@ -184,12 +213,13 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
                       />
                     </button>
                   ))}
-                  {displayImages.slice(2, 4).map(({ img, lightboxSrc, alt, placeholder }) => (
+                  {displayImages.slice(2, 4).map(({ img, lightboxSrc, alt, placeholder, description }) => (
                     <button
                       class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full sm:block hidden"
                       style="aspect-ratio: 4/3; background: #ffffff;"
                       data-lightbox-src={`/lightbox/${project.id}/${lightboxSrc}`}
                       data-alt={alt}
+                      data-description={description ?? ""}
                     >
                       {placeholder && (
                         <img
@@ -244,12 +274,18 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <img
-      id="lightbox-img"
-      src=""
-      alt=""
-      class="max-w-full max-h-full object-contain rounded-lg"
-    />
+    <div class="flex flex-col items-center max-h-full">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-[85vh] object-contain rounded-lg"
+      />
+      <p
+        id="lightbox-desc"
+        class="hidden text-white text-sm mt-3 text-center max-w-2xl"
+      ></p>
+    </div>
   </div>
 </Layout>
 
@@ -261,10 +297,20 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
     const triggers = document.querySelectorAll(".lightbox-trigger");
     let lastFocused: HTMLElement | null = null;
 
-    function openLightbox(src: string, alt: string) {
+    function openLightbox(src: string, alt: string, description?: string) {
       lastFocused = document.activeElement as HTMLElement;
       lightboxImg.src = src;
       lightboxImg.alt = alt;
+      const descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        if (description) {
+          descEl.textContent = description;
+          descEl.classList.remove("hidden");
+        } else {
+          descEl.textContent = "";
+          descEl.classList.add("hidden");
+        }
+      }
       lightbox.classList.remove("hidden");
       lightbox.classList.add("flex");
       document.documentElement.style.overflow = "clip";
@@ -278,6 +324,11 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
       document.documentElement.style.overflow = "";
       document.removeEventListener("keydown", onKeyDown);
       lightboxImg.src = "";
+      const descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        descEl.textContent = "";
+        descEl.classList.add("hidden");
+      }
       if (lastFocused) lastFocused.focus();
     }
 
@@ -292,7 +343,8 @@ const projectDisplays = await Promise.all((portfolioEntry?.data.projects ?? []).
       btn.addEventListener("click", () => {
         const src = (btn as HTMLElement).dataset.lightboxSrc;
         const alt = (btn as HTMLElement).dataset.alt;
-        if (src) openLightbox(src, alt ?? "");
+        const description = (btn as HTMLElement).dataset.description;
+        if (src) openLightbox(src, alt ?? "", description);
       });
     });
 

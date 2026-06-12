@@ -53,17 +53,66 @@ function parseFrontmatter(filePath) {
   const heroImage = nonCommentFm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
   const images = [];
-  const imagesSection = nonCommentFm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
+  const imagesSection = nonCommentFm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m);
   if (imagesSection) {
-    const matches = imagesSection[1].match(/"([^"]+)"/g);
-    if (matches) {
-      for (const m of matches) {
-        images.push(m.replace(/"/g, ''));
+    const lines = imagesSection[1].split('\n').filter(l => l.trim());
+    for (let i = 0; i < lines.length; i++) {
+      const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+      if (srcMatch) {
+        let description = null;
+        const nextLine = lines[i + 1];
+        if (nextLine) {
+          const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+          if (descMatch) {
+            description = descMatch[1];
+            i++;
+          }
+        }
+        images.push({ path: srcMatch[1], description });
+        continue;
+      }
+      const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+      if (stringMatch) {
+        images.push({ path: stringMatch[1], description: null });
       }
     }
   }
 
   return { title, footer, heroImage, images };
+}
+
+function parsePersonalFrontmatter(filePath) {
+  const content = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
+  const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+  const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
+
+  const images = [];
+  const imagesSection = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m);
+  if (imagesSection) {
+    const lines = imagesSection[1].split('\n').filter(l => l.trim());
+    for (let i = 0; i < lines.length; i++) {
+      const srcMatch = lines[i].match(/^\s*-\s+src:\s*"?([^"\n]+)"?/);
+      if (srcMatch) {
+        let description = null;
+        const nextLine = lines[i + 1];
+        if (nextLine) {
+          const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+          if (descMatch) {
+            description = descMatch[1];
+            i++;
+          }
+        }
+        images.push({ path: srcMatch[1], description });
+        continue;
+      }
+      const stringMatch = lines[i].match(/^\s*-\s+"?([^"\n]+)"?$/);
+      if (stringMatch) {
+        images.push({ path: stringMatch[1], description: null });
+      }
+    }
+  }
+
+  return { title, images };
 }
 
 async function processProjects() {
@@ -90,7 +139,7 @@ async function processProjects() {
       }
     }
 
-    for (const imgPath of images) {
+    for (const { path: imgPath } of images) {
       const inputPath = resolve(projectDir, imgPath);
       if (existsSync(inputPath)) {
         const outName = basename(imgPath).replace(/\.[^.]+$/, '.webp');
@@ -106,20 +155,7 @@ async function processPersonal() {
   const files = readdirSync('src/content/personal').filter(f => f.endsWith('.md')).map(f => resolve('src/content/personal', f));
 
   for (const file of files) {
-    const content = readFileSync(file, 'utf-8');
-    const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
-    const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(file, '.md');
-
-    const images = [];
-    const imagesSection = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
-    if (imagesSection) {
-      const matches = imagesSection[1].match(/"([^"]+)"/g);
-      if (matches) {
-        for (const m of matches) {
-          images.push(m.replace(/"/g, ''));
-        }
-      }
-    }
+    const { title, images } = parsePersonalFrontmatter(file);
 
     if (images.length === 0) continue;
 
@@ -133,8 +169,7 @@ async function processPersonal() {
 
     console.log(`\nPersonal: ${title}`);
 
-    for (let idx = 0; idx < images.length; idx++) {
-      const imgPath = images[idx];
+    for (const { path: imgPath } of images) {
       const inputPath = resolve(pieceDir, imgPath);
       if (existsSync(inputPath)) {
         const outName = basename(imgPath).replace(/\.[^.]+$/, '.webp');

@@ -17,7 +17,12 @@ const projectsSchema = z.object({
   portfolioTitle: z.string().optional(),
   logo: z.string().optional(),
   heroImage: z.string(),
-  images: z.array(z.string()),
+  images: z.array(
+    z.union([
+      z.string(),
+      z.object({ src: z.string(), description: z.string().optional() }),
+    ])
+  ),
   layout: z.enum(["standard", "masonry"]).optional(),
   footer: z.string().optional(),
 });
@@ -30,7 +35,12 @@ const personalSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   date: z.coerce.date(),
-  images: z.array(z.string()),
+  images: z.array(
+    z.union([
+      z.string(),
+      z.object({ src: z.string(), description: z.string().optional() }),
+    ])
+  ),
 });
 
 const portfolioSchema = z.object({
@@ -78,6 +88,8 @@ function imagePathsFromData(data) {
       for (const item of val) {
         if (typeof item === "string" && item.includes("src/assets/")) {
           paths.push(item);
+        } else if (typeof item === "object" && item !== null && typeof item.src === "string" && item.src.includes("src/assets/")) {
+          paths.push(item.src);
         }
       }
     }

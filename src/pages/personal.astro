@@ -21,11 +21,16 @@ async function makePlaceholder(filePath: string): Promise<string | null> {
   }
 }
 
+function resolveImg(entry: (typeof pieces[number]["data"]["images"])[number]): (typeof pieces[number]["data"]["images"])[number] {
+  return entry && typeof entry === "object" && "src" in entry ? entry.src : entry;
+}
+
 interface PersonalImage {
-  img: typeof pieces[number]["data"]["images"][number];
+  img: (typeof pieces[number]["data"]["images"])[number];
   alt: string;
   placeholder: string | null;
   outName: string;
+  description: string | null;
 }
 
 const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalImage[] }[] =
@@ -36,24 +41,41 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
       const rawFM = readFileSync(mdAbsPath, "utf-8");
       const fmBody = rawFM.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
 
-      const rawPaths: string[] = [];
-      const imagesSection = fmBody.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?)+)/m);
+      const rawEntries: { path: string; description: string | null }[] = [];
+      const imagesSection = fmBody.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m);
       if (imagesSection) {
-        const matches = imagesSection[1].match(/"([^"]+)"/g);
-        if (matches) {
-          for (const m of matches) {
-            rawPaths.push(m.replace(/"/g, ""));
+        const lines = imagesSection[1].split("\n").filter((l) => l.trim());
+        for (let i = 0; i < lines.length; i++) {
+          const srcMatch = lines[i].match(/^\s*-\s+src:\s*"?([^"\n]+)"?/);
+          if (srcMatch) {
+            let description: string | null = null;
+            const nextLine = lines[i + 1];
+            if (nextLine) {
+              const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+              if (descMatch) {
+                description = descMatch[1];
+                i++;
+              }
+            }
+            rawEntries.push({ path: srcMatch[1], description });
+            continue;
+          }
+          const stringMatch = lines[i].match(/^\s*-\s+"?([^"\n]+)"?$/);
+          if (stringMatch) {
+            rawEntries.push({ path: stringMatch[1], description: null });
           }
         }
       }
 
       const images: PersonalImage[] = await Promise.all(
-        piece.data.images.map(async (img, idx) => {
-          const raw = rawPaths[idx] ?? "";
+        piece.data.images.map(async (entry, idx) => {
+          const img = resolveImg(entry);
+          const raw = rawEntries[idx]?.path ?? "";
+          const description = rawEntries[idx]?.description ?? null;
           const placeholder = raw ? await makePlaceholder(resolve(pieceDir, raw)) : null;
           const title = piece.data.title ?? piece.id;
           const outName = raw ? raw.split('/').pop()!.replace(/\.[^.]+$/, '.webp') : `${piece.id}-${idx}.webp`;
-          return { img, alt: `${title} — ${idx + 1}`, placeholder, outName };
+          return { img, alt: `${title} — ${idx + 1}`, placeholder, outName, description };
         }),
       );
 
@@ -76,12 +98,13 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
         <div id="masonry" class="mt-10 columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
           {
             piecesWithPlaceholders.map(({ piece, images }) =>
-              images.map(({ img, alt, placeholder, outName }, idx) => (
+              images.map(({ img, alt, placeholder, outName, description }, idx) => (
                 <div class="masonry-item break-inside-avoid overflow-hidden">
                   <button
                     class="blur-up lightbox-trigger relative overflow-hidden cursor-pointer border-0 p-0 bg-transparent text-left w-full"
                     data-lightbox-src={`/lightbox/personal/${outName}`}
                     data-alt={alt}
+                    data-description={description ?? ""}
                     style="background: #ffffff;"
                   >
                     {placeholder && (
@@ -124,12 +147,18 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <img
-      id="lightbox-img"
-      src=""
-      alt=""
-      class="max-w-full max-h-full object-contain"
-    />
+    <div class="flex flex-col items-center max-h-full">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-[85vh] object-contain"
+      />
+      <p
+        id="lightbox-desc"
+        class="hidden text-white text-sm mt-3 text-center max-w-2xl"
+      ></p>
+    </div>
   </div>
 </Layout>
 
@@ -141,10 +170,20 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
     var triggers = document.querySelectorAll(".lightbox-trigger");
     var lastFocused = null;
 
-    function openLightbox(src, alt) {
+    function openLightbox(src, alt, description) {
       lastFocused = document.activeElement;
       lightboxImg.src = src;
       lightboxImg.alt = alt;
+      var descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        if (description) {
+          descEl.textContent = description;
+          descEl.classList.remove("hidden");
+        } else {
+          descEl.textContent = "";
+          descEl.classList.add("hidden");
+        }
+      }
       lightbox.classList.remove("hidden");
       lightbox.classList.add("flex");
       document.documentElement.style.overflow = "clip";
@@ -158,6 +197,11 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
       document.documentElement.style.overflow = "";
       document.removeEventListener("keydown", onKeyDown);
       lightboxImg.src = "";
+      var descEl = document.getElementById("lightbox-desc");
+      if (descEl) {
+        descEl.textContent = "";
+        descEl.classList.add("hidden");
+      }
       if (lastFocused) lastFocused.focus();
     }
 
@@ -172,7 +216,8 @@ const piecesWithPlaceholders: { piece: typeof pieces[number]; images: PersonalIm
       btn.addEventListener("click", function () {
         var src = btn.dataset.lightboxSrc;
         var alt = btn.dataset.alt || "";
-        if (src) openLightbox(src, alt);
+        var description = btn.dataset.description || "";
+        if (src) openLightbox(src, alt, description);
       });
     });
 
