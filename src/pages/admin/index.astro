@@ -36,104 +36,47 @@ const tabs = [
         height: 56px;
         flex-shrink: 0;
       }
-      header h1 {
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-      }
+      header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
       header h1 span { color: #666; font-weight: 400; }
       .header-actions { display: flex; align-items: center; gap: 12px; }
-      .publish-status {
-        font-size: 13px;
-        color: #999;
-      }
+      .publish-status { font-size: 13px; color: #999; }
       .publish-status.has-changes { color: #2563eb; }
       .btn {
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 500;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-family: inherit;
+        padding: 8px 16px; font-size: 13px; font-weight: 500; border: none;
+        border-radius: 6px; cursor: pointer; font-family: inherit;
         transition: background 0.15s, opacity 0.15s;
       }
-      .btn:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-      .btn-primary {
-        background: #111;
-        color: #fff;
-      }
+      .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .btn-primary { background: #111; color: #fff; }
       .btn-primary:hover:not(:disabled) { background: #333; }
-      .btn-secondary {
-        background: #e5e5e5;
-        color: #333;
-      }
+      .btn-secondary { background: #e5e5e5; color: #333; }
       .btn-secondary:hover:not(:disabled) { background: #ccc; }
+      .btn-danger { background: #dc2626; color: #fff; }
+      .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+      .btn-sm { padding: 4px 10px; font-size: 12px; }
       .tab-bar {
-        display: flex;
-        gap: 0;
-        background: #fff;
-        border-bottom: 1px solid #e0e0e0;
-        padding: 0 24px;
-        flex-shrink: 0;
+        display: flex; gap: 0; background: #fff; border-bottom: 1px solid #e0e0e0;
+        padding: 0 24px; flex-shrink: 0;
       }
       .tab-btn {
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        border: none;
-        background: none;
-        color: #666;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: color 0.15s, border-color 0.15s;
+        padding: 12px 20px; font-size: 14px; font-weight: 500; border: none;
+        background: none; color: #666; cursor: pointer;
+        border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
         font-family: inherit;
       }
       .tab-btn:hover { color: #111; }
       .tab-btn.active { color: #111; border-bottom-color: #111; }
-      main {
-        flex: 1;
-        padding: 32px 24px;
-        overflow-y: auto;
-      }
+      main { flex: 1; padding: 32px 24px; overflow-y: auto; }
       .tab-panel { display: none; }
       .tab-panel.active { display: block; }
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 50vh;
-        color: #999;
-        text-align: center;
-      }
-      .empty-state h2 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #666;
-        margin-bottom: 8px;
-      }
-      .empty-state p { font-size: 14px; max-width: 360px; line-height: 1.5; }
       .toast-container {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        z-index: 1000;
+        position: fixed; bottom: 24px; right: 24px; display: flex;
+        flex-direction: column; gap: 8px; z-index: 1000;
       }
       .toast {
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
+        padding: 12px 20px; border-radius: 8px; font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.2s ease;
-        max-width: 420px;
-        line-height: 1.4;
+        animation: slideIn 0.2s ease; max-width: 420px; line-height: 1.4;
       }
       .toast.success { background: #065f46; color: #fff; }
       .toast.error { background: #991b1b; color: #fff; }
@@ -143,63 +86,152 @@ const tabs = [
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
       }
-      .content-view {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 24px;
+      .content-view { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; }
+      .content-view h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+      .field { margin-bottom: 16px; }
+      .field label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+      .field input, .field textarea, .field select {
+        width: 100%; padding: 10px 12px; font-size: 14px;
+        border: 1px solid #d0d0d0; border-radius: 6px; font-family: inherit;
       }
-      .content-view h3 {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 16px;
-      }
-      .content-view pre {
-        background: #f5f5f5;
-        padding: 16px;
-        border-radius: 6px;
-        font-size: 12px;
-        overflow-x: auto;
-        white-space: pre-wrap;
-        word-break: break-all;
-      }
-      .content-view .field {
-        margin-bottom: 16px;
-      }
-      .content-view .field label {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #555;
-        margin-bottom: 6px;
-      }
-      .content-view .field textarea,
-      .content-view .field input {
-        width: 100%;
-        padding: 10px 12px;
-        font-size: 14px;
-        border: 1px solid #d0d0d0;
-        border-radius: 6px;
-        font-family: inherit;
-      }
-      .content-view .field textarea { min-height: 80px; resize: vertical; font-family: monospace; }
+      .field textarea { min-height: 80px; resize: vertical; }
+      .field input[type="checkbox"] { width: auto; margin-right: 8px; }
+      .field .checkbox-row { display: flex; align-items: center; gap: 8px; }
+      .field .checkbox-row input { width: auto; }
+      .field .inline-group { display: flex; flex-wrap: wrap; gap: 8px; }
+      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
       .project-list { list-style: none; }
       .project-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
-        border-bottom: 1px solid #eee;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-bottom: 1px solid #eee;
       }
       .project-item:last-child { border-bottom: none; }
       .project-item .slug { font-weight: 500; font-size: 14px; }
       .project-item .title { color: #666; font-size: 13px; }
       .project-list-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
       }
+      .image-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px; margin-top: 12px;
+      }
+      .image-grid-item {
+        position: relative; border: 2px solid #e0e0e0; border-radius: 8px;
+        overflow: hidden; background: #fff; cursor: grab; transition: border-color 0.15s;
+      }
+      .image-grid-item:hover { border-color: #999; }
+      .image-grid-item.dragging { opacity: 0.4; }
+      .image-grid-item.drag-over { border-color: #2563eb; }
+      .image-grid-item img { width: 100%; height: 100px; object-fit: cover; display: block; }
+      .image-grid-item .name {
+        padding: 4px 8px; font-size: 11px; color: #666;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .image-grid-item .remove-btn {
+        position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+        border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff;
+        font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.15s;
+      }
+      .image-grid-item:hover .remove-btn { opacity: 1; }
+      .library-dir { margin-bottom: 24px; }
+      .library-dir h4 {
+        font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
+        padding-bottom: 4px; border-bottom: 1px solid #eee;
+      }
+      .library-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;
+      }
+      .library-item {
+        position: relative; border: 2px solid transparent; border-radius: 6px;
+        overflow: hidden; cursor: pointer; background: #fff;
+        transition: border-color 0.15s;
+      }
+      .library-item:hover { border-color: #999; }
+      .library-item.selected { border-color: #2563eb; }
+      .library-item img { width: 100%; height: 80px; object-fit: cover; display: block; }
+      .library-item .name { padding: 3px 6px; font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .library-item .delete-btn {
+        position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+        border-radius: 50%; border: none; background: rgba(220,38,38,0.8); color: #fff;
+        font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.15s;
+      }
+      .library-item:hover .delete-btn { opacity: 1; }
+      .upload-zone {
+        border: 2px dashed #d0d0d0; border-radius: 8px; padding: 24px;
+        text-align: center; color: #999; cursor: pointer; transition: border-color 0.15s; margin-bottom: 16px;
+      }
+      .upload-zone:hover { border-color: #2563eb; color: #2563eb; }
+      .upload-zone input { display: none; }
+
+      .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .modal {
+        background: #fff; border-radius: 12px; padding: 24px;
+        max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto;
+      }
+      .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+      .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+      .portfolio-project {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px;
+        margin-bottom: 8px; background: #fff; cursor: grab;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .portfolio-project.dragging { opacity: 0.4; }
+      .portfolio-project.drag-over { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+      .portfolio-project .drag-handle { cursor: grab; color: #999; font-size: 16px; }
+      .portfolio-project .info { flex: 1; }
+      .portfolio-project .info .name { font-size: 14px; font-weight: 500; }
+      .portfolio-project .info .client { font-size: 12px; color: #666; }
+      .portfolio-project .toggle { margin-left: auto; }
+      .portfolio-project .image-override { display: flex; align-items: center; gap: 6px; }
+
+      .project-form { max-width: 720px; }
+      .project-form .form-section { margin-bottom: 24px; }
+      .project-form .form-section h4 {
+        font-size: 14px; font-weight: 600; color: #444; margin-bottom: 12px;
+        padding-bottom: 4px; border-bottom: 1px solid #eee;
+      }
+      .img-picker {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
+        min-height: 44px; cursor: pointer; transition: border-color 0.15s;
+      }
+      .img-picker:hover { border-color: #2563eb; }
+      .img-picker img { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
+      .img-picker .placeholder { color: #999; font-size: 13px; }
+      .img-picker-multi {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
+        min-height: 44px; cursor: pointer; transition: border-color 0.15s;
+      }
+      .img-picker-multi:hover { border-color: #2563eb; }
+      .img-picker-multi .thumb {
+        position: relative; width: 64px; height: 48px; border-radius: 4px; overflow: hidden;
+      }
+      .img-picker-multi .thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .img-picker-multi .thumb .remove {
+        position: absolute; top: 0; right: 0; width: 16px; height: 16px;
+        background: rgba(220,38,38,0.8); color: #fff; border: none; border-radius: 0 0 0 4px;
+        font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      }
+      .img-picker-multi .placeholder { color: #999; font-size: 13px; }
+
+      .tag-input { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; min-height: 42px; }
+      .tag-input .tag { display: flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e5e5e5; border-radius: 4px; font-size: 12px; }
+      .tag-input .tag .remove-tag { cursor: pointer; color: #666; font-size: 14px; line-height: 1; }
+      .tag-input input { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; font-family: inherit; }
+
+      .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; color: #999; text-align: center; }
+      .empty-state h2 { font-size: 20px; font-weight: 600; color: #666; margin-bottom: 8px; }
+      .empty-state p { font-size: 14px; max-width: 360px; line-height: 1.5; }
+
+      .sortable-ghost { opacity: 0.3; }
     </style>
   </head>
   <body>
@@ -219,9 +251,7 @@ const tabs = [
           aria-selected={tab.id === "homepage"}
           aria-controls={`panel-${tab.id}`}
           data-tab={tab.id}
-        >
-          {tab.label}
-        </button>
+        >{tab.label}</button>
       ))}
     </nav>
 
@@ -232,12 +262,7 @@ const tabs = [
           class:list={["tab-panel", tab.id === "homepage" && "active"]}
           role="tabpanel"
           aria-labelledby={tab.id}
-        >
-          <div class="empty-state">
-            <h2>{tab.label}</h2>
-            <p>Content editor for {tab.label.toLowerCase()} will be built in a future update.</p>
-          </div>
-        </section>
+        ></section>
       ))}
     </main>
 
@@ -252,19 +277,36 @@ const tabs = [
         const toastContainer = document.getElementById("toastContainer");
 
         let currentContent = {};
+        let libraryData = { tree: {}, flat: [], byDir: {} };
+        let editingState = { projects: "list" };
+
+        function imgUrl(contentRelPath) {
+          if (!contentRelPath) return "";
+          const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "");
+          return `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
+        }
+
+        function rootPath(contentRelPath) {
+          if (!contentRelPath) return "";
+          return contentRelPath.replace(/^\.\.\/\.\.\//, "");
+        }
+
+        function contentPath(rootRelPath) {
+          if (!rootRelPath) return "";
+          if (rootRelPath.startsWith("../../")) return rootRelPath;
+          if (rootRelPath.startsWith("src/")) return `../../${rootRelPath.replace(/^src\//, "")}`;
+          return rootRelPath;
+        }
 
         buttons.forEach((btn) => {
           btn.addEventListener("click", () => {
-            buttons.forEach((b) => {
-              b.classList.remove("active");
-              b.setAttribute("aria-selected", "false");
-            });
+            buttons.forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
             panels.forEach((p) => p.classList.remove("active"));
-
             btn.classList.add("active");
             btn.setAttribute("aria-selected", "true");
             const panel = document.getElementById(`panel-${btn.dataset.tab}`);
             if (panel) panel.classList.add("active");
+            renderTab(btn.dataset.tab);
           });
         });
 
@@ -284,13 +326,8 @@ const tabs = [
               const files = status.fileCount === 1 ? "1 file" : `${status.fileCount} files`;
               publishStatus.textContent = `${files} changed`;
               publishStatus.className = "publish-status has-changes";
-              if (!status.patConfigured) {
-                publishBtn.disabled = true;
-                publishBtn.title = "GITHUB_PAT not configured";
-              } else {
-                publishBtn.disabled = false;
-                publishBtn.title = "";
-              }
+              publishBtn.disabled = !status.patConfigured;
+              publishBtn.title = status.patConfigured ? "" : "GITHUB_PAT not configured";
             } else {
               publishStatus.textContent = "No changes to publish";
               publishStatus.className = "publish-status";
@@ -304,9 +341,14 @@ const tabs = [
 
         async function loadContent() {
           try {
-            const res = await fetch("/admin/api/content");
-            const json = await res.json();
-            currentContent = json.data;
+            const [contentRes, libRes] = await Promise.all([
+              fetch("/admin/api/content"),
+              fetch("/admin/api/library")
+            ]);
+            const contentJson = await contentRes.json();
+            const libJson = await libRes.json();
+            currentContent = contentJson.data;
+            libraryData = libJson;
             renderContent();
           } catch (e) {
             showToast("Failed to load content: " + e.message, "error");
@@ -314,70 +356,764 @@ const tabs = [
         }
 
         function renderContent() {
-          const panels = document.querySelectorAll(".tab-panel");
-          panels.forEach((panel) => {
-            const tabId = panel.id.replace("panel-", "");
-            const data = currentContent[tabId];
+          const active = document.querySelector(".tab-panel.active");
+          if (active) renderTab(active.id.replace("panel-", ""));
+        }
 
-            if (tabId === "projects") {
-              panel.innerHTML = renderProjectsTab(data);
-            } else if (tabId === "library") {
-              panel.innerHTML = `<div class="content-view"><h3>Media Library</h3><p style="color:#999">Library management will be built in a future update.</p></div>`;
-            } else {
-              panel.innerHTML = renderCollectionTab(tabId, data);
-            }
+        function renderActiveTab() {
+          const active = document.querySelector(".tab-panel.active");
+          if (!active) return;
+          renderTab(active.id.replace("panel-", ""));
+        }
+
+        function renderTab(tabId) {
+          const panel = document.getElementById(`panel-${tabId}`);
+          if (!panel) return;
+          const data = currentContent[tabId];
+          switch (tabId) {
+            case "homepage":
+              panel.innerHTML = renderHomepage(data);
+              requestAnimationFrame(() => setupHomepageDnD());
+              break;
+            case "portfolio":
+              panel.innerHTML = renderPortfolio(data);
+              requestAnimationFrame(() => setupPortfolioDnD());
+              break;
+            case "personal":
+              panel.innerHTML = renderPersonal(data);
+              requestAnimationFrame(() => setupPersonalDnD());
+              break;
+            case "projects":
+              panel.innerHTML = renderProjects(data);
+              break;
+            case "library":
+              panel.innerHTML = renderLibraryHTML();
+              requestAnimationFrame(() => setupUpload());
+              break;
+          }
+        }
+
+        function renderHomepage(data) {
+          const images = data?.data?.images || [];
+          let html = `<div class="content-view"><h3>Homepage Carousel</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Drag images to reorder. Add images from the Library.</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__addHomepageImage()">Add from Library</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__saveHomepage()">Save Homepage</button>
+            </div>
+            <div class="image-grid" id="homepage-grid">`;
+          images.forEach((img, i) => {
+            html += `<div class="image-grid-item" draggable="true" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img)}" alt="" loading="lazy" />
+              <div class="name">${img.split("/").pop()}</div>
+              <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
+            </div>`;
+          });
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__saveHomepage = async function () {
+          const data = currentContent.homepage?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "homepage", data }),
+            });
+            const json = await res.json();
+            if (json.success) { showToast("Homepage saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        window.__addHomepageImage = function () {
+          openLibraryPicker({ mode: "single", onSelect: (path) => {
+            const data = currentContent.homepage?.data || { images: [] };
+            if (!data.images) data.images = [];
+            data.images.push(contentPath(path));
+            currentContent.homepage = { data, body: "", filePath: "" };
+            renderTab("homepage");
+            setupHomepageDnD();
+          }});
+        };
+
+        window.__removeHomepageImage = function (index) {
+          const data = currentContent.homepage?.data || { images: [] };
+          data.images.splice(index, 1);
+          renderTab("homepage");
+          setupHomepageDnD();
+        };
+
+        function setupHomepageDnD() {
+          setupSortableGrid("homepage-grid", (items) => {
+            const data = currentContent.homepage?.data || { images: [] };
+            data.images = items.map((el) => el.dataset.path);
           });
         }
 
-        function renderCollectionTab(tabId, data) {
-          const json = JSON.stringify(data ? data.data : {}, null, 2);
-          const label = tabId.charAt(0).toUpperCase() + tabId.slice(1);
-          return `
-            <div class="content-view">
-              <h3>${label}</h3>
-              <div class="field">
-                <label>Content data (read-only preview)</label>
-                <textarea id="editor-${tabId}" data-collection="${tabId}">${json}</textarea>
+        function renderPortfolio(data) {
+          const projectsData = data?.data?.projects || [];
+          const allProjects = currentContent.projects || {};
+          let html = `<div class="content-view"><h3>Portfolio Grid</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Drag to reorder. Toggle to include/exclude. Optional per-project image overrides.</p>
+            <button class="btn btn-primary btn-sm" onclick="window.__savePortfolio()" style="margin-bottom:12px">Save Portfolio</button>
+            <div id="portfolio-list">`;
+          for (const entry of projectsData) {
+            const slug = typeof entry === "string" ? entry : entry.slug;
+            const overrideImages = typeof entry === "object" ? entry.images : undefined;
+            const project = allProjects[slug];
+            const title = project?.data?.title || slug;
+            const client = project?.data?.client || "";
+            const isIncluded = true;
+            html += `<div class="portfolio-project" draggable="true" data-slug="${slug}">
+              <span class="drag-handle">&#9776;</span>
+              <div class="info">
+                <div class="name">${title}</div>
+                <div class="client">${client}</div>
               </div>
-              <button class="btn btn-primary save-btn" data-collection="${tabId}">Save ${label}</button>
+              <div class="image-override">
+                ${overrideImages && overrideImages.length > 0
+                  ? `<span style="font-size:11px;color:#666">${overrideImages.length} override(s)</span>`
+                  : `<span style="font-size:11px;color:#999">no override</span>`}
+                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__setPortfolioOverride('${slug}')">Override</button>
+                ${overrideImages ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__clearPortfolioOverride('${slug}')">Clear</button>` : ""}
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__removePortfolioProject('${slug}')">Remove</button>
+            </div>`;
+          }
+          html += `</div>
+            <div style="margin-top:12px">
+              <select id="portfolio-add-select" style="padding:8px 12px;font-size:13px;border:1px solid #d0d0d0;border-radius:6px;margin-right:8px">
+                <option value="">Add a project...</option>`;
+          for (const [slug, proj] of Object.entries(allProjects)) {
+            const isAlready = projectsData.some(e => (typeof e === "string" ? e : e.slug) === slug);
+            if (!isAlready) {
+              html += `<option value="${slug}">${proj.data?.title || slug}</option>`;
+            }
+          }
+          html += `</select>
+              <button class="btn btn-secondary btn-sm" onclick="window.__addPortfolioProject()">Add</button>
             </div>
-          `;
+          </div>`;
+          return html;
         }
 
-        function renderProjectsTab(data) {
-          if (!data || typeof data !== "object") {
-            return `<div class="content-view"><h3>Projects</h3><p style="color:#999">No projects found.</p></div>`;
+        window.__removePortfolioProject = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          data.projects = data.projects.filter(e => (typeof e === "string" ? e : e.slug) !== slug);
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__addPortfolioProject = function () {
+          const sel = document.getElementById("portfolio-add-select");
+          if (!sel.value) return;
+          const data = currentContent.portfolio?.data || { projects: [] };
+          data.projects.push(sel.value);
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__setPortfolioOverride = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const existing = data.projects.find(e => (typeof e === "string" ? e : e.slug) === slug);
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+            data.projects[idx] = { slug, images: paths.map(p => contentPath(p)) };
+            renderTab("portfolio");
+            setupPortfolioDnD();
+          }});
+        };
+
+        window.__clearPortfolioOverride = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+          data.projects[idx] = slug;
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__savePortfolio = async function () {
+          const data = currentContent.portfolio?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "portfolio", data }),
+            });
+            const json = await res.json();
+            if (json.success) { showToast("Portfolio saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        function setupPortfolioDnD() {
+          setupSortableList("portfolio-list", (items) => {
+            const data = currentContent.portfolio?.data || { projects: [] };
+            const reordered = [];
+            items.forEach((el) => {
+              const slug = el.dataset.slug;
+              const existing = data.projects.find(e => (typeof e === "string" ? e : e.slug) === slug);
+              if (existing) reordered.push(existing);
+            });
+            data.projects = reordered;
+          });
+        }
+
+        function renderPersonal(data) {
+          const images = data?.data?.images || [];
+          const title = data?.data?.title || "";
+          const description = data?.data?.description || "";
+          const date = data?.data?.date ? data.data.date.split("T")[0] : "2024-01-01";
+          let html = `<div class="content-view"><h3>Personal Gallery</h3>
+            <div class="field"><label>Title (optional)</label>
+              <input type="text" id="personal-title" value="${escHtml(title)}" onchange="window.__updatePersonalField('title', this.value)" /></div>
+            <div class="field"><label>Description (optional)</label>
+              <textarea id="personal-desc" onchange="window.__updatePersonalField('description', this.value)">${escHtml(description)}</textarea></div>
+            <div class="field"><label>Date</label>
+              <input type="date" id="personal-date" value="${date}" onchange="window.__updatePersonalField('date', this.value)" /></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__addPersonalImage()">Add from Library</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__savePersonal()">Save Personal</button>
+            </div>
+            <div class="image-grid" id="personal-grid">`;
+          images.forEach((img, i) => {
+            html += `<div class="image-grid-item" draggable="true" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img)}" alt="" loading="lazy" />
+              <div class="name">${img.split("/").pop()}</div>
+              <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
+            </div>`;
+          });
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__updatePersonalField = function (field, value) {
+          const data = currentContent.personal?.data || {};
+          if (field === "date") data[field] = value;
+          else data[field] = value;
+          currentContent.personal = { data, body: "", filePath: "" };
+        };
+
+        window.__addPersonalImage = function () {
+          openLibraryPicker({ mode: "single", onSelect: (path) => {
+            const data = currentContent.personal?.data || { images: [], date: "2024-01-01" };
+            if (!data.images) data.images = [];
+            data.images.push(contentPath(path));
+            currentContent.personal = { data, body: "", filePath: "" };
+            renderTab("personal");
+            setupPersonalDnD();
+          }});
+        };
+
+        window.__removePersonalImage = function (index) {
+          const data = currentContent.personal?.data || { images: [] };
+          data.images.splice(index, 1);
+          renderTab("personal");
+          setupPersonalDnD();
+        };
+
+        window.__savePersonal = async function () {
+          const data = currentContent.personal?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "personal", data }),
+            });
+            const json = await res.json();
+            if (json.success) { showToast("Personal saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        function setupPersonalDnD() {
+          setupSortableGrid("personal-grid", (items) => {
+            const data = currentContent.personal?.data || { images: [] };
+            data.images = items.map((el) => el.dataset.path);
+          });
+        }
+
+        function renderProjects(data) {
+          if (editingState.projects === "new" || editingState.projects === "edit") {
+            return renderProjectForm();
           }
-          let html = `<div class="content-view"><div class="project-list-header"><h3>Projects</h3></div><ul class="project-list">`;
+          if (!data || typeof data !== "object") {
+            return `<div class="content-view"><div class="project-list-header"><h3>Projects</h3>
+              <button class="btn btn-primary btn-sm" onclick="window.__newProject()">New Project</button>
+            </div><p style="color:#999">No projects found.</p></div>`;
+          }
+          let html = `<div class="content-view"><div class="project-list-header"><h3>Projects</h3>
+            <button class="btn btn-primary btn-sm" onclick="window.__newProject()">New Project</button>
+          </div><ul class="project-list">`;
           for (const [slug, project] of Object.entries(data)) {
             const title = project.data?.title || slug;
-            html += `<li class="project-item"><div><div class="slug">${slug}</div><div class="title">${title}</div></div>`;
-            html += `<button class="btn btn-secondary edit-project-btn" data-slug="${slug}">Edit</button></li>`;
+            html += `<li class="project-item">
+              <div><div class="slug">${slug}</div><div class="title">${title}</div></div>
+              <button class="btn btn-secondary btn-sm edit-project-btn" data-slug="${slug}">Edit</button>
+            </li>`;
           }
           html += `</ul></div>`;
           return html;
         }
 
-        function handleSave(collection) {
-          const textarea = document.getElementById(`editor-${collection}`);
-          if (!textarea) return;
-          const data = JSON.parse(textarea.value);
+        function escHtml(s) {
+          if (!s) return "";
+          return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
 
-          fetch("/admin/api/content", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ collection, data }),
-          })
-            .then((res) => res.json())
-            .then((json) => {
-              if (json.success) {
-                showToast(`${collection} saved successfully`, "success");
-                checkStatus();
-              } else {
-                showToast(`Save failed: ${json.error}`, "error");
-              }
-            })
-            .catch((e) => showToast(`Save failed: ${e.message}`, "error"));
+        function renderProjectForm() {
+          const isNew = editingState.projects === "new";
+          const slug = isNew ? (editingState.newSlug || "") : editingState.editSlug;
+          const projData = isNew
+            ? { title: "", description: "", client: "", date: new Date().toISOString().split("T")[0], tags: [], ndaLocked: false, portfolioLocked: false, portfolioTitle: "", logo: "", heroImage: "", images: [], layout: "standard", footer: "" }
+            : (currentContent.projects?.[slug]?.data || {});
+          const tags = Array.isArray(projData.tags) ? projData.tags : [];
+          const images = Array.isArray(projData.images) ? projData.images : [];
+          const formId = isNew ? "project-form-new" : `project-form-${slug}`;
+          let html = `<div class="content-view project-form">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3>${isNew ? "New Project" : "Edit: " + slug}</h3>
+              <button class="btn btn-secondary btn-sm" onclick="window.__backToProjects()">Back to list</button>
+            </div>
+            <div class="form-section">
+              <h4>Basic Info</h4>
+              ${isNew ? `<div class="field"><label>Slug (URL identifier, e.g. my-project)</label>
+                <input type="text" id="${formId}-slug" value="${escHtml(slug)}" placeholder="my-project" /></div>` : ""}
+              <div class="field"><label>Title *</label>
+                <input type="text" id="${formId}-title" value="${escHtml(projData.title)}" /></div>
+              <div class="field"><label>Description</label>
+                <textarea id="${formId}-desc" style="min-height:100px">${escHtml(projData.description)}</textarea></div>
+              <div class="field-row">
+                <div class="field"><label>Client</label>
+                  <input type="text" id="${formId}-client" value="${escHtml(projData.client)}" /></div>
+                <div class="field"><label>Date</label>
+                  <input type="date" id="${formId}-date" value="${projData.date ? String(projData.date).split("T")[0] : new Date().toISOString().split("T")[0]}" /></div>
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Visibility</h4>
+              <div class="field"><div class="checkbox-row">
+                <input type="checkbox" id="${formId}-nda" ${projData.ndaLocked ? "checked" : ""} />
+                <label for="${formId}-nda">NDA locked (requires password)</label>
+              </div></div>
+              <div class="field"><div class="checkbox-row">
+                <input type="checkbox" id="${formId}-plock" ${projData.portfolioLocked ? "checked" : ""} />
+                <label for="${formId}-plock">Portfolio locked (hidden from portfolio grid)</label>
+              </div></div>
+              <div class="field"><label>Portfolio Title (optional, shown instead of title on grid)</label>
+                <input type="text" id="${formId}-ptitle" value="${escHtml(projData.portfolioTitle || "")}" /></div>
+            </div>
+            <div class="form-section">
+              <h4>Tags</h4>
+              <div class="tag-input" id="${formId}-tags">
+                ${tags.map((t, i) => `<span class="tag">${escHtml(t)}<span class="remove-tag" data-idx="${i}">&times;</span></span>`).join("")}
+                <input type="text" placeholder="Add tag..." />
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Images</h4>
+              <div class="field"><label>Logo (shown on portfolio grid card)</label>
+                <div class="img-picker" onclick="window.__pickImage('${formId}-logo')">
+                  ${projData.logo ? `<img src="${imgUrl(projData.logo)}" alt="" /><span>${escHtml(projData.logo.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-logo" value="${escHtml(projData.logo || "")}" />
+              </div>
+              <div class="field"><label>Hero Image *</label>
+                <div class="img-picker" onclick="window.__pickImage('${formId}-hero')">
+                  ${projData.heroImage ? `<img src="${imgUrl(projData.heroImage)}" alt="" /><span>${escHtml(projData.heroImage.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-hero" value="${escHtml(projData.heroImage || "")}" />
+              </div>
+              <div class="field"><label>Gallery Images</label>
+                <div class="img-picker-multi" onclick="window.__pickMultiImage('${formId}-gallery')">
+                  ${images.length > 0 ? images.map(img => `<div class="thumb"><img src="${imgUrl(img)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-gallery" value='${escHtml(JSON.stringify(images))}' />
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Layout</h4>
+              <div class="field-row">
+                <div class="field"><label>Gallery Layout</label>
+                  <select id="${formId}-layout">
+                    <option value="standard" ${projData.layout === "standard" ? "selected" : ""}>Standard</option>
+                    <option value="masonry" ${projData.layout === "masonry" ? "selected" : ""}>Masonry</option>
+                  </select>
+                </div>
+                <div class="field"><label>Footer Text (optional)</label>
+                  <input type="text" id="${formId}-footer" value="${escHtml(projData.footer || "")}" /></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="window.__saveProjectForm('${isNew ? "new" : slug}', ${isNew})">Save Project</button>
+          </div>`;
+          return html;
+        }
+
+        window.__newProject = function () {
+          editingState.projects = "new";
+          editingState.newSlug = "";
+          renderTab("projects");
+        };
+
+        window.__backToProjects = function () {
+          editingState.projects = "list";
+          renderTab("projects");
+        };
+
+        window.__pickImage = function (fieldId) {
+          openLibraryPicker({ mode: "single", onSelect: (path) => {
+            const input = document.getElementById(fieldId);
+            if (input) {
+              input.value = path;
+              input.dispatchEvent(new Event("change"));
+            }
+            renderTab("projects");
+          }});
+        };
+
+        window.__pickMultiImage = function (fieldId) {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const input = document.getElementById(fieldId);
+            if (input) {
+              const existing = JSON.parse(input.value || "[]");
+              const combined = [...existing, ...paths];
+              input.value = JSON.stringify(combined);
+              input.dispatchEvent(new Event("change"));
+            }
+            renderTab("projects");
+          }});
+        };
+
+        window.__removeGalleryImage = function (fieldId, imgPath) {
+          const input = document.getElementById(fieldId);
+          if (input) {
+            const existing = JSON.parse(input.value || "[]");
+            input.value = JSON.stringify(existing.filter(p => p !== imgPath));
+          }
+          renderTab("projects");
+        };
+
+        window.__saveProjectForm = async function (slug, isNew) {
+          const formId = isNew ? "project-form-new" : `project-form-${slug}`;
+          const newSlug = isNew ? document.getElementById(`${formId}-slug`)?.value || slug : slug;
+          const title = document.getElementById(`${formId}-title`)?.value || "";
+          const description = document.getElementById(`${formId}-desc`)?.value || "";
+          const client = document.getElementById(`${formId}-client`)?.value || "";
+          const date = document.getElementById(`${formId}-date`)?.value || new Date().toISOString().split("T")[0];
+
+          const tagContainer = document.getElementById(`${formId}-tags`);
+          const tags = [];
+          if (tagContainer) {
+            tagContainer.querySelectorAll(".tag").forEach(el => {
+              const text = el.childNodes[0]?.textContent?.trim();
+              if (text) tags.push(text);
+            });
+          }
+
+          const ndaLocked = document.getElementById(`${formId}-nda`)?.checked || false;
+          const portfolioLocked = document.getElementById(`${formId}-plock`)?.checked || false;
+          const portfolioTitle = document.getElementById(`${formId}-ptitle`)?.value || undefined;
+          const logo = document.getElementById(`${formId}-logo`)?.value || "";
+          const heroImage = document.getElementById(`${formId}-hero`)?.value || "";
+          const galleryRaw = document.getElementById(`${formId}-gallery`)?.value || "[]";
+          const images = JSON.parse(galleryRaw);
+          const layout = document.getElementById(`${formId}-layout`)?.value || "standard";
+          const footer = document.getElementById(`${formId}-footer`)?.value || undefined;
+
+          const data = {
+            title, description, client, date, tags, ndaLocked, portfolioLocked,
+            ...(portfolioTitle ? { portfolioTitle } : {}),
+            ...(logo ? { logo: contentPath(logo) } : {}),
+            heroImage: contentPath(heroImage),
+            images: images.map(p => contentPath(p)),
+            layout, ...(footer ? { footer } : {}),
+          };
+
+          if (!data.title || !data.heroImage) {
+            showToast("Title and Hero Image are required", "error");
+            return;
+          }
+
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "projects", data, slug: newSlug }),
+            });
+            const json = await res.json();
+            if (json.success) {
+              showToast(`Project "${newSlug}" saved`, "success");
+              editingState.projects = "list";
+              await loadContent();
+              checkStatus();
+            } else {
+              showToast("Save failed: " + json.error, "error");
+            }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        let _libraryPickerResolve = null;
+
+        function openLibraryPicker({ mode, onSelect }) {
+          _libraryPickerResolve = onSelect;
+          const overlay = document.createElement("div");
+          overlay.className = "modal-overlay";
+          overlay.id = "library-picker-overlay";
+          let html = `<div class="modal">
+            <h2>Select Image${mode === "multi" ? "s" : ""}</h2>
+            <div style="margin-bottom:12px"><input type="text" id="picker-search" placeholder="Search images..." style="width:100%;padding:8px 12px;font-size:13px;border:1px solid #d0d0d0;border-radius:6px" oninput="window.__filterPicker()" /></div>
+            <div id="picker-grid">`;
+
+          const byDir = libraryData.byDir || {};
+          for (const [dir, files] of Object.entries(byDir)) {
+            html += `<div class="library-dir picker-dir" data-dir="${escHtml(dir)}">
+              <h4>${dir || "general"}</h4>
+              <div class="library-grid">`;
+            for (const file of files) {
+              const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" />` : "";
+              html += `<div class="library-item picker-item" data-path="${escHtml(file.path)}">
+                ${sel}
+                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}" alt="" loading="lazy" />
+                <div class="name">${escHtml(file.name)}</div>
+              </div>`;
+            }
+            html += `</div></div>`;
+          }
+
+          html += `</div>
+            <div class="modal-actions">
+              <button class="btn btn-secondary" onclick="window.__closeLibraryPicker()">Cancel</button>
+              <button class="btn btn-primary" onclick="window.__confirmLibraryPicker('${mode}')">${mode === "multi" ? "Select" : "Select"}</button>
+            </div>
+          </div>`;
+          overlay.innerHTML = html;
+          document.body.appendChild(overlay);
+
+          if (mode === "single") {
+            overlay.querySelectorAll(".picker-item").forEach(el => {
+              el.addEventListener("click", () => {
+                overlay.querySelectorAll(".picker-item").forEach(e => e.classList.remove("selected"));
+                el.classList.add("selected");
+              });
+            });
+          }
+        }
+
+        window.__closeLibraryPicker = function () {
+          const overlay = document.getElementById("library-picker-overlay");
+          if (overlay) overlay.remove();
+          _libraryPickerResolve = null;
+        };
+
+        window.__confirmLibraryPicker = function (mode) {
+          const overlay = document.getElementById("library-picker-overlay");
+          if (!overlay) return;
+          let selected = [];
+          if (mode === "single") {
+            const sel = overlay.querySelector(".picker-item.selected");
+            if (sel) selected = [sel.dataset.path];
+          } else {
+            overlay.querySelectorAll(".picker-cb:checked").forEach(cb => selected.push(cb.dataset.path));
+          }
+          if (selected.length === 0) { showToast("Please select at least one image", "info"); return; }
+          overlay.remove();
+          if (_libraryPickerResolve) _libraryPickerResolve(selected);
+          _libraryPickerResolve = null;
+        };
+
+        window.__filterPicker = function () {
+          const q = (document.getElementById("picker-search")?.value || "").toLowerCase();
+          document.querySelectorAll(".picker-dir").forEach(dir => {
+            let visible = false;
+            dir.querySelectorAll(".picker-item").forEach(item => {
+              const name = item.dataset.path.toLowerCase();
+              const match = !q || name.includes(q);
+              item.style.display = match ? "" : "none";
+              if (match) visible = true;
+            });
+            dir.style.display = visible ? "" : "none";
+          });
+        };
+
+        function renderLibraryHTML() {
+          const byDir = libraryData.byDir || {};
+          let html = `<div class="content-view"><h3>Media Library</h3>
+            <div class="upload-zone" id="upload-zone">
+              <p>Click or drop images to upload</p>
+              <input type="file" id="upload-input" accept="image/*" multiple />
+            </div>`;
+          for (const [dir, files] of Object.entries(byDir)) {
+            html += `<div class="library-dir">
+              <h4>${dir || "general"} (${files.length})</h4>
+              <div class="library-grid">`;
+            for (const file of files) {
+              html += `<div class="library-item" data-path="${escHtml(file.path)}">
+                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}" alt="" loading="lazy" />
+                <div class="name">${escHtml(file.name)}</div>
+                <button class="delete-btn" onclick="event.stopPropagation();window.__deleteLibraryImage('${escHtml(file.path)}')">&times;</button>
+              </div>`;
+            }
+            html += `</div></div>`;
+          }
+          html += `</div>`;
+          return html;
+        }
+
+        function setupUpload() {
+          const zone = document.getElementById("upload-zone");
+          const input = document.getElementById("upload-input");
+          if (!zone || !input) return;
+          zone.addEventListener("click", () => input.click());
+          input.addEventListener("change", async () => {
+            const files = input.files;
+            if (!files.length) return;
+            for (const file of files) {
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("subdir", "general");
+              try {
+                const res = await fetch("/admin/api/library", { method: "POST", body: fd });
+                const json = await res.json();
+                if (json.success) showToast(`Uploaded ${file.name}`, "success");
+                else showToast(`Upload failed: ${json.error}`, "error");
+              } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
+            }
+            input.value = "";
+            await refreshLibrary();
+          });
+          zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.style.borderColor = "#2563eb"; });
+          zone.addEventListener("dragleave", () => { zone.style.borderColor = "#d0d0d0"; });
+          zone.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            zone.style.borderColor = "#d0d0d0";
+            const files = e.dataTransfer.files;
+            if (!files.length) return;
+            for (const file of files) {
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("subdir", "general");
+              try {
+                const res = await fetch("/admin/api/library", { method: "POST", body: fd });
+                const json = await res.json();
+                if (json.success) showToast(`Uploaded ${file.name}`, "success");
+                else showToast(`Upload failed: ${json.error}`, "error");
+              } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
+            }
+            await refreshLibrary();
+          });
+        }
+
+        window.__deleteLibraryImage = async function (path) {
+          if (!confirm("Delete this image?")) return;
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "DELETE", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ path }),
+            });
+            const json = await res.json();
+            if (json.success) {
+              showToast("Image deleted", "success");
+              await refreshLibrary();
+            } else showToast("Delete failed: " + json.error, "error");
+          } catch (e) { showToast("Delete error: " + e.message, "error"); }
+        };
+
+        async function refreshLibrary() {
+          try {
+            const res = await fetch("/admin/api/library");
+            const json = await res.json();
+            libraryData = json;
+            renderLibrary();
+          } catch (e) { showToast("Failed to refresh library: " + e.message, "error"); }
+        }
+
+        function setupSortableGrid(gridId, onReorder) {
+          const grid = document.getElementById(gridId);
+          if (!grid) return;
+          let dragEl = null;
+          grid.addEventListener("dragstart", (e) => {
+            const item = e.target.closest("[draggable]");
+            if (!item) return;
+            dragEl = item;
+            item.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+          });
+          grid.addEventListener("dragend", (e) => {
+            const item = e.target.closest("[draggable]");
+            if (item) item.classList.remove("dragging");
+            grid.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+          });
+          grid.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const target = e.target.closest("[draggable]");
+            if (!target || target === dragEl) return;
+            target.classList.add("drag-over");
+          });
+          grid.addEventListener("dragleave", (e) => {
+            const target = e.target.closest("[draggable]");
+            if (target) target.classList.remove("drag-over");
+          });
+          grid.addEventListener("drop", (e) => {
+            e.preventDefault();
+            grid.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+            const target = e.target.closest("[draggable]");
+            if (!target || !dragEl || target === dragEl) return;
+            const parent = target.parentNode;
+            const children = [...parent.querySelectorAll("[draggable]")];
+            const fromIdx = children.indexOf(dragEl);
+            const toIdx = children.indexOf(target);
+            if (fromIdx < toIdx) {
+              target.parentNode.insertBefore(dragEl, target.nextSibling);
+            } else {
+              target.parentNode.insertBefore(dragEl, target);
+            }
+            const newOrder = [...parent.querySelectorAll("[draggable]")];
+            onReorder(newOrder);
+          });
+        }
+
+        function setupSortableList(listId, onReorder) {
+          const list = document.getElementById(listId);
+          if (!list) return;
+          let dragEl = null;
+          list.addEventListener("dragstart", (e) => {
+            const item = e.target.closest("[draggable]");
+            if (!item) return;
+            dragEl = item;
+            item.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+          });
+          list.addEventListener("dragend", (e) => {
+            const item = e.target.closest("[draggable]");
+            if (item) item.classList.remove("dragging");
+            list.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+          });
+          list.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const target = e.target.closest("[draggable]");
+            if (!target || target === dragEl) return;
+            target.classList.add("drag-over");
+          });
+          list.addEventListener("dragleave", (e) => {
+            const target = e.target.closest("[draggable]");
+            if (target) target.classList.remove("drag-over");
+          });
+          list.addEventListener("drop", (e) => {
+            e.preventDefault();
+            list.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+            const target = e.target.closest("[draggable]");
+            if (!target || !dragEl || target === dragEl) return;
+            const rect = target.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            if (e.clientY < midY) {
+              target.parentNode.insertBefore(dragEl, target);
+            } else {
+              target.parentNode.insertBefore(dragEl, target.nextSibling);
+            }
+            const newOrder = [...list.querySelectorAll("[draggable]")];
+            onReorder(newOrder);
+          });
         }
 
         async function handlePublish() {
@@ -387,11 +1123,7 @@ const tabs = [
             const res = await fetch("/admin/api/publish", { method: "POST" });
             const result = await res.json();
             if (result.success) {
-              showToast(
-                `Published ${result.fileCount} file(s). <a href="${result.commitUrl}" target="_blank">View commit</a>`,
-                "success",
-                8000
-              );
+              showToast(`Published ${result.fileCount} file(s). <a href="${result.commitUrl}" target="_blank">View commit</a>`, "success", 8000);
             } else {
               showToast(`Publish failed: ${result.error}`, "error", 8000);
             }
@@ -404,69 +1136,43 @@ const tabs = [
         }
 
         document.addEventListener("click", (e) => {
-          const saveBtn = e.target.closest(".save-btn");
-          if (saveBtn) {
-            handleSave(saveBtn.dataset.collection);
+          if (e.target.closest("#publishBtn")) { handlePublish(); return; }
+
+          if (e.target.closest(".edit-project-btn")) {
+            const slug = e.target.closest(".edit-project-btn").dataset.slug;
+            editingState.projects = "edit";
+            editingState.editSlug = slug;
+            renderTab("projects");
             return;
           }
+        });
 
-          if (e.target.closest("#publishBtn")) {
-            handlePublish();
-            return;
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            const overlay = document.getElementById("library-picker-overlay");
+            if (overlay) overlay.remove();
           }
+        });
 
-          const editBtn = e.target.closest(".edit-project-btn");
-          if (editBtn) {
-            const slug = editBtn.dataset.slug;
-            const project = currentContent.projects?.[slug];
-            if (!project) return;
-            const panel = document.getElementById("panel-projects");
-            const json = JSON.stringify(project.data, null, 2);
-            panel.innerHTML = `
-              <div class="content-view">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                  <h3>Edit: ${slug}</h3>
-                  <button class="btn btn-secondary back-to-projects-btn">Back to list</button>
-                </div>
-                <div class="field">
-                  <label>Project data (JSON)</label>
-                  <textarea id="editor-project-${slug}" style="min-height:300px">${json}</textarea>
-                </div>
-                <button class="btn btn-primary save-project-btn" data-collection="projects" data-slug="${slug}">Save Project</button>
-              </div>
-            `;
-            return;
+        document.addEventListener("input", (e) => {
+          const tagInput = e.target.closest(".tag-input input");
+          if (!tagInput) return;
+          if (e.inputType === "insertText" && tagInput.value.includes(",")) {
+            const tag = tagInput.value.replace(",", "").trim();
+            if (tag) {
+              const tagEl = document.createElement("span");
+              tagEl.className = "tag";
+              tagEl.innerHTML = `${tag}<span class="remove-tag">&times;</span>`;
+              tagInput.parentNode.insertBefore(tagEl, tagInput);
+            }
+            tagInput.value = "";
           }
+        });
 
-          const backBtn = e.target.closest(".back-to-projects-btn");
-          if (backBtn) {
-            renderContent();
-            return;
-          }
-
-          const saveProjectBtn = e.target.closest(".save-project-btn");
-          if (saveProjectBtn) {
-            const slug = saveProjectBtn.dataset.slug;
-            const textarea = document.getElementById(`editor-project-${slug}`);
-            if (!textarea) return;
-            const data = JSON.parse(textarea.value);
-            fetch("/admin/api/content", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ collection: "projects", data, slug }),
-            })
-              .then((res) => res.json())
-              .then((json) => {
-                if (json.success) {
-                  showToast(`Project "${slug}" saved`, "success");
-                  checkStatus();
-                  loadContent();
-                } else {
-                  showToast(`Save failed: ${json.error}`, "error");
-                }
-              })
-              .catch((e) => showToast(`Save failed: ${e.message}`, "error"));
-            return;
+        document.addEventListener("click", (e) => {
+          const removeTag = e.target.closest(".remove-tag");
+          if (removeTag) {
+            removeTag.closest(".tag").remove();
           }
         });
 

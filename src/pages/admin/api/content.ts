@@ -7,8 +7,8 @@ import {
   deleteProject,
 } from "../../../../scripts/content-service.mjs";
 
-export const GET: APIRoute = async ({ request }) => {
-  const url = new URL(request.url);
+export const GET: APIRoute = async ({ request, url: routeUrl }) => {
+  const url = new URL(request.url, routeUrl.origin);
   const collection = url.searchParams.get("collection");
 
   try {
