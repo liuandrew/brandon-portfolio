@@ -123,6 +123,10 @@ export async function publish() {
     body: JSON.stringify({ sha: newCommitSha, force: false }),
   });
 
+  try {
+    execSync("git pull --ff-only", { cwd: ROOT, encoding: "utf-8", stdio: "pipe" });
+  } catch {}
+
   clearChanged();
 
   return {
