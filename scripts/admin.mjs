@@ -66,7 +66,8 @@ function openBrowser(url) {
 loadEnv();
 process.env.ADMIN = "true";
 
-const child = spawn("npx", ["astro", "dev", "--host", "--port", String(PORT)], {
+const isWin = process.platform === "win32";
+const child = spawn(isWin ? "npx.cmd" : "npx", ["astro", "dev", "--host", "--port", String(PORT)], {
   cwd: CWD,
   stdio: "inherit",
   env: { ...process.env },
