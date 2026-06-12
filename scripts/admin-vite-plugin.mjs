@@ -218,7 +218,7 @@ function handleRevert(req, res) {
     if (files.length === 0) {
       return sendJson(res, { success: false, error: "No changes to revert" }, 400);
     }
-    execSync("git checkout -- .", { cwd: ROOT, encoding: "utf-8" });
+    execSync("git checkout -- . && git clean -fd src/assets/", { cwd: ROOT, encoding: "utf-8" });
     clearChanged();
     sendJson(res, { success: true, revertedCount: files.length });
   } catch (e) {
