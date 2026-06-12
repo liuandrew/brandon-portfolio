@@ -88,13 +88,14 @@ const tabs = [
       :global(.field input), :global(.field textarea), :global(.field select) {
         width: 100%; padding: 10px 12px; font-size: 14px;
         border: 1px solid #d0d0d0; border-radius: 6px; font-family: inherit;
+        box-sizing: border-box;
       }
       :global(.field textarea) { min-height: 80px; resize: vertical; }
       :global(.field input[type="checkbox"]) { width: auto; margin-right: 8px; }
       :global(.field .checkbox-row) { display: flex; align-items: center; gap: 8px; }
       :global(.field .checkbox-row input) { width: auto; }
       :global(.field .inline-group) { display: flex; flex-wrap: wrap; gap: 8px; }
-      :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
       :global(.project-list) { list-style: none; }
       :global(.project-item) {
         display: flex; align-items: center; justify-content: space-between;
@@ -133,7 +134,19 @@ const tabs = [
       :global(.library-dir h4) {
         font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
         padding-bottom: 4px; border-bottom: 1px solid #eee;
+        cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px;
       }
+      :global(.library-dir h4::before) {
+        content: ""; display: inline-block; width: 0; height: 0;
+        border-left: 5px solid #999; border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        flex-shrink: 0;
+      }
+      :global(.library-dir.collapsed h4::before) {
+        border-left: 4px solid transparent; border-top: 5px solid #999;
+        border-bottom: 0; margin: 2px 0 0 1px;
+      }
+      :global(.library-dir.collapsed .library-grid) { display: none; }
       :global(.library-grid) {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;
       }
@@ -168,6 +181,7 @@ const tabs = [
         max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto;
       }
       .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+      .modal #picker-grid { padding: 0 4px; }
       .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
       :global(.portfolio-project) {
@@ -338,6 +352,8 @@ const tabs = [
 
         buttons.forEach((btn) => {
           btn.addEventListener("click", () => {
+            const overlay = document.getElementById("library-picker-overlay");
+            if (overlay) { overlay.remove(); _libraryPickerResolve = null; }
             buttons.forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
             panels.forEach((p) => p.classList.remove("active"));
             btn.classList.add("active");
@@ -911,20 +927,26 @@ const tabs = [
 
         let _libraryPickerResolve = null;
 
+        window.__toggleLibraryDir = function (el) {
+          const dir = el.closest(".library-dir");
+          if (dir) dir.classList.toggle("collapsed");
+        };
+
         function openLibraryPicker({ mode, onSelect }) {
+          if (document.getElementById("library-picker-overlay")) return;
           _libraryPickerResolve = onSelect;
           const overlay = document.createElement("div");
           overlay.className = "modal-overlay";
           overlay.id = "library-picker-overlay";
-          let html = `<div class="modal">
+          let html = `<div class="modal" style="padding:20px; background:white; margin:20px">
             <h2>Select Image${mode === "multi" ? "s" : ""}</h2>
             <div style="margin-bottom:12px"><input type="text" id="picker-search" placeholder="Search images..." style="width:100%;padding:8px 12px;font-size:13px;border:1px solid #d0d0d0;border-radius:6px" oninput="window.__filterPicker()" /></div>
             <div id="picker-grid">`;
 
           const byDir = libraryData.byDir || {};
           for (const [dir, files] of Object.entries(byDir)) {
-            html += `<div class="library-dir picker-dir" data-dir="${escHtml(dir)}">
-              <h4>${dir || "general"}</h4>
+            html += `<div class="library-dir picker-dir collapsed" data-dir="${escHtml(dir)}">
+              <h4 onclick="window.__toggleLibraryDir(this)">${escHtml(dir || "general")} <span style="font-weight:400;color:#999;font-size:12px">(${files.length})</span></h4>
               <div class="library-grid">`;
             for (const file of files) {
               const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" />` : "";
@@ -974,7 +996,7 @@ const tabs = [
           }
           if (selected.length === 0) { showToast("Please select at least one image", "info"); return; }
           overlay.remove();
-          if (_libraryPickerResolve) _libraryPickerResolve(selected);
+          if (_libraryPickerResolve) _libraryPickerResolve(mode === "single" ? selected[0] : selected);
           _libraryPickerResolve = null;
         };
 
@@ -989,6 +1011,8 @@ const tabs = [
               if (match) visible = true;
             });
             dir.style.display = visible ? "" : "none";
+            if (q && visible) dir.classList.remove("collapsed");
+            else if (!q) dir.classList.add("collapsed");
           });
         };
 
@@ -1000,8 +1024,8 @@ const tabs = [
               <input type="file" id="upload-input" accept="image/*" multiple />
             </div>`;
           for (const [dir, files] of Object.entries(byDir)) {
-            html += `<div class="library-dir">
-              <h4>${dir || "general"} (${files.length})</h4>
+            html += `<div class="library-dir collapsed">
+              <h4 onclick="window.__toggleLibraryDir(this)">${escHtml(dir || "general")} (${files.length})</h4>
               <div class="library-grid">`;
             for (const file of files) {
               html += `<div class="library-item" data-path="${escHtml(file.path)}">
