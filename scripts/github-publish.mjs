@@ -124,6 +124,7 @@ export async function publish() {
   });
 
   try {
+    execSync("git stash", { cwd: ROOT, encoding: "utf-8", stdio: "pipe" });
     execSync("git pull --ff-only", { cwd: ROOT, encoding: "utf-8", stdio: "pipe" });
   } catch {}
 
