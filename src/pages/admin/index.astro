@@ -1057,12 +1057,16 @@ const tabs = [
                 <button class="btn-icon" onclick="event.stopPropagation();window.__deleteFolder('${escHtml(dir)}')" title="Delete folder">&#128465;</button>
               </h4>
               <div class="library-grid">`;
-            for (const file of files) {
-              html += `<div class="library-item" data-path="${escHtml(file.path)}">
-                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
-                <div class="name">${escHtml(file.name)}</div>
-                <button class="delete-btn" onclick="event.stopPropagation();window.__deleteLibraryImage('${escHtml(file.path)}')">&times;</button>
-              </div>`;
+            if (files.length === 0) {
+              html += `<p style="grid-column:1/-1;text-align:center;color:#999;font-size:13px;padding:16px 0">No images in this folder</p>`;
+            } else {
+              for (const file of files) {
+                html += `<div class="library-item" data-path="${escHtml(file.path)}">
+                  <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
+                  <div class="name">${escHtml(file.name)}</div>
+                  <button class="delete-btn" onclick="event.stopPropagation();window.__deleteLibraryImage('${escHtml(file.path)}')">&times;</button>
+                </div>`;
+              }
             }
             html += `</div></div>`;
           }
