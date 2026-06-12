@@ -68,6 +68,7 @@ export async function publish() {
   const [owner, repo] = getRepoInfo();
 
   const refUrl = `${GITHUB_API}/repos/${owner}/${repo}/git/ref/heads/main`;
+  const refsUrl = `${GITHUB_API}/repos/${owner}/${repo}/git/refs/heads/main`;
 
   const refData = await apiFetch(refUrl, { headers: headers(token) });
   const latestCommitSha = refData.object.sha;
@@ -116,7 +117,7 @@ export async function publish() {
   });
   const newCommitSha = newCommitData.sha;
 
-  await apiFetch(refUrl, {
+  await apiFetch(refsUrl, {
     method: "PATCH",
     headers: headers(token),
     body: JSON.stringify({ sha: newCommitSha, force: false }),
