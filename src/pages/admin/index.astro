@@ -1226,6 +1226,7 @@ const tabs = [
               </div>
             </div>`;
             document.body.appendChild(overlay);
+            window.scrollTo(0, document.body.scrollHeight);
             overlay.querySelector("#confirm-cancel").addEventListener("click", () => {
               overlay.remove(); resolve(false);
             });
