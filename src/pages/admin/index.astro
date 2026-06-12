@@ -1568,7 +1568,25 @@ const tabs = [
           });
         }
 
+        const ALLOWED_UPLOAD_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "image/avif"]);
+        const MAX_UPLOAD_SIZE_MB = 20;
+
+        function validateUploadFile(file) {
+          if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
+            return `"${file.name}" is not a supported image format. Use PNG, JPEG, WebP, GIF, SVG, or AVIF.`;
+          }
+          if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
+            return `"${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum size is ${MAX_UPLOAD_SIZE_MB} MB.`;
+          }
+          return null;
+        }
+
         async function uploadFile(file) {
+          const validationError = validateUploadFile(file);
+          if (validationError) {
+            showToast(validationError, "error");
+            return;
+          }
           const base64 = await fileToBase64(file);
           const folderSelect = document.getElementById("upload-folder-select");
           const subdir = folderSelect ? folderSelect.value : "general";
@@ -1784,15 +1802,27 @@ const tabs = [
             if (result.success) {
               showToast(`Published ${result.fileCount} file(s). <a href="${result.commitUrl}" target="_blank">View commit</a>`, "success", 8000);
             } else {
-              showToast(`Publish failed: ${result.error}`, "error", 8000);
+              let msg = result.error;
+              if (result.validationErrors) {
+                const parts = [];
+                for (const [collection, errors] of Object.entries(result.validationErrors)) {
+                  parts.push(`<strong>${collection}</strong>: ${errors.join("; ")}`);
+                }
+                msg = parts.join("<br>");
+              }
+              showToast(`Publish failed: ${msg} <br><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="window.__retryPublish()">Retry</button>`, "error", 12000);
             }
           } catch (e) {
-            showToast(`Publish error: ${e.message}`, "error", 8000);
+            showToast(`Publish error: ${e.message} <br><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="window.__retryPublish()">Retry</button>`, "error", 12000);
           } finally {
             publishBtn.textContent = "Publish";
             checkStatus();
           }
         }
+
+        window.__retryPublish = function () {
+          handlePublish();
+        };
 
         async function handleRevert() {
           const confirmed = await showConfirm("Revert all changes? This will discard all unsaved edits.", "Revert Changes");

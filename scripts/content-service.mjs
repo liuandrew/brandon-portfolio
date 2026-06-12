@@ -3,6 +3,7 @@ import { resolve, dirname, basename, extname } from "path";
 import { fileURLToPath } from "url";
 import yaml from "js-yaml";
 import { markChanged } from "./admin-state.mjs";
+import { validateCollection } from "./validate-content.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -111,6 +112,11 @@ export function readAllCollections() {
 export function writeCollection(collectionName, data, options = {}) {
   const meta = COLLECTION_META[collectionName];
   if (!meta) throw new Error(`Unknown collection: ${collectionName}`);
+
+  const validation = validateCollection(collectionName, data);
+  if (!validation.valid) {
+    throw new Error(`Validation failed: ${validation.errors.join("; ")}`);
+  }
 
   if (meta.type === "single") {
     const fp = mdFilePath(collectionName);

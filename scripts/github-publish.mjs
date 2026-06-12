@@ -21,13 +21,13 @@ function getRepoInfo() {
   } catch {}
 
   throw new Error(
-    "Cannot determine GitHub repo. Set GITHUB_REPO=owner/repo in .env"
+    "Could not detect the GitHub repository. Make sure GITHUB_REPO is set in your .env file (format: owner/repo)."
   );
 }
 
 function getToken() {
   const token = process.env.GITHUB_PAT;
-  if (!token) throw new Error("GITHUB_PAT not set in .env");
+  if (!token) throw new Error("GitHub token not found. Make sure GITHUB_PAT is set in your .env file.");
   return token;
 }
 

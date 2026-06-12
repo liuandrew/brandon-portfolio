@@ -6,6 +6,7 @@ import sharp from "sharp";
 import { markChanged, clearChanged, getChanged, hasChanges } from "./admin-state.mjs";
 import { readAllCollections, readCollection, writeCollection, createProject, deleteProject } from "./content-service.mjs";
 import { publish } from "./github-publish.mjs";
+import { validateAllCollections } from "./validate-content.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -73,9 +74,13 @@ async function handleContent(req, res) {
     const body = JSON.parse(await readBody(req));
     const { collection, data, slug } = body;
     if (!collection) return sendError(res, "collection is required", 400);
-    if (collection === "projects" && slug) createProject(slug, data);
-    else writeCollection(collection, data);
-    return sendJson(res, { success: true });
+    try {
+      if (collection === "projects" && slug) createProject(slug, data);
+      else writeCollection(collection, data);
+      return sendJson(res, { success: true });
+    } catch (e) {
+      return sendJson(res, { success: false, error: e.message }, 400);
+    }
   }
 
   if (method === "DELETE") {
@@ -154,7 +159,7 @@ async function handleLibrary(req, res) {
     }
 
     const { name, data, subdir = "general" } = body;
-    if (!name || !data) return sendError(res, "name and data (base64) are required", 400);
+    if (!name || !data) return sendError(res, "Missing file name or image data", 400);
 
     const targetDir = resolve(ASSETS, subdir);
     if (!existsSync(targetDir)) mkdirSync(targetDir, { recursive: true });
@@ -206,10 +211,41 @@ async function handleStatus(req, res) {
 
 async function handlePublish(req, res) {
   try {
+    const allData = readAllCollections();
+    const validationErrors = validateAllCollections(allData);
+    const errorMessages = {};
+    for (const [key, errors] of Object.entries(validationErrors)) {
+      errorMessages[key] = errors;
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      return sendJson(res, {
+        success: false,
+        error: "Cannot publish — content has validation errors. Fix them before publishing.",
+        validationErrors: errorMessages,
+      }, 400);
+    }
+
     const result = await publish();
     sendJson(res, result, result.success ? 200 : 400);
   } catch (e) {
     sendJson(res, { success: false, error: e.message }, 500);
+  }
+}
+
+async function handleValidate(req, res) {
+  try {
+    const allData = readAllCollections();
+    const validationErrors = validateAllCollections(allData);
+    const errorMessages = {};
+    for (const [key, errors] of Object.entries(validationErrors)) {
+      errorMessages[key] = errors;
+    }
+    sendJson(res, {
+      valid: Object.keys(validationErrors).length === 0,
+      errors: errorMessages,
+    });
+  } catch (e) {
+    sendJson(res, { valid: false, errors: { _general: [e.message] } }, 500);
   }
 }
 
@@ -244,6 +280,7 @@ export function adminApiPlugin() {
         if (url === "/admin/api/status") return handleStatus(req, res);
         if (url === "/admin/api/publish") return handlePublish(req, res);
         if (url === "/admin/api/revert") return handleRevert(req, res);
+        if (url === "/admin/api/validate") return handleValidate(req, res);
 
         next();
       });
