@@ -131,6 +131,12 @@ const tabs = [
         opacity: 0;
       }
       :global(.image-grid-item:hover .remove-btn) { opacity: 1; }
+      :global(.image-grid-item.with-description) { display: flex; flex-direction: column; }
+      :global(.image-grid-item .image-description) {
+        width: 100%; padding: 4px 6px; font-size: 11px; border: none; border-top: 1px solid #eee;
+        box-sizing: border-box; font-family: inherit; background: #fafafa;
+      }
+      :global(.image-grid-item .image-description:focus) { outline: 1px solid #2563eb; background: #fff; }
       :global(.library-dir) { margin-bottom: 24px; }
       :global(.library-dir h4) {
         font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
@@ -279,14 +285,20 @@ const tabs = [
       }
       :global(.img-picker-multi:hover) { border-color: #2563eb; }
       :global(.img-picker-multi .thumb) {
-        position: relative; width: 64px; height: 48px; border-radius: 4px; overflow: hidden;
+        position: relative; width: 100px; border-radius: 4px; overflow: visible;
+        border: 1px solid #e0e0e0; padding-bottom: 4px;
       }
-      :global(.img-picker-multi .thumb img) { width: 100%; height: 100%; object-fit: cover; }
+      :global(.img-picker-multi .thumb img) { width: 100%; height: 80px; object-fit: cover; display: block; border-radius: 4px 4px 0 0; }
       :global(.img-picker-multi .thumb .remove) {
-        position: absolute; top: 0; right: 0; width: 16px; height: 16px;
+        position: absolute; top: 2px; right: 2px; width: 16px; height: 16px;
         background: rgba(220,38,38,0.8); color: #fff; border: none; border-radius: 0 0 0 4px;
         font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
       }
+      :global(.img-picker-multi .thumb .thumb-description) {
+        width: 100%; padding: 2px 4px; font-size: 10px; border: none; border-top: 1px solid #eee;
+        box-sizing: border-box; font-family: inherit;
+      }
+      :global(.img-picker-multi .thumb .thumb-description:focus) { outline: 1px solid #2563eb; }
       :global(.img-picker-multi .placeholder) { color: #999; font-size: 13px; }
 
       :global(.tag-input) { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; min-height: 42px; }
@@ -1068,9 +1080,13 @@ const tabs = [
             </div>`;
           } else {
             images.forEach((img, i) => {
-              html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
-                <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
-                <div class="name">${img.split("/").pop()}</div>
+              const imgPath = typeof img === "string" ? img : img.src;
+              const imgDesc = typeof img === "object" ? (img.description || "") : "";
+              html += `<div class="image-grid-item with-description" data-index="${i}" data-path="${escHtml(imgPath)}">
+                <img src="${imgUrl(imgPath, 200)}" alt="" loading="lazy" />
+                <div class="name">${imgPath.split("/").pop()}</div>
+                <input type="text" class="image-description" placeholder="Description (optional)" value="${escHtml(imgDesc)}"
+                  onchange="window.__updatePersonalImageDescription(${i}, this.value)" onclick="event.stopPropagation()" />
                 <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
               </div>`;
             });
@@ -1088,7 +1104,8 @@ const tabs = [
 
         window.__addPersonalImage = function () {
           const data = currentContent.personal?.data || { images: [] };
-          openLibraryPicker({ mode: "multi", alreadyIncluded: data.images || [], onSelect: (paths) => {
+          const existingImages = (data.images || []).map(img => typeof img === "string" ? img : img.src);
+          openLibraryPicker({ mode: "multi", alreadyIncluded: existingImages, onSelect: (paths) => {
             const data = currentContent.personal?.data || { images: [], date: "2024-01-01" };
             if (!data.images) data.images = [];
             paths.forEach(path => data.images.push(contentPath(path)));
@@ -1105,13 +1122,41 @@ const tabs = [
           setupPersonalDnD();
         };
 
+        window.__updatePersonalImageDescription = function (index, description) {
+          const data = currentContent.personal?.data || { images: [] };
+          if (data.images && data.images[index]) {
+            const img = data.images[index];
+            if (typeof img === "string") {
+              if (description) {
+                data.images[index] = { src: img, description };
+              }
+            } else if (typeof img === "object") {
+              if (description) {
+                img.description = description;
+              } else {
+                data.images[index] = img.src;
+              }
+            }
+          }
+        };
+
         window.__savePersonal = async function () {
           const data = currentContent.personal?.data;
           if (!data) return;
+          const saveData = {
+            ...data,
+            images: (data.images || []).map(img => {
+              if (typeof img === "string") return img;
+              if (typeof img === "object" && img.description) {
+                return { src: img.src, description: img.description };
+              }
+              return typeof img === "string" ? img : img.src;
+            }),
+          };
           try {
             const res = await fetch("/admin/api/content", {
               method: "PUT", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ collection: "personal", data }),
+              body: JSON.stringify({ collection: "personal", data: saveData }),
             });
             const json = await safeJsonResponse(res);
             if (json.success) { showToast("Personal saved", "success"); checkStatus(); }
@@ -1122,7 +1167,18 @@ const tabs = [
         function setupPersonalDnD() {
           setupSortableGrid("personal-grid", (items) => {
             const data = currentContent.personal?.data || { images: [] };
-            data.images = items.map((el) => el.dataset.path);
+            const oldImages = data.images;
+            data.images = items.map((el) => {
+              const oldIndex = parseInt(el.dataset.index, 10);
+              const oldImg = oldImages[oldIndex];
+              const newPath = el.dataset.path;
+              if (typeof oldImg === "string") {
+                return newPath;
+              } else if (typeof oldImg === "object") {
+                return { ...oldImg, src: newPath };
+              }
+              return newPath;
+            });
           });
         }
 
@@ -1236,9 +1292,19 @@ const tabs = [
                 <input type="hidden" id="${formId}-hero" value="${escHtml(projData.heroImage || "")}" />
               </div>
               <div class="field"><label>Gallery Images</label>
-                <div class="img-picker-multi" id="${formId}-gallery-grid" onclick="if(event.target===this) window.__pickMultiImage('${formId}-gallery')">
-                  ${images.length > 0 ? images.map(img => `<div class="thumb" data-path="${escHtml(img)}"><img src="${imgUrl(img, 100)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
+                <div class="img-picker-multi" id="${formId}-gallery-grid">
+                  ${images.length > 0 ? images.map((img, idx) => {
+                    const imgPath = typeof img === "string" ? img : img.src;
+                    const imgDesc = typeof img === "object" ? (img.description || "") : "";
+                    return `<div class="thumb" data-path="${escHtml(imgPath)}" data-index="${idx}">
+                      <img src="${imgUrl(imgPath, 100)}" alt="" />
+                      <button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage(${idx})">&times;</button>
+                      <input type="text" class="thumb-description" placeholder="Description (optional)" value="${escHtml(imgDesc)}"
+                        onchange="window.__updateGalleryImageDescription(${idx}, this.value)" onclick="event.stopPropagation()" />
+                    </div>`;
+                  }).join("") : `<span class="placeholder">Click to select images...</span>`}
                 </div>
+                <button class="btn btn-secondary btn-sm" onclick="window.__pickMultiImage('${formId}-gallery')" style="margin-top:8px">Add Images</button>
                 <input type="hidden" id="${formId}-gallery" value='${escHtml(JSON.stringify(images))}' />
               </div>
             </div>
@@ -1333,12 +1399,14 @@ const tabs = [
 
         window.__pickMultiImage = function (fieldId) {
           const projData = _getProjectFormData();
-          openLibraryPicker({ mode: "multi", alreadyIncluded: projData?.images || [], onSelect: (paths) => {
+          const existingImages = (projData?.images || []).map(img => typeof img === "string" ? img : img.src);
+          openLibraryPicker({ mode: "multi", alreadyIncluded: existingImages, onSelect: (paths) => {
             const projData = _getProjectFormData();
             if (projData) {
               if (!Array.isArray(projData.images)) projData.images = [];
               paths.forEach(p => {
-                projData.images.push(p.startsWith("src/") ? contentPath(p) : p);
+                const contentRelPath = p.startsWith("src/") ? contentPath(p) : p;
+                projData.images.push(contentRelPath);
               });
             }
             renderTab("projects");
@@ -1346,14 +1414,36 @@ const tabs = [
           }});
         };
 
-        window.__removeGalleryImage = function (fieldId, imgPath) {
+        window.__removeGalleryImage = function (index) {
           const projData = _getProjectFormData();
           if (projData && Array.isArray(projData.images)) {
-            projData.images = projData.images.filter(p => p !== imgPath);
+            projData.images.splice(index, 1);
           }
           renderTab("projects");
           requestAnimationFrame(() => setupGalleryReorder());
         };
+
+        window.__updateGalleryImageDescription = function (index, description) {
+          const projData = _getProjectFormData();
+          if (projData && Array.isArray(projData.images)) {
+            const img = projData.images[index];
+            if (typeof img === "string") {
+              if (description) {
+                projData.images[index] = { src: img, description };
+              }
+            } else if (typeof img === "object") {
+              if (description) {
+                img.description = description;
+              } else {
+                projData.images[index] = img.src;
+              }
+            }
+          }
+        };
+
+        function _getGalleryImagePath(img) {
+          return typeof img === "string" ? img : img.src;
+        }
 
         window.__saveProjectForm = async function (slug, isNew) {
           const formId = isNew ? "project-form-new" : `project-form-${slug}`;
@@ -1381,7 +1471,7 @@ const tabs = [
           const portfolioTitle = document.getElementById(`${formId}-ptitle`)?.value || projData.portfolioTitle || undefined;
           const logo = projData.logo || "";
           const heroImage = projData.heroImage || "";
-          const images = Array.isArray(projData.images) ? projData.images : [];
+          let images = Array.isArray(projData.images) ? projData.images : [];
           const layout = document.getElementById(`${formId}-layout`)?.value || projData.layout || "standard";
           const footer = document.getElementById(`${formId}-footer`)?.value || projData.footer || undefined;
 
@@ -1413,7 +1503,13 @@ const tabs = [
             ...(portfolioTitle ? { portfolioTitle } : {}),
             ...(logo ? { logo } : {}),
             heroImage,
-            images: [...images],
+            images: images.map(img => {
+              if (typeof img === "string") return img;
+              if (typeof img === "object" && img.description) {
+                return { src: img.src, description: img.description };
+              }
+              return typeof img === "string" ? img : img.src;
+            }),
             layout, ...(footer ? { footer } : {}),
           };
 
@@ -1726,6 +1822,7 @@ const tabs = [
             ghostClass: "sortable-ghost", dragClass: "sortable-drag",
             onEnd: () => {
               const items = [...grid.querySelectorAll("[data-path]")];
+              items.forEach((el, i) => el.dataset.index = i);
               onReorder(items);
             }
           });
@@ -1757,7 +1854,18 @@ const tabs = [
               const projData = _getProjectFormData();
               if (!projData) return;
               const thumbs = [...grid.querySelectorAll(".thumb[data-path]")];
-              projData.images = thumbs.map(t => t.dataset.path);
+              const oldImages = projData.images;
+              projData.images = thumbs.map(t => {
+                const oldIndex = parseInt(t.dataset.index, 10);
+                const oldImg = oldImages[oldIndex];
+                const newPath = t.dataset.path;
+                if (typeof oldImg === "string") {
+                  return newPath;
+                } else if (typeof oldImg === "object") {
+                  return { ...oldImg, src: newPath };
+                }
+                return newPath;
+              });
               const hiddenInput = document.getElementById(`${formId}-gallery`);
               if (hiddenInput) hiddenInput.value = JSON.stringify(projData.images);
             }

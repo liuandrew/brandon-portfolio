@@ -162,11 +162,19 @@ function extractImagePaths(data) {
       for (const item of val) {
         if (typeof item === "string" && item.includes("src/assets/")) {
           paths.push(item);
+        } else if (typeof item === "object" && item.src && typeof item.src === "string" && item.src.includes("src/assets/")) {
+          paths.push(item.src);
         }
       }
     }
   }
   return paths;
+}
+
+function _getImagePath(img) {
+  if (typeof img === "string") return img;
+  if (typeof img === "object" && img.src) return img.src;
+  return null;
 }
 
 export function getReferencedImages() {
@@ -179,7 +187,8 @@ export function getReferencedImages() {
         const imgs = extractImagePaths(entry.data);
         imgs.forEach((p) => refs.add(p));
         for (const img of (entry.data.images || [])) {
-          if (typeof img === "string") refs.add(img);
+          const path = _getImagePath(img);
+          if (path) refs.add(path);
         }
         if (entry.data.heroImage) refs.add(entry.data.heroImage);
         if (entry.data.logo) refs.add(entry.data.logo);
@@ -189,7 +198,8 @@ export function getReferencedImages() {
       imgs.forEach((p) => refs.add(p));
       if (collection.data?.images) {
         for (const img of collection.data.images) {
-          if (typeof img === "string") refs.add(img);
+          const path = _getImagePath(img);
+          if (path) refs.add(path);
         }
       }
     }
