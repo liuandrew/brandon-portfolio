@@ -11,7 +11,7 @@ const projects = await getCollection("projects");
 const projectMap = new Map(projects.map((p) => [p.id, p]));
 
 function parseFmImages(filePath: string): { path: string; description: string | null }[] {
-  const raw = readFileSync(filePath, "utf-8");
+  const raw = readFileSync(filePath, "utf-8").replace(/\r\n/g, "\n");
   const fm = raw.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
   const imgKeyRe = /^images:\s*$/m;
   const imgStart = fm.search(imgKeyRe);
@@ -52,7 +52,7 @@ function parseFmImages(filePath: string): { path: string; description: string | 
 }
 
 function parseFmHero(filePath: string): string | null {
-  const raw = readFileSync(filePath, "utf-8");
+  const raw = readFileSync(filePath, "utf-8").replace(/\r\n/g, "\n");
   const fm = raw.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
   return fm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 }

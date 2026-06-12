@@ -38,10 +38,11 @@ const COLLECTION_META = {
 };
 
 function parseFrontmatter(text) {
-  const match = text.match(/^---\s*\n([\s\S]*?)\n?---\s*\n?/);
+  const normalized = text.replace(/\r\n/g, "\n");
+  const match = normalized.match(/^---\s*\n([\s\S]*?)\n?---\s*\n?/);
   if (!match) return { data: {}, content: "" };
   const data = yaml.load(match[1]) || {};
-  const body = text.slice(match[0].length);
+  const body = normalized.slice(match[0].length);
   return { data, content: body };
 }
 
