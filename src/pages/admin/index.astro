@@ -135,7 +135,9 @@ const tabs = [
         font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
         padding-bottom: 4px; border-bottom: 1px solid #eee;
         cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px;
+        flex-wrap: nowrap;
       }
+      :global(.library-dir h4 span) { flex: 1; }
       :global(.library-dir h4::before) {
         content: ""; display: inline-block; width: 0; height: 0;
         border-left: 5px solid #999; border-top: 4px solid transparent;
@@ -171,6 +173,12 @@ const tabs = [
       }
       :global(.upload-zone:hover) { border-color: #2563eb; color: #2563eb; }
       :global(.upload-zone input) { display: none; }
+      :global(.upload-zone select) { margin-top: 8px; }
+      :global(.btn-icon) {
+        background: none; border: none; cursor: pointer; color: #999;
+        font-size: 14px; padding: 2px 4px; border-radius: 4px;
+      }
+      :global(.btn-icon:hover) { color: #dc2626; background: rgba(220,38,38,0.1); }
 
       .modal-overlay {
         position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900;
@@ -261,7 +269,7 @@ const tabs = [
       /* Confirmation modal */
       .confirm-overlay {
         position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 950;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center; justify-content: center; 
       }
       .confirm-modal {
         background: #fff; border-radius: 12px; padding: 24px;
@@ -281,6 +289,7 @@ const tabs = [
       <h1>Admin <span>/ Brandon's Portfolio</span></h1>
       <div class="header-actions">
         <span class="publish-status" id="publishStatus">Loading...</span>
+        <button class="btn btn-secondary" id="revertBtn" disabled>Revert</button>
         <button class="btn btn-primary" id="publishBtn" disabled>Publish</button>
       </div>
     </header>
@@ -317,6 +326,7 @@ const tabs = [
         const buttons = document.querySelectorAll(".tab-btn");
         const panels = document.querySelectorAll(".tab-panel");
         const publishBtn = document.getElementById("publishBtn");
+        const revertBtn = document.getElementById("revertBtn");
         const publishStatus = document.getElementById("publishStatus");
         const toastContainer = document.getElementById("toastContainer");
 
@@ -385,11 +395,13 @@ const tabs = [
               publishStatus.className = "publish-status has-changes";
               publishBtn.disabled = !status.patConfigured;
               publishBtn.title = status.patConfigured ? "" : "GITHUB_PAT not configured";
+              revertBtn.disabled = false;
             } else {
               publishStatus.textContent = "No changes to publish";
               publishStatus.className = "publish-status";
               publishBtn.disabled = true;
               publishBtn.title = "";
+              revertBtn.disabled = true;
             }
           } catch (e) {
             publishStatus.textContent = "Status unavailable";
@@ -1024,13 +1036,26 @@ const tabs = [
         function renderLibraryHTML() {
           const byDir = libraryData.byDir || {};
           let html = `<div class="content-view"><h3>Media Library</h3>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__createFolder()">New Folder</button>
+            </div>
             <div class="upload-zone" id="upload-zone">
               <p>Click or drop images to upload</p>
               <input type="file" id="upload-input" accept="image/*" multiple />
-            </div>`;
+              <select id="upload-folder-select" style="margin-top:8px;padding:4px 8px;border:1px solid #d0d0d0;border-radius:4px">
+                <option value="general">general</option>`;
+          for (const dir of Object.keys(byDir)) {
+            if (dir !== "general") {
+              html += `<option value="${escHtml(dir)}">${escHtml(dir)}</option>`;
+            }
+          }
+          html += `</select></div>`;
           for (const [dir, files] of Object.entries(byDir)) {
             html += `<div class="library-dir collapsed">
-              <h4 onclick="window.__toggleLibraryDir(this)">${escHtml(dir || "general")} (${files.length})</h4>
+              <h4 onclick="window.__toggleLibraryDir(this)">
+                <span>${escHtml(dir || "general")} (${files.length})</span>
+                <button class="btn-icon" onclick="event.stopPropagation();window.__deleteFolder('${escHtml(dir)}')" title="Delete folder">&#128465;</button>
+              </h4>
               <div class="library-grid">`;
             for (const file of files) {
               html += `<div class="library-item" data-path="${escHtml(file.path)}">
@@ -1055,11 +1080,13 @@ const tabs = [
 
         async function uploadFile(file) {
           const base64 = await fileToBase64(file);
+          const folderSelect = document.getElementById("upload-folder-select");
+          const subdir = folderSelect ? folderSelect.value : "general";
           try {
             const res = await fetch("/admin/api/library", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name: file.name, data: base64, subdir: "general" }),
+              body: JSON.stringify({ name: file.name, data: base64, subdir }),
             });
             const json = await safeJsonResponse(res);
             if (json.success) showToast(`Uploaded ${file.name}`, "success");
@@ -1107,12 +1134,55 @@ const tabs = [
           } catch (e) { showToast("Delete error: " + e.message, "error"); }
         };
 
+        window.__createFolder = async function () {
+          const name = prompt("Enter folder name:");
+          if (!name || !name.trim()) return;
+          const folderName = name.trim().replace(/[^a-zA-Z0-9_\-\/]/g, "").replace(/\//g, "");
+          if (!folderName) { showToast("Invalid folder name", "error"); return; }
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "createFolder", name: folderName }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Folder "${folderName}" created`, "success");
+              await refreshLibrary();
+            } else showToast("Create folder failed: " + json.error, "error");
+          } catch (e) { showToast("Create folder error: " + e.message, "error"); }
+        };
+
+        window.__deleteFolder = async function (dirName) {
+          const confirmed = await showConfirm(`Delete folder "${dirName}" and all its contents?`, "Delete Folder");
+          if (!confirmed) return;
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "deleteFolder", name: dirName }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Folder "${dirName}" deleted`, "success");
+              await refreshLibrary();
+            } else showToast("Delete folder failed: " + json.error, "error");
+          } catch (e) { showToast("Delete folder error: " + e.message, "error"); }
+        };
+
         async function refreshLibrary() {
           try {
             const res = await fetch("/admin/api/library");
             const json = await safeJsonResponse(res);
             libraryData = json;
-            renderLibrary();
+            const panel = document.getElementById("panel-library");
+            if (panel) {
+              panel.innerHTML = renderLibraryHTML();
+              requestAnimationFrame(() => {
+                setupUpload();
+                setupLightboxClicks(panel);
+              });
+            }
           } catch (e) { showToast("Failed to refresh library: " + e.message, "error"); }
         }
 
@@ -1147,7 +1217,7 @@ const tabs = [
           return new Promise((resolve) => {
             const overlay = document.createElement("div");
             overlay.className = "confirm-overlay";
-            overlay.innerHTML = `<div class="confirm-modal">
+            overlay.innerHTML = `<div class="confirm-modal" style="padding:24px;">
               <h3>${escHtml(title)}</h3>
               <p>${escHtml(message)}</p>
               <div class="confirm-actions">
@@ -1214,8 +1284,31 @@ const tabs = [
           }
         }
 
+        async function handleRevert() {
+          const confirmed = await showConfirm("Revert all changes? This will discard all unsaved edits.", "Revert Changes");
+          if (!confirmed) return;
+          revertBtn.disabled = true;
+          revertBtn.textContent = "Reverting...";
+          try {
+            const res = await fetch("/admin/api/revert", { method: "POST" });
+            const result = await safeJsonResponse(res);
+            if (result.success) {
+              showToast(`Reverted ${result.revertedCount} file(s)`, "success");
+              await checkStatus();
+            } else {
+              showToast(`Revert failed: ${result.error}`, "error");
+            }
+          } catch (e) {
+            showToast(`Revert error: ${e.message}`, "error");
+          } finally {
+            revertBtn.textContent = "Revert";
+            checkStatus();
+          }
+        }
+
         document.addEventListener("click", (e) => {
           if (e.target.closest("#publishBtn")) { handlePublish(); return; }
+          if (e.target.closest("#revertBtn")) { handleRevert(); return; }
 
           if (e.target.closest(".edit-project-btn")) {
             const slug = e.target.closest(".edit-project-btn").dataset.slug;

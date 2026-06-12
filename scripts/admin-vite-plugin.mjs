@@ -1,10 +1,11 @@
-import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, mkdirSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, mkdirSync, rmSync } from "fs";
 import { resolve, dirname, extname, relative } from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 import sharp from "sharp";
-import { markChanged } from "./admin-state.mjs";
+import { markChanged, clearChanged, getChanged, hasChanges } from "./admin-state.mjs";
 import { readAllCollections, readCollection, writeCollection, createProject, deleteProject } from "./content-service.mjs";
-import { publish, getChanged, hasChanges } from "./github-publish.mjs";
+import { publish } from "./github-publish.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -44,8 +45,12 @@ function collectAssets(dir, baseDir, byDir) {
   const entries = readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const full = resolve(dir, entry.name);
-    if (entry.isDirectory()) collectAssets(full, baseDir, byDir);
-    else if (entry.isFile() && IMAGE_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
+    if (entry.isDirectory()) {
+      collectAssets(full, baseDir, byDir);
+      const relDir = relative(ROOT, full);
+      const subDir = relDir.replace(/^src\/assets\/?/, "") || "general";
+      if (!byDir[subDir]) byDir[subDir] = [];
+    } else if (entry.isFile() && IMAGE_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
       const rel = relative(ROOT, full);
       const sub = dirname(rel).replace(/^src\/assets\/?/, "") || "general";
       if (!byDir[sub]) byDir[sub] = [];
@@ -136,6 +141,17 @@ async function handleLibrary(req, res) {
 
   if (method === "POST") {
     const body = JSON.parse(await readBody(req));
+
+    if (body.action === "createFolder") {
+      const { name } = body;
+      if (!name) return sendError(res, "name is required", 400);
+      const folderPath = resolve(ASSETS, name);
+      if (!folderPath.startsWith(ASSETS)) return sendError(res, "Invalid path", 400);
+      if (existsSync(folderPath)) return sendError(res, "Folder already exists", 409);
+      mkdirSync(folderPath, { recursive: true });
+      return sendJson(res, { success: true });
+    }
+
     const { name, data, subdir = "general" } = body;
     if (!name || !data) return sendError(res, "name and data (base64) are required", 400);
 
@@ -152,6 +168,18 @@ async function handleLibrary(req, res) {
 
   if (method === "DELETE") {
     const body = JSON.parse(await readBody(req));
+
+    if (body.action === "deleteFolder") {
+      const { name } = body;
+      if (!name) return sendError(res, "name is required", 400);
+      const folderPath = resolve(ASSETS, name);
+      if (!folderPath.startsWith(ASSETS)) return sendError(res, "Invalid path", 400);
+      if (!existsSync(folderPath)) return sendError(res, "Folder not found", 404);
+      rmSync(folderPath, { recursive: true, force: true });
+      markChanged(`src/assets/${name}`);
+      return sendJson(res, { success: true });
+    }
+
     const { path: fileRelPath } = body;
     if (!fileRelPath) return sendError(res, "path is required", 400);
     const abs = resolve(ROOT, fileRelPath);
@@ -184,6 +212,20 @@ async function handlePublish(req, res) {
   }
 }
 
+function handleRevert(req, res) {
+  try {
+    const files = getChanged();
+    if (files.length === 0) {
+      return sendJson(res, { success: false, error: "No changes to revert" }, 400);
+    }
+    execSync("git checkout -- .", { cwd: ROOT, encoding: "utf-8" });
+    clearChanged();
+    sendJson(res, { success: true, revertedCount: files.length });
+  } catch (e) {
+    sendJson(res, { success: false, error: e.message }, 500);
+  }
+}
+
 export function adminApiPlugin() {
   return {
     name: "admin-api",
@@ -195,6 +237,7 @@ export function adminApiPlugin() {
         if (url === "/admin/api/library") return handleLibrary(req, res);
         if (url === "/admin/api/status") return handleStatus(req, res);
         if (url === "/admin/api/publish") return handlePublish(req, res);
+        if (url === "/admin/api/revert") return handleRevert(req, res);
 
         next();
       });
