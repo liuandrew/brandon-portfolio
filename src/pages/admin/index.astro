@@ -4,6 +4,7 @@ const tabs = [
   { id: "portfolio", label: "Portfolio" },
   { id: "personal", label: "Personal" },
   { id: "projects", label: "Projects" },
+  { id: "projectsNav", label: "ProjectsNav" },
   { id: "library", label: "Library" },
 ];
 ---
@@ -326,6 +327,60 @@ const tabs = [
       /* Compact thumbnails */
       :global(.image-grid) { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
       :global(.image-grid-item img) { height: 80px; }
+
+      /* ProjectsNav styles */
+      :global(.nav-section) {
+        background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+        margin-bottom: 16px; overflow: hidden;
+      }
+      :global(.nav-section.drag-over) { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+      :global(.nav-section-header) {
+        display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+        background: #fafafa; border-bottom: 1px solid #e0e0e0;
+      }
+      :global(.nav-section-header .drag-handle) { cursor: grab; color: #999; font-size: 16px; }
+      :global(.nav-section-header .section-title) {
+        flex: 1; font-size: 15px; font-weight: 600; border: 1px solid transparent;
+        padding: 4px 8px; border-radius: 4px; background: none; font-family: inherit;
+      }
+      :global(.nav-section-header .section-title:hover) { border-color: #d0d0d0; }
+      :global(.nav-section-header .section-title:focus) { border-color: #2563eb; outline: none; background: #fff; }
+      :global(.nav-section-header .section-actions) { display: flex; gap: 6px; }
+      :global(.nav-section-projects) {
+        list-style: none; padding: 8px; min-height: 40px;
+      }
+      :global(.nav-section-projects:empty)::after {
+        content: "Drag projects here or use Add Project below";
+        display: block; text-align: center; color: #999; font-size: 13px;
+        padding: 16px; border: 1px dashed #d0d0d0; border-radius: 6px;
+      }
+      :global(.nav-project-item) {
+        display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+        border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 6px;
+        background: #fff; cursor: grab;
+      }
+      :global(.nav-project-item:hover) { border-color: #999; }
+      :global(.nav-project-item.dragging) { opacity: 0.4; }
+      :global(.nav-project-item .drag-handle) { cursor: grab; color: #999; font-size: 14px; }
+      :global(.nav-project-item .project-slug) { font-weight: 500; font-size: 13px; min-width: 0; flex: 1; }
+      :global(.nav-project-item .display-name-input) {
+        border: 1px solid transparent; padding: 3px 6px; font-size: 12px;
+        border-radius: 4px; width: 160px; font-family: inherit; color: #666;
+      }
+      :global(.nav-project-item .display-name-input:hover) { border-color: #d0d0d0; }
+      :global(.nav-project-item .display-name-input:focus) { border-color: #2563eb; outline: none; background: #fff; }
+      :global(.nav-project-item .remove-project) {
+        background: none; border: none; cursor: pointer; color: #999;
+        font-size: 14px; padding: 2px 4px; border-radius: 4px;
+      }
+      :global(.nav-project-item .remove-project:hover) { color: #dc2626; background: rgba(220,38,38,0.1); }
+      :global(.nav-add-project-bar) {
+        display: flex; gap: 8px; padding: 8px 16px 12px; align-items: center;
+      }
+      :global(.nav-add-project-bar select) {
+        flex: 1; padding: 6px 10px; font-size: 13px; border: 1px solid #d0d0d0;
+        border-radius: 6px; font-family: inherit;
+      }
     </style>
   </head>
   <body>
@@ -506,6 +561,12 @@ const tabs = [
             case "projects":
               panel.innerHTML = renderProjects(data);
               requestAnimationFrame(() => setupGalleryReorder());
+              break;
+            case "projectsNav":
+              panel.innerHTML = renderProjectsNav(data);
+              requestAnimationFrame(() => {
+                setupProjectsNavDnD();
+              });
               break;
             case "library":
               panel.innerHTML = renderLibraryHTML();
@@ -778,6 +839,197 @@ const tabs = [
               }
             });
           });
+        }
+
+        function renderProjectsNav(data) {
+          const sections = data?.data?.sections || [];
+          const allProjects = currentContent.projects || {};
+          const assignedSlugs = new Set();
+          for (const section of sections) {
+            for (const entry of (section.projects || [])) {
+              assignedSlugs.add(typeof entry === "string" ? entry : entry.slug);
+            }
+          }
+          const unassigned = Object.entries(allProjects).filter(([slug]) => !assignedSlugs.has(slug));
+
+          let html = `<div class="content-view"><h3>Navigation Dropdown</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Manage sections and assign projects to the site navigation. Drag to reorder within and between sections.</p>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <button class="btn btn-secondary" onclick="window.__addNavSection()">Add Section</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__saveProjectsNav()">Save Navigation</button>
+            </div>
+            <div id="nav-sections">`;
+
+          if (sections.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No sections yet</h2>
+              <p>Add a section to organize projects in the navigation dropdown.</p>
+            </div>`;
+          }
+
+          sections.forEach((section, sIdx) => {
+            html += `<div class="nav-section" data-section-idx="${sIdx}">
+              <div class="nav-section-header">
+                <span class="drag-handle">&#9776;</span>
+                <input class="section-title" type="text" value="${escHtml(section.title)}" data-section-idx="${sIdx}"
+                  onchange="window.__updateNavSectionTitle(${sIdx}, this.value)" />
+                <div class="section-actions">
+                  <button class="btn btn-secondary btn-sm" onclick="window.__addNavProject(${sIdx})">Add Project</button>
+                  <button class="btn btn-danger btn-sm" onclick="window.__removeNavSection(${sIdx})">Remove Section</button>
+                </div>
+              </div>
+              <ul class="nav-section-projects" data-section-idx="${sIdx}">`;
+
+            (section.projects || []).forEach((entry, pIdx) => {
+              const slug = typeof entry === "string" ? entry : entry.slug;
+              const displayName = typeof entry === "object" ? (entry.name || "") : "";
+              const project = allProjects[slug];
+              const title = project?.data?.title || slug;
+              html += `<li class="nav-project-item" data-slug="${slug}" data-section-idx="${sIdx}" data-proj-idx="${pIdx}">
+                <span class="drag-handle">&#9776;</span>
+                <span class="project-slug" title="${escHtml(slug)}">${escHtml(title)} <span style="color:#999;font-weight:400">(${escHtml(slug)})</span></span>
+                <input class="display-name-input" type="text" placeholder="Display name (optional)" value="${escHtml(displayName)}"
+                  onchange="window.__updateNavDisplayName(${sIdx}, ${pIdx}, this.value)" />
+                <button class="remove-project" onclick="window.__removeNavProject(${sIdx}, ${pIdx})" title="Remove from section">&times;</button>
+              </li>`;
+            });
+
+            html += `</ul></div>`;
+          });
+
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__saveProjectsNav = async function () {
+          const data = currentContent.projectsNav?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "projectsNav", data }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) { showToast("Navigation saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        window.__addNavSection = function () {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          if (!data.sections) data.sections = [];
+          data.sections.push({ title: "New Section", projects: [] });
+          currentContent.projectsNav = { data, body: "", filePath: "" };
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__removeNavSection = async function (sIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          const confirmed = await showConfirm(`Remove section "${section.title}"? Projects will become unassigned.`, "Remove Section");
+          if (!confirmed) return;
+          data.sections.splice(sIdx, 1);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__updateNavSectionTitle = function (sIdx, value) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          if (data.sections[sIdx]) data.sections[sIdx].title = value;
+        };
+
+        window.__updateNavDisplayName = function (sIdx, pIdx, value) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          const entry = section.projects[pIdx];
+          if (!entry) return;
+          const slug = typeof entry === "string" ? entry : entry.slug;
+          if (value.trim()) {
+            section.projects[pIdx] = { slug, name: value.trim() };
+          } else {
+            section.projects[pIdx] = slug;
+          }
+        };
+
+        window.__addNavProject = function (sIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          const allProjects = currentContent.projects || {};
+          const assignedSlugs = new Set();
+          for (const sec of data.sections) {
+            for (const entry of (sec.projects || [])) {
+              assignedSlugs.add(typeof entry === "string" ? entry : entry.slug);
+            }
+          }
+          const available = Object.keys(allProjects).filter(s => !assignedSlugs.has(s));
+          if (available.length === 0) { showToast("No unassigned projects available", "info"); return; }
+
+          const sel = prompt("Add project (enter slug):\nAvailable: " + available.join(", "));
+          if (!sel || !sel.trim()) return;
+          const slug = sel.trim();
+          if (!allProjects[slug]) { showToast(`Project "${slug}" not found`, "error"); return; }
+          if (assignedSlugs.has(slug)) { showToast(`Project "${slug}" is already assigned`, "error"); return; }
+          section.projects.push(slug);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__removeNavProject = function (sIdx, pIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          section.projects.splice(pIdx, 1);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        function setupProjectsNavDnD() {
+          document.querySelectorAll(".nav-section-projects").forEach((list) => {
+            const sIdx = parseInt(list.dataset.sectionIdx, 10);
+            const gridId = `nav-section-${sIdx}`;
+            if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+            sortableInstances[gridId] = new Sortable(list, {
+              group: "nav-projects",
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              onEnd: (evt) => {
+                const data = currentContent.projectsNav?.data || { sections: [] };
+                const fromSIdx = parseInt(evt.from.dataset.sectionIdx, 10);
+                const toSIdx = parseInt(evt.to.dataset.sectionIdx, 10);
+                const fromSection = data.sections[fromSIdx];
+                const toSection = data.sections[toSIdx];
+                if (!fromSection || !toSection) return;
+
+                const movedEntry = fromSection.projects.splice(evt.oldIndex, 1)[0];
+                if (movedEntry === undefined) return;
+                toSection.projects.splice(evt.newIndex, 0, movedEntry);
+
+                renderTab("projectsNav");
+                requestAnimationFrame(() => setupProjectsNavDnD());
+              }
+            });
+          });
+
+          const sectionsContainer = document.getElementById("nav-sections");
+          if (sectionsContainer && !sortableInstances["nav-sections"]) {
+            sortableInstances["nav-sections"] = new Sortable(sectionsContainer, {
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              handle: ".nav-section .drag-handle",
+              onEnd: () => {
+                const data = currentContent.projectsNav?.data || { sections: [] };
+                const sectionEls = [...sectionsContainer.querySelectorAll(".nav-section")];
+                const reordered = sectionEls.map(el => {
+                  const idx = parseInt(el.dataset.sectionIdx, 10);
+                  return data.sections[idx];
+                }).filter(Boolean);
+                data.sections = reordered;
+                renderTab("projectsNav");
+                requestAnimationFrame(() => setupProjectsNavDnD());
+              }
+            });
+          }
         }
 
         function renderPersonal(data) {
