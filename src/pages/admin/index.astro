@@ -4,6 +4,7 @@ const tabs = [
   { id: "portfolio", label: "Portfolio" },
   { id: "personal", label: "Personal" },
   { id: "projects", label: "Projects" },
+  { id: "projectsNav", label: "ProjectsNav" },
   { id: "library", label: "Library" },
 ];
 ---
@@ -32,64 +33,364 @@ const tabs = [
         padding: 0 24px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         height: 56px;
         flex-shrink: 0;
       }
-      header h1 {
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-      }
+      header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
       header h1 span { color: #666; font-weight: 400; }
+      .header-actions { display: flex; align-items: center; gap: 12px; }
+      .publish-status { font-size: 13px; color: #999; }
+      .publish-status.has-changes { color: #2563eb; }
+      .btn {
+        padding: 8px 16px; font-size: 13px; font-weight: 500; border: none;
+        border-radius: 6px; cursor: pointer; font-family: inherit;
+      }
+      .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .btn-primary { background: #111; color: #fff; }
+      .btn-primary:hover:not(:disabled) { background: #333; }
+      .btn-secondary { background: #e5e5e5; color: #333; }
+      .btn-secondary:hover:not(:disabled) { background: #ccc; }
+      .btn-danger { background: #dc2626; color: #fff; }
+      .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+      .btn-sm { padding: 4px 10px; font-size: 12px; }
       .tab-bar {
-        display: flex;
-        gap: 0;
-        background: #fff;
-        border-bottom: 1px solid #e0e0e0;
-        padding: 0 24px;
-        flex-shrink: 0;
+        display: flex; gap: 0; background: #fff; border-bottom: 1px solid #e0e0e0;
+        padding: 0 24px; flex-shrink: 0;
       }
       .tab-btn {
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        border: none;
-        background: none;
-        color: #666;
-        cursor: pointer;
+        padding: 12px 20px; font-size: 14px; font-weight: 500; border: none;
+        background: none; color: #666; cursor: pointer;
         border-bottom: 2px solid transparent;
-        transition: color 0.15s, border-color 0.15s;
         font-family: inherit;
       }
       .tab-btn:hover { color: #111; }
       .tab-btn.active { color: #111; border-bottom-color: #111; }
-      main {
-        flex: 1;
-        padding: 32px 24px;
-      }
+      main { flex: 1; padding: 32px 24px; overflow-y: auto; }
       .tab-panel { display: none; }
       .tab-panel.active { display: block; }
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 50vh;
-        color: #999;
-        text-align: center;
+      .toast-container {
+        position: fixed; bottom: 24px; right: 24px; display: flex;
+        flex-direction: column; gap: 8px; z-index: 1000;
       }
-      .empty-state h2 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #666;
-        margin-bottom: 8px;
+      .toast {
+        padding: 12px 20px; border-radius: 8px; font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 420px; line-height: 1.4;
       }
-      .empty-state p { font-size: 14px; max-width: 360px; line-height: 1.5; }
+      .toast.success { background: #065f46; color: #fff; }
+      .toast.error { background: #991b1b; color: #fff; }
+      .toast.info { background: #1e3a5f; color: #fff; }
+      .toast a { color: #93c5fd; }
+      :global(.content-view) { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; }
+      :global(.content-view h3) { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+      :global(.field) { margin-bottom: 16px; }
+      :global(.field label) { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+      :global(.field input), :global(.field textarea), :global(.field select) {
+        width: 100%; padding: 10px 12px; font-size: 14px;
+        border: 1px solid #d0d0d0; border-radius: 6px; font-family: inherit;
+        box-sizing: border-box;
+      }
+      :global(.field textarea) { min-height: 80px; resize: vertical; }
+      :global(.field input[type="checkbox"]) { width: auto; margin-right: 8px; }
+      :global(.field .checkbox-row) { display: flex; align-items: center; gap: 8px; }
+      :global(.field .checkbox-row input) { width: auto; }
+      :global(.field .inline-group) { display: flex; flex-wrap: wrap; gap: 8px; }
+      :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+      :global(.project-list) { list-style: none; }
+      :global(.project-item) {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-bottom: 1px solid #eee;
+      }
+      :global(.project-item:last-child) { border-bottom: none; }
+      :global(.project-item .slug) { font-weight: 500; font-size: 14px; }
+      :global(.project-item .title) { color: #666; font-size: 13px; }
+      :global(.project-list-header) {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+      }
+      :global(.image-grid) {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px; margin-top: 12px;
+      }
+      :global(.image-grid-item) {
+        position: relative; border: 2px solid #e0e0e0; border-radius: 8px;
+        overflow: hidden; background: #fff; cursor: grab;
+      }
+      :global(.image-grid-item:hover) { border-color: #999; }
+      :global(.image-grid-item.dragging) { opacity: 0.4; }
+      :global(.image-grid-item.drag-over) { border-color: #2563eb; }
+      :global(.image-grid-item img) { width: 100%; height: 100px; object-fit: cover; display: block; }
+      :global(.image-grid-item .name) {
+        padding: 4px 8px; font-size: 11px; color: #666;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      :global(.image-grid-item .remove-btn) {
+        position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+        border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff;
+        font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0;
+      }
+      :global(.image-grid-item:hover .remove-btn) { opacity: 1; }
+      :global(.library-dir) { margin-bottom: 24px; }
+      :global(.library-dir h4) {
+        font-size: 14px; font-weight: 600; color: #444; margin-bottom: 8px;
+        padding-bottom: 4px; border-bottom: 1px solid #eee;
+        cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px;
+        flex-wrap: nowrap;
+      }
+      :global(.library-dir h4 span) { flex: 1; }
+      :global(.library-dir h4::before) {
+        content: ""; display: inline-block; width: 0; height: 0;
+        border-left: 5px solid #999; border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        flex-shrink: 0;
+      }
+      :global(.library-dir.collapsed h4::before) {
+        border-left: 4px solid transparent; border-top: 5px solid #999;
+        border-bottom: 0; margin: 2px 0 0 1px;
+      }
+      :global(.library-dir.collapsed .library-grid) { display: none; }
+      :global(.library-grid) {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;
+      }
+      :global(.library-item) {
+        position: relative; border: 2px solid transparent; border-radius: 6px;
+        overflow: hidden; cursor: pointer; background: #fff;
+      }
+      :global(.library-item:hover) { border-color: #999; }
+      :global(.library-item.selected) { border-color: #2563eb; }
+      :global(.library-item img) { width: 100%; height: 80px; object-fit: cover; display: block; }
+      :global(.library-item .name) { padding: 3px 6px; font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      :global(.library-item .delete-btn) {
+        position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+        border-radius: 50%; border: none; background: rgba(220,38,38,0.8); color: #fff;
+        font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0;
+      }
+      :global(.library-item:hover .delete-btn) { opacity: 1; }
+      :global(.upload-zone) {
+        border: 2px dashed #d0d0d0; border-radius: 8px; padding: 24px;
+        text-align: center; color: #999; cursor: pointer; margin-bottom: 16px;
+      }
+      :global(.upload-zone:hover) { border-color: #2563eb; color: #2563eb; }
+      :global(.upload-zone input) { display: none; }
+      :global(.upload-zone select) { margin-top: 8px; }
+      :global(.btn-icon) {
+        background: none; border: none; cursor: pointer; color: #999;
+        font-size: 14px; padding: 2px 4px; border-radius: 4px;
+      }
+      :global(.btn-icon:hover) { color: #dc2626; background: rgba(220,38,38,0.1); }
+
+      .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .modal {
+        background: #fff; border-radius: 12px; padding: 24px;
+        max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto;
+      }
+      .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+      .modal #picker-grid { padding: 0 4px; }
+      .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+      :global(.portfolio-project) {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px;
+        margin-bottom: 8px; background: #fff; cursor: grab;
+      }
+      :global(.portfolio-project.dragging) { opacity: 0.4; }
+      :global(.portfolio-project.drag-over) { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+      :global(.portfolio-project .drag-handle) { cursor: grab; color: #999; font-size: 16px; }
+      :global(.portfolio-project .info) { flex: 1; }
+      :global(.portfolio-project .info .name) { font-size: 14px; font-weight: 500; }
+      :global(.portfolio-project .info .client) { font-size: 12px; color: #666; }
+      :global(.portfolio-project .toggle) { margin-left: auto; }
+      :global(.portfolio-project .image-override) { display: flex; align-items: center; gap: 6px; }
+      :global(.portfolio-project-row) {
+        display: flex; align-items: center; gap: 12px; width: 100%;
+      }
+      :global(.portfolio-override-strip) {
+        display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 2px 44px;
+      }
+      :global(.portfolio-override-thumb) {
+        position: relative; width: 56px; height: 42px; border-radius: 4px;
+        overflow: hidden; border: 1px solid #e0e0e0; cursor: grab; flex-shrink: 0;
+      }
+      :global(.portfolio-override-thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+      :global(.portfolio-override-thumb .remove-override) {
+        position: absolute; top: 0; right: 0; width: 16px; height: 16px;
+        background: rgba(220,38,38,0.85); color: #fff; border: none; border-radius: 0 0 0 4px;
+        font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.15s;
+      }
+      :global(.portfolio-override-thumb:hover .remove-override) { opacity: 1; }
+      :global(.portfolio-override-add) {
+        width: 56px; height: 42px; border: 1px dashed #d0d0d0; border-radius: 4px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #999; font-size: 18px; flex-shrink: 0;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      :global(.portfolio-override-add:hover) { border-color: #2563eb; color: #2563eb; }
+      :global(.portfolio-override-thumb.sortable-ghost) { opacity: 0.3; }
+      :global(.portfolio-override-thumb.sortable-drag) { opacity: 0.8; }
+      :global(.portfolio-toggle) {
+        position: relative; width: 40px; height: 22px; flex-shrink: 0;
+      }
+      :global(.portfolio-toggle input) { opacity: 0; width: 0; height: 0; }
+      :global(.portfolio-toggle .slider) {
+        position: absolute; inset: 0; background: #d0d0d0; border-radius: 22px;
+        cursor: pointer; transition: background 0.2s;
+      }
+      :global(.portfolio-toggle .slider::before) {
+        content: ""; position: absolute; width: 16px; height: 16px;
+        left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+        transition: transform 0.2s;
+      }
+      :global(.portfolio-toggle input:checked + .slider) { background: #111; }
+      :global(.portfolio-toggle input:checked + .slider::before) { transform: translateX(18px); }
+      :global(.portfolio-project.excluded) { opacity: 0.5; }
+      :global(.portfolio-project.excluded .info .name) { text-decoration: line-through; }
+
+      :global(.project-form) { max-width: 720px; }
+      :global(.project-form .form-section) { margin-bottom: 24px; }
+      :global(.project-form .form-section h4) {
+        font-size: 14px; font-weight: 600; color: #444; margin-bottom: 12px;
+        padding-bottom: 4px; border-bottom: 1px solid #eee;
+      }
+      :global(.img-picker) {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
+        min-height: 44px; cursor: pointer;
+      }
+      :global(.img-picker:hover) { border-color: #2563eb; }
+      :global(.img-picker img) { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
+      :global(.img-picker .placeholder) { color: #999; font-size: 13px; }
+      :global(.img-picker-multi) {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
+        min-height: 44px; cursor: pointer;
+      }
+      :global(.img-picker-multi:hover) { border-color: #2563eb; }
+      :global(.img-picker-multi .thumb) {
+        position: relative; width: 64px; height: 48px; border-radius: 4px; overflow: hidden;
+      }
+      :global(.img-picker-multi .thumb img) { width: 100%; height: 100%; object-fit: cover; }
+      :global(.img-picker-multi .thumb .remove) {
+        position: absolute; top: 0; right: 0; width: 16px; height: 16px;
+        background: rgba(220,38,38,0.8); color: #fff; border: none; border-radius: 0 0 0 4px;
+        font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      }
+      :global(.img-picker-multi .placeholder) { color: #999; font-size: 13px; }
+
+      :global(.tag-input) { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; min-height: 42px; }
+      :global(.tag-input .tag) { display: flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e5e5e5; border-radius: 4px; font-size: 12px; }
+      :global(.tag-input .tag .remove-tag) { cursor: pointer; color: #666; font-size: 14px; line-height: 1; }
+      :global(.tag-input input) { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; font-family: inherit; }
+
+      :global(.empty-state) { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; color: #999; text-align: center; }
+      :global(.empty-state h2) { font-size: 20px; font-weight: 600; color: #666; margin-bottom: 8px; }
+      :global(.empty-state p) { font-size: 14px; max-width: 360px; line-height: 1.5; }
+
+      :global(.sortable-ghost) { opacity: 0.3; }
+      :global(.sortable-drag) { opacity: 0.8; }
+
+      /* Lightbox */
+      .lightbox-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
+        cursor: zoom-out;
+      }
+      .lightbox-overlay img {
+        max-width: 92vw; max-height: 92vh; object-fit: contain;
+        border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      }
+      .lightbox-overlay .lightbox-close {
+        position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
+        border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff;
+        font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      }
+      .lightbox-overlay .lightbox-close:hover { background: rgba(0,0,0,0.8); }
+
+      /* Confirmation modal */
+      .confirm-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 950;
+        display: flex; align-items: center; justify-content: center; 
+      }
+      .confirm-modal {
+        background: #fff; border-radius: 12px; padding: 24px;
+        max-width: 420px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      }
+      .confirm-modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+      .confirm-modal p { font-size: 14px; color: #555; margin-bottom: 20px; line-height: 1.5; }
+      .confirm-modal .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+      /* Compact thumbnails */
+      :global(.image-grid) { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      :global(.image-grid-item img) { height: 80px; }
+
+      /* ProjectsNav styles */
+      :global(.nav-section) {
+        background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+        margin-bottom: 16px; overflow: hidden;
+      }
+      :global(.nav-section.drag-over) { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+      :global(.nav-section-header) {
+        display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+        background: #fafafa; border-bottom: 1px solid #e0e0e0;
+      }
+      :global(.nav-section-header .drag-handle) { cursor: grab; color: #999; font-size: 16px; }
+      :global(.nav-section-header .section-title) {
+        flex: 1; font-size: 15px; font-weight: 600; border: 1px solid transparent;
+        padding: 4px 8px; border-radius: 4px; background: none; font-family: inherit;
+      }
+      :global(.nav-section-header .section-title:hover) { border-color: #d0d0d0; }
+      :global(.nav-section-header .section-title:focus) { border-color: #2563eb; outline: none; background: #fff; }
+      :global(.nav-section-header .section-actions) { display: flex; gap: 6px; }
+      :global(.nav-section-projects) {
+        list-style: none; padding: 8px; min-height: 40px;
+      }
+      :global(.nav-section-projects:empty)::after {
+        content: "Drag projects here or use Add Project below";
+        display: block; text-align: center; color: #999; font-size: 13px;
+        padding: 16px; border: 1px dashed #d0d0d0; border-radius: 6px;
+      }
+      :global(.nav-project-item) {
+        display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+        border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 6px;
+        background: #fff; cursor: grab;
+      }
+      :global(.nav-project-item:hover) { border-color: #999; }
+      :global(.nav-project-item.dragging) { opacity: 0.4; }
+      :global(.nav-project-item .drag-handle) { cursor: grab; color: #999; font-size: 14px; }
+      :global(.nav-project-item .project-slug) { font-weight: 500; font-size: 13px; min-width: 0; flex: 1; }
+      :global(.nav-project-item .display-name-input) {
+        border: 1px solid transparent; padding: 3px 6px; font-size: 12px;
+        border-radius: 4px; width: 160px; font-family: inherit; color: #666;
+      }
+      :global(.nav-project-item .display-name-input:hover) { border-color: #d0d0d0; }
+      :global(.nav-project-item .display-name-input:focus) { border-color: #2563eb; outline: none; background: #fff; }
+      :global(.nav-project-item .remove-project) {
+        background: none; border: none; cursor: pointer; color: #999;
+        font-size: 14px; padding: 2px 4px; border-radius: 4px;
+      }
+      :global(.nav-project-item .remove-project:hover) { color: #dc2626; background: rgba(220,38,38,0.1); }
+      :global(.nav-add-project-bar) {
+        display: flex; gap: 8px; padding: 8px 16px 12px; align-items: center;
+      }
+      :global(.nav-add-project-bar select) {
+        flex: 1; padding: 6px 10px; font-size: 13px; border: 1px solid #d0d0d0;
+        border-radius: 6px; font-family: inherit;
+      }
     </style>
   </head>
   <body>
     <header>
       <h1>Admin <span>/ Brandon's Portfolio</span></h1>
+      <div class="header-actions">
+        <span class="publish-status" id="publishStatus">Loading...</span>
+        <button class="btn btn-secondary" id="revertBtn" disabled>Revert</button>
+        <button class="btn btn-primary" id="publishBtn" disabled>Publish</button>
+      </div>
     </header>
 
     <nav class="tab-bar" role="tablist">
@@ -100,9 +401,7 @@ const tabs = [
           aria-selected={tab.id === "homepage"}
           aria-controls={`panel-${tab.id}`}
           data-tab={tab.id}
-        >
-          {tab.label}
-        </button>
+        >{tab.label}</button>
       ))}
     </nav>
 
@@ -113,34 +412,1501 @@ const tabs = [
           class:list={["tab-panel", tab.id === "homepage" && "active"]}
           role="tabpanel"
           aria-labelledby={tab.id}
-        >
-          <div class="empty-state">
-            <h2>{tab.label}</h2>
-            <p>Content editor for {tab.label.toLowerCase()} will be built in a future update.</p>
-          </div>
-        </section>
+        ></section>
       ))}
     </main>
 
+    <div class="toast-container" id="toastContainer"></div>
+    <div id="lightboxContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
     <script>
       (function () {
         const buttons = document.querySelectorAll(".tab-btn");
         const panels = document.querySelectorAll(".tab-panel");
+        const publishBtn = document.getElementById("publishBtn");
+        const revertBtn = document.getElementById("revertBtn");
+        const publishStatus = document.getElementById("publishStatus");
+        const toastContainer = document.getElementById("toastContainer");
+
+        let currentContent = {};
+        let libraryData = { tree: {}, flat: [], byDir: {} };
+        let editingState = { projects: "list" };
+        let sortableInstances = {};
+
+        function imgUrl(contentRelPath, width = 0) {
+          if (!contentRelPath) return "";
+          const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "src/");
+          const base = `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
+          return width > 0 ? `${base}&w=${width}` : base;
+        }
+
+        async function safeJsonResponse(res) {
+          const text = await res.text();
+          if (!text) throw new Error(`Server returned empty response (HTTP ${res.status})`);
+          return JSON.parse(text);
+        }
+
+        function rootPath(contentRelPath) {
+          if (!contentRelPath) return "";
+          return contentRelPath.replace(/^\.\.\/\.\.\//, "");
+        }
+
+        function contentPath(rootRelPath) {
+          if (!rootRelPath) return "";
+          if (rootRelPath.startsWith("../../")) return rootRelPath;
+          if (rootRelPath.startsWith("src/")) return `../../${rootRelPath.replace(/^src\//, "")}`;
+          return rootRelPath;
+        }
 
         buttons.forEach((btn) => {
           btn.addEventListener("click", () => {
-            buttons.forEach((b) => {
-              b.classList.remove("active");
-              b.setAttribute("aria-selected", "false");
-            });
+            const overlay = document.getElementById("library-picker-overlay");
+            if (overlay) { overlay.remove(); _libraryPickerResolve = null; }
+            buttons.forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
             panels.forEach((p) => p.classList.remove("active"));
-
             btn.classList.add("active");
             btn.setAttribute("aria-selected", "true");
             const panel = document.getElementById(`panel-${btn.dataset.tab}`);
             if (panel) panel.classList.add("active");
+            renderTab(btn.dataset.tab);
           });
         });
+
+        function showToast(message, type, duration = 5000) {
+          const el = document.createElement("div");
+          el.className = `toast ${type}`;
+          el.innerHTML = message;
+          toastContainer.appendChild(el);
+          setTimeout(() => {
+            el.classList.add("removing");
+            setTimeout(() => { el.remove(); }, 200);
+          }, duration);
+        }
+
+        async function checkStatus() {
+          try {
+            const res = await fetch("/admin/api/status");
+            const status = await safeJsonResponse(res);
+            if (status.hasChanges) {
+              const files = status.fileCount === 1 ? "1 file" : `${status.fileCount} files`;
+              publishStatus.textContent = `${files} changed`;
+              publishStatus.className = "publish-status has-changes";
+              publishBtn.disabled = !status.patConfigured;
+              publishBtn.title = status.patConfigured ? "" : "GITHUB_PAT not configured";
+              revertBtn.disabled = false;
+            } else {
+              publishStatus.textContent = "No changes to publish";
+              publishStatus.className = "publish-status";
+              publishBtn.disabled = true;
+              publishBtn.title = "";
+              revertBtn.disabled = true;
+            }
+          } catch (e) {
+            publishStatus.textContent = "Status unavailable";
+          }
+        }
+
+        async function loadContent() {
+          try {
+            const [contentRes, libRes] = await Promise.all([
+              fetch("/admin/api/content"),
+              fetch("/admin/api/library")
+            ]);
+            const contentJson = await safeJsonResponse(contentRes);
+            const libJson = await safeJsonResponse(libRes);
+            currentContent = contentJson.data;
+            libraryData = libJson;
+            editingState.portfolioExcluded = new Set();
+            renderContent();
+          } catch (e) {
+            showToast("Failed to load content: " + e.message, "error");
+          }
+        }
+
+        function renderContent() {
+          const active = document.querySelector(".tab-panel.active");
+          if (active) renderTab(active.id.replace("panel-", ""));
+        }
+
+        function renderActiveTab() {
+          const active = document.querySelector(".tab-panel.active");
+          if (!active) return;
+          renderTab(active.id.replace("panel-", ""));
+        }
+
+        function renderTab(tabId) {
+          const panel = document.getElementById(`panel-${tabId}`);
+          if (!panel) return;
+          const data = currentContent[tabId];
+          switch (tabId) {
+            case "homepage":
+              panel.innerHTML = renderHomepage(data);
+              requestAnimationFrame(() => {
+                setupHomepageDnD();
+                setupLightboxClicks(panel);
+              });
+              break;
+            case "portfolio":
+              panel.innerHTML = renderPortfolio(data);
+              requestAnimationFrame(() => setupPortfolioDnD());
+              break;
+            case "personal":
+              panel.innerHTML = renderPersonal(data);
+              requestAnimationFrame(() => {
+                setupPersonalDnD();
+                setupLightboxClicks(panel);
+              });
+              break;
+            case "projects":
+              panel.innerHTML = renderProjects(data);
+              requestAnimationFrame(() => setupGalleryReorder());
+              break;
+            case "projectsNav":
+              panel.innerHTML = renderProjectsNav(data);
+              requestAnimationFrame(() => {
+                setupProjectsNavDnD();
+              });
+              break;
+            case "library":
+              panel.innerHTML = renderLibraryHTML();
+              requestAnimationFrame(() => {
+                setupUpload();
+                setupLightboxClicks(panel);
+              });
+              break;
+          }
+        }
+
+        function renderHomepage(data) {
+          const images = data?.data?.images || [];
+          let html = `<div class="content-view"><h3>Homepage Carousel</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Drag images to reorder. Add images from the Library.</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__addHomepageImage()">Add from Library</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__saveHomepage()">Save Homepage</button>
+            </div>
+            <div class="image-grid" id="homepage-grid">`;
+          if (images.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No images yet</h2>
+              <p>Add your first image to the homepage carousel.</p>
+            </div>`;
+          } else {
+            images.forEach((img, i) => {
+              html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+                <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
+                <div class="name">${img.split("/").pop()}</div>
+                <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
+              </div>`;
+            });
+          }
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__saveHomepage = async function () {
+          const data = currentContent.homepage?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "homepage", data }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) { showToast("Homepage saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        window.__addHomepageImage = function () {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const data = currentContent.homepage?.data || { images: [] };
+            if (!data.images) data.images = [];
+            paths.forEach(path => data.images.push(contentPath(path)));
+            currentContent.homepage = { data, body: "", filePath: "" };
+            renderTab("homepage");
+            setupHomepageDnD();
+          }});
+        };
+
+        window.__removeHomepageImage = function (index) {
+          const data = currentContent.homepage?.data || { images: [] };
+          data.images.splice(index, 1);
+          renderTab("homepage");
+          setupHomepageDnD();
+        };
+
+        function setupHomepageDnD() {
+          setupSortableGrid("homepage-grid", (items) => {
+            const data = currentContent.homepage?.data || { images: [] };
+            data.images = items.map((el) => el.dataset.path);
+          });
+        }
+
+        function renderPortfolio(data) {
+          const projectsData = data?.data?.projects || [];
+          const allProjects = currentContent.projects || {};
+          const excluded = editingState.portfolioExcluded || new Set();
+          const includedProjects = projectsData.filter(e => !excluded.has(typeof e === "string" ? e : e.slug));
+
+          let html = `<div class="content-view"><h3>Portfolio Grid</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Drag to reorder. Toggle to include/exclude. Optional per-project image overrides.</p>
+            <button class="btn btn-primary btn-sm" onclick="window.__savePortfolio()" style="margin-bottom:12px">Save Portfolio</button>
+            <div id="portfolio-list">`;
+
+          if (projectsData.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No projects yet</h2>
+              <p>Add projects from the Projects tab first, then come back to curate your portfolio grid.</p>
+            </div>`;
+          } else if (includedProjects.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No projects included</h2>
+              <p>All projects are excluded. Toggle some on to show them on the portfolio grid.</p>
+            </div>`;
+          }
+
+          for (const entry of projectsData) {
+            const slug = typeof entry === "string" ? entry : entry.slug;
+            const overrideImages = typeof entry === "object" ? entry.images : undefined;
+            const project = allProjects[slug];
+            const title = project?.data?.title || slug;
+            const client = project?.data?.client || "";
+            const isExcluded = excluded.has(slug);
+            html += `<div class="portfolio-project${isExcluded ? " excluded" : ""}" data-slug="${slug}">
+              <div class="portfolio-project-row">
+                <span class="drag-handle">&#9776;</span>
+                <label class="portfolio-toggle" title="${isExcluded ? "Excluded from grid" : "Included in grid"}">
+                  <input type="checkbox" ${!isExcluded ? "checked" : ""} onchange="window.__togglePortfolioProject('${slug}', this.checked)" />
+                  <span class="slider"></span>
+                </label>
+                <div class="info">
+                  <div class="name">${title}</div>
+                  <div class="client">${client}</div>
+                </div>
+                <div class="image-override">
+                  ${overrideImages && overrideImages.length > 0
+                    ? `<span style="font-size:11px;color:#666">${overrideImages.length} override(s)</span>`
+                    : `<span style="font-size:11px;color:#999">no override</span>`}
+                  <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__setPortfolioOverride('${slug}')">Override</button>
+                  ${overrideImages ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__clearPortfolioOverride('${slug}')">Clear</button>` : ""}
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__removePortfolioProject('${slug}')">Remove</button>
+              </div>
+              ${overrideImages && overrideImages.length > 0 ? `<div class="portfolio-override-strip" data-slug="${slug}">
+                ${overrideImages.map((img, i) => `<div class="portfolio-override-thumb" data-path="${escHtml(img)}" data-index="${i}">
+                  <img src="${imgUrl(img, 120)}" alt="" loading="lazy" />
+                  <button class="remove-override" onclick="event.stopPropagation();window.__removeOverrideImage('${slug}', ${i})">&times;</button>
+                </div>`).join("")}
+                <div class="portfolio-override-add" onclick="event.stopPropagation();window.__addOverrideImage('${slug}')" title="Add override image">+</div>
+              </div>` : ""}
+            </div>`;
+          }
+          html += `</div>
+            <div style="margin-top:12px">
+              <select id="portfolio-add-select" style="padding:8px 12px;font-size:13px;border:1px solid #d0d0d0;border-radius:6px;margin-right:8px">
+                <option value="">Add a project...</option>`;
+          for (const [slug, proj] of Object.entries(allProjects)) {
+            const isAlready = projectsData.some(e => (typeof e === "string" ? e : e.slug) === slug);
+            if (!isAlready) {
+              html += `<option value="${slug}">${proj.data?.title || slug}</option>`;
+            }
+          }
+          html += `</select>
+              <button class="btn btn-secondary btn-sm" onclick="window.__addPortfolioProject()">Add</button>
+            </div>
+          </div>`;
+          return html;
+        }
+
+        window.__togglePortfolioProject = function (slug, checked) {
+          if (!editingState.portfolioExcluded) editingState.portfolioExcluded = new Set();
+          if (checked) {
+            editingState.portfolioExcluded.delete(slug);
+          } else {
+            editingState.portfolioExcluded.add(slug);
+          }
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__removePortfolioProject = async function (slug) {
+          const confirmed = await showConfirm(`Remove "${slug}" from the portfolio grid?`, "Remove Project");
+          if (!confirmed) return;
+          const data = currentContent.portfolio?.data || { projects: [] };
+          data.projects = data.projects.filter(e => (typeof e === "string" ? e : e.slug) !== slug);
+          if (editingState.portfolioExcluded) editingState.portfolioExcluded.delete(slug);
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__addPortfolioProject = function () {
+          const sel = document.getElementById("portfolio-add-select");
+          if (!sel.value) return;
+          const data = currentContent.portfolio?.data || { projects: [] };
+          data.projects.push(sel.value);
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__setPortfolioOverride = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const existing = data.projects.find(e => (typeof e === "string" ? e : e.slug) === slug);
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+            data.projects[idx] = { slug, images: paths.map(p => contentPath(p)) };
+            renderTab("portfolio");
+            setupPortfolioDnD();
+          }});
+        };
+
+        window.__clearPortfolioOverride = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+          data.projects[idx] = slug;
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__removeOverrideImage = function (slug, index) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+          if (idx === -1) return;
+          const entry = data.projects[idx];
+          if (typeof entry === "string") return;
+          entry.images.splice(index, 1);
+          if (entry.images.length === 0) data.projects[idx] = slug;
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__addOverrideImage = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+            if (idx === -1) return;
+            const entry = data.projects[idx];
+            const existing = typeof entry === "object" && Array.isArray(entry.images) ? entry.images : [];
+            const newImages = paths.map(p => contentPath(p));
+            data.projects[idx] = { slug, images: [...existing, ...newImages] };
+            renderTab("portfolio");
+            setupPortfolioDnD();
+          }});
+        };
+
+        window.__savePortfolio = async function () {
+          const data = currentContent.portfolio?.data;
+          if (!data) return;
+          const excluded = editingState.portfolioExcluded || new Set();
+          const filteredProjects = data.projects.filter(e => !excluded.has(typeof e === "string" ? e : e.slug));
+          const saveData = { ...data, projects: filteredProjects };
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "portfolio", data: saveData }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) { showToast("Portfolio saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        function setupPortfolioDnD() {
+          setupSortableList("portfolio-list", (items) => {
+            const data = currentContent.portfolio?.data || { projects: [] };
+            const reordered = [];
+            items.forEach((el) => {
+              const slug = el.dataset.slug;
+              const existing = data.projects.find(e => (typeof e === "string" ? e : e.slug) === slug);
+              if (existing) reordered.push(existing);
+            });
+            data.projects = reordered;
+          });
+          document.querySelectorAll(".portfolio-override-strip").forEach((strip) => {
+            const slug = strip.dataset.slug;
+            const gridId = `override-strip-${slug}`;
+            if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+            sortableInstances[gridId] = new Sortable(strip, {
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              filter: ".portfolio-override-add",
+              onEnd: () => {
+                const data = currentContent.portfolio?.data || { projects: [] };
+                const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+                if (idx === -1) return;
+                const thumbs = [...strip.querySelectorAll(".portfolio-override-thumb[data-path]")];
+                data.projects[idx] = { slug, images: thumbs.map(t => t.dataset.path) };
+              }
+            });
+          });
+        }
+
+        function renderProjectsNav(data) {
+          const sections = data?.data?.sections || [];
+          const allProjects = currentContent.projects || {};
+          const assignedSlugs = new Set();
+          for (const section of sections) {
+            for (const entry of (section.projects || [])) {
+              assignedSlugs.add(typeof entry === "string" ? entry : entry.slug);
+            }
+          }
+          const unassigned = Object.entries(allProjects).filter(([slug]) => !assignedSlugs.has(slug));
+
+          let html = `<div class="content-view"><h3>Navigation Dropdown</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:12px">Manage sections and assign projects to the site navigation. Drag to reorder within and between sections.</p>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <button class="btn btn-secondary" onclick="window.__addNavSection()">Add Section</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__saveProjectsNav()">Save Navigation</button>
+            </div>
+            <div id="nav-sections">`;
+
+          if (sections.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No sections yet</h2>
+              <p>Add a section to organize projects in the navigation dropdown.</p>
+            </div>`;
+          }
+
+          sections.forEach((section, sIdx) => {
+            html += `<div class="nav-section" data-section-idx="${sIdx}">
+              <div class="nav-section-header">
+                <span class="drag-handle">&#9776;</span>
+                <input class="section-title" type="text" value="${escHtml(section.title)}" data-section-idx="${sIdx}"
+                  onchange="window.__updateNavSectionTitle(${sIdx}, this.value)" />
+                <div class="section-actions">
+                  <button class="btn btn-secondary btn-sm" onclick="window.__addNavProject(${sIdx})">Add Project</button>
+                  <button class="btn btn-danger btn-sm" onclick="window.__removeNavSection(${sIdx})">Remove Section</button>
+                </div>
+              </div>
+              <ul class="nav-section-projects" data-section-idx="${sIdx}">`;
+
+            (section.projects || []).forEach((entry, pIdx) => {
+              const slug = typeof entry === "string" ? entry : entry.slug;
+              const displayName = typeof entry === "object" ? (entry.name || "") : "";
+              const project = allProjects[slug];
+              const title = project?.data?.title || slug;
+              html += `<li class="nav-project-item" data-slug="${slug}" data-section-idx="${sIdx}" data-proj-idx="${pIdx}">
+                <span class="drag-handle">&#9776;</span>
+                <span class="project-slug" title="${escHtml(slug)}">${escHtml(title)} <span style="color:#999;font-weight:400">(${escHtml(slug)})</span></span>
+                <input class="display-name-input" type="text" placeholder="Display name (optional)" value="${escHtml(displayName)}"
+                  onchange="window.__updateNavDisplayName(${sIdx}, ${pIdx}, this.value)" />
+                <button class="remove-project" onclick="window.__removeNavProject(${sIdx}, ${pIdx})" title="Remove from section">&times;</button>
+              </li>`;
+            });
+
+            html += `</ul></div>`;
+          });
+
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__saveProjectsNav = async function () {
+          const data = currentContent.projectsNav?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "projectsNav", data }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) { showToast("Navigation saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        window.__addNavSection = function () {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          if (!data.sections) data.sections = [];
+          data.sections.push({ title: "New Section", projects: [] });
+          currentContent.projectsNav = { data, body: "", filePath: "" };
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__removeNavSection = async function (sIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          const confirmed = await showConfirm(`Remove section "${section.title}"? Projects will become unassigned.`, "Remove Section");
+          if (!confirmed) return;
+          data.sections.splice(sIdx, 1);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__updateNavSectionTitle = function (sIdx, value) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          if (data.sections[sIdx]) data.sections[sIdx].title = value;
+        };
+
+        window.__updateNavDisplayName = function (sIdx, pIdx, value) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          const entry = section.projects[pIdx];
+          if (!entry) return;
+          const slug = typeof entry === "string" ? entry : entry.slug;
+          if (value.trim()) {
+            section.projects[pIdx] = { slug, name: value.trim() };
+          } else {
+            section.projects[pIdx] = slug;
+          }
+        };
+
+        window.__addNavProject = function (sIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          const allProjects = currentContent.projects || {};
+          const assignedSlugs = new Set();
+          for (const sec of data.sections) {
+            for (const entry of (sec.projects || [])) {
+              assignedSlugs.add(typeof entry === "string" ? entry : entry.slug);
+            }
+          }
+          const available = Object.keys(allProjects).filter(s => !assignedSlugs.has(s));
+          if (available.length === 0) { showToast("No unassigned projects available", "info"); return; }
+
+          const sel = prompt("Add project (enter slug):\nAvailable: " + available.join(", "));
+          if (!sel || !sel.trim()) return;
+          const slug = sel.trim();
+          if (!allProjects[slug]) { showToast(`Project "${slug}" not found`, "error"); return; }
+          if (assignedSlugs.has(slug)) { showToast(`Project "${slug}" is already assigned`, "error"); return; }
+          section.projects.push(slug);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        window.__removeNavProject = function (sIdx, pIdx) {
+          const data = currentContent.projectsNav?.data || { sections: [] };
+          const section = data.sections[sIdx];
+          if (!section) return;
+          section.projects.splice(pIdx, 1);
+          renderTab("projectsNav");
+          requestAnimationFrame(() => setupProjectsNavDnD());
+        };
+
+        function setupProjectsNavDnD() {
+          document.querySelectorAll(".nav-section-projects").forEach((list) => {
+            const sIdx = parseInt(list.dataset.sectionIdx, 10);
+            const gridId = `nav-section-${sIdx}`;
+            if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+            sortableInstances[gridId] = new Sortable(list, {
+              group: "nav-projects",
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              onEnd: (evt) => {
+                const data = currentContent.projectsNav?.data || { sections: [] };
+                const fromSIdx = parseInt(evt.from.dataset.sectionIdx, 10);
+                const toSIdx = parseInt(evt.to.dataset.sectionIdx, 10);
+                const fromSection = data.sections[fromSIdx];
+                const toSection = data.sections[toSIdx];
+                if (!fromSection || !toSection) return;
+
+                const movedEntry = fromSection.projects.splice(evt.oldIndex, 1)[0];
+                if (movedEntry === undefined) return;
+                toSection.projects.splice(evt.newIndex, 0, movedEntry);
+
+                renderTab("projectsNav");
+                requestAnimationFrame(() => setupProjectsNavDnD());
+              }
+            });
+          });
+
+          const sectionsContainer = document.getElementById("nav-sections");
+          if (sectionsContainer && !sortableInstances["nav-sections"]) {
+            sortableInstances["nav-sections"] = new Sortable(sectionsContainer, {
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              handle: ".nav-section .drag-handle",
+              onEnd: () => {
+                const data = currentContent.projectsNav?.data || { sections: [] };
+                const sectionEls = [...sectionsContainer.querySelectorAll(".nav-section")];
+                const reordered = sectionEls.map(el => {
+                  const idx = parseInt(el.dataset.sectionIdx, 10);
+                  return data.sections[idx];
+                }).filter(Boolean);
+                data.sections = reordered;
+                renderTab("projectsNav");
+                requestAnimationFrame(() => setupProjectsNavDnD());
+              }
+            });
+          }
+        }
+
+        function renderPersonal(data) {
+          const images = data?.data?.images || [];
+          const title = data?.data?.title || "";
+          const description = data?.data?.description || "";
+          const date = data?.data?.date ? data.data.date.split("T")[0] : "2024-01-01";
+          let html = `<div class="content-view"><h3>Personal Gallery</h3>
+            <div class="field"><label>Title (optional)</label>
+              <input type="text" id="personal-title" value="${escHtml(title)}" onchange="window.__updatePersonalField('title', this.value)" /></div>
+            <div class="field"><label>Description (optional)</label>
+              <textarea id="personal-desc" onchange="window.__updatePersonalField('description', this.value)">${escHtml(description)}</textarea></div>
+            <div class="field"><label>Date</label>
+              <input type="date" id="personal-date" value="${date}" onchange="window.__updatePersonalField('date', this.value)" /></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__addPersonalImage()">Add from Library</button>
+              <button class="btn btn-primary btn-sm" onclick="window.__savePersonal()">Save Personal</button>
+            </div>
+            <div class="image-grid" id="personal-grid">`;
+          if (images.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No images yet</h2>
+              <p>Add your first image to the personal gallery.</p>
+            </div>`;
+          } else {
+            images.forEach((img, i) => {
+              html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+                <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
+                <div class="name">${img.split("/").pop()}</div>
+                <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
+              </div>`;
+            });
+          }
+          html += `</div></div>`;
+          return html;
+        }
+
+        window.__updatePersonalField = function (field, value) {
+          const data = currentContent.personal?.data || {};
+          if (field === "date") data[field] = value;
+          else data[field] = value;
+          currentContent.personal = { data, body: "", filePath: "" };
+        };
+
+        window.__addPersonalImage = function () {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const data = currentContent.personal?.data || { images: [], date: "2024-01-01" };
+            if (!data.images) data.images = [];
+            paths.forEach(path => data.images.push(contentPath(path)));
+            currentContent.personal = { data, body: "", filePath: "" };
+            renderTab("personal");
+            setupPersonalDnD();
+          }});
+        };
+
+        window.__removePersonalImage = function (index) {
+          const data = currentContent.personal?.data || { images: [] };
+          data.images.splice(index, 1);
+          renderTab("personal");
+          setupPersonalDnD();
+        };
+
+        window.__savePersonal = async function () {
+          const data = currentContent.personal?.data;
+          if (!data) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "personal", data }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) { showToast("Personal saved", "success"); checkStatus(); }
+            else { showToast("Save failed: " + json.error, "error"); }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        function setupPersonalDnD() {
+          setupSortableGrid("personal-grid", (items) => {
+            const data = currentContent.personal?.data || { images: [] };
+            data.images = items.map((el) => el.dataset.path);
+          });
+        }
+
+        function renderProjects(data) {
+          if (editingState.projects === "new" || editingState.projects === "edit") {
+            return renderProjectForm();
+          }
+          if (!data || typeof data !== "object") {
+            return `<div class="content-view"><div class="project-list-header"><h3>Projects</h3>
+              <button class="btn btn-primary btn-sm" onclick="window.__newProject()">New Project</button>
+            </div><p style="color:#999">No projects found.</p></div>`;
+          }
+          let html = `<div class="content-view"><div class="project-list-header"><h3>Projects</h3>
+            <button class="btn btn-primary btn-sm" onclick="window.__newProject()">New Project</button>
+          </div><ul class="project-list">`;
+          for (const [slug, project] of Object.entries(data)) {
+            const title = project.data?.title || slug;
+            html += `<li class="project-item">
+              <div><div class="slug">${slug}</div><div class="title">${title}</div></div>
+              <button class="btn btn-secondary btn-sm edit-project-btn" data-slug="${slug}">Edit</button>
+            </li>`;
+          }
+          html += `</ul></div>`;
+          return html;
+        }
+
+        function escHtml(s) {
+          if (!s) return "";
+          return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        window.__autoSlug = function (formId) {
+          const title = document.getElementById(`${formId}-title`)?.value || "";
+          const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const slugField = document.getElementById(`${formId}-slug`);
+          if (slugField) slugField.value = slug;
+        };
+
+        window.__syncFormField = function (field, value) {
+          if (editingState.projects !== "new") return;
+          const fd = editingState.newFormData;
+          if (!fd) return;
+          if (field === "date") fd[field] = value;
+          else if (field === "ndaLocked" || field === "portfolioLocked") fd[field] = value;
+          else fd[field] = value;
+        };
+
+        function renderProjectForm() {
+          const isNew = editingState.projects === "new";
+          const slug = isNew ? (editingState.newSlug || "") : editingState.editSlug;
+          const projData = _getProjectFormData();
+          if (!projData) return `<div class="content-view"><p>No project data</p></div>`;
+          const tags = Array.isArray(projData.tags) ? projData.tags : [];
+          const images = Array.isArray(projData.images) ? projData.images : [];
+          const formId = isNew ? "project-form-new" : `project-form-${slug}`;
+          let html = `<div class="content-view project-form">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3>${isNew ? "New Project" : "Edit: " + slug}</h3>
+              <div style="display:flex;gap:8px">
+                ${!isNew ? `<button class="btn btn-danger btn-sm" onclick="window.__deleteProject('${escHtml(slug)}')">Delete Project</button>` : ""}
+                <button class="btn btn-secondary btn-sm" onclick="window.__backToProjects()">Back to list</button>
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Basic Info</h4>
+              ${isNew ? `<div class="field"><label>Slug (URL identifier, e.g. my-project)</label>
+                <input type="text" id="${formId}-slug" value="${escHtml(slug)}" placeholder="my-project" /></div>` : ""}
+              <div class="field"><label>Title *</label>
+                <input type="text" id="${formId}-title" value="${escHtml(projData.title)}" ${isNew ? `oninput="window.__autoSlug('${formId}'); window.__syncFormField('title', this.value)"` : ""} /></div>
+              <div class="field"><label>Description</label>
+                <textarea id="${formId}-desc" style="min-height:100px" ${isNew ? `oninput="window.__syncFormField('description', this.value)"` : ""}>${escHtml(projData.description)}</textarea></div>
+              <div class="field-row">
+                <div class="field"><label>Client</label>
+                  <input type="text" id="${formId}-client" value="${escHtml(projData.client)}" ${isNew ? `oninput="window.__syncFormField('client', this.value)"` : ""} /></div>
+                <div class="field"><label>Date</label>
+                  <input type="date" id="${formId}-date" value="${projData.date ? String(projData.date).split("T")[0] : new Date().toISOString().split("T")[0]}" ${isNew ? `onchange="window.__syncFormField('date', this.value)"` : ""} /></div>
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Visibility</h4>
+              <div class="field"><div class="checkbox-row">
+                <input type="checkbox" id="${formId}-nda" ${projData.ndaLocked ? "checked" : ""} ${isNew ? `onchange="window.__syncFormField('ndaLocked', this.checked)"` : ""} />
+                <label for="${formId}-nda">NDA locked (requires password)</label>
+              </div></div>
+              <div class="field"><div class="checkbox-row">
+                <input type="checkbox" id="${formId}-plock" ${projData.portfolioLocked ? "checked" : ""} ${isNew ? `onchange="window.__syncFormField('portfolioLocked', this.checked)"` : ""} />
+                <label for="${formId}-plock">Portfolio locked (requires password to view on Portfolio)</label>
+              </div></div>
+              <div class="field"><label>Portfolio Title (optional, shown instead of title on grid)</label>
+                <input type="text" id="${formId}-ptitle" value="${escHtml(projData.portfolioTitle || "")}" ${isNew ? `oninput="window.__syncFormField('portfolioTitle', this.value)"` : ""} /></div>
+            </div>
+            <div class="form-section">
+              <h4>Tags</h4>
+              <div class="tag-input" id="${formId}-tags">
+                ${tags.map((t, i) => `<span class="tag">${escHtml(t)}<span class="remove-tag" data-idx="${i}">&times;</span></span>`).join("")}
+                <input type="text" placeholder="Add tag..." />
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Images</h4>
+              <div class="field"><label>Logo (shown on portfolio grid card)</label>
+                <div class="img-picker" onclick="window.__pickImage('${formId}-logo')">
+                  ${projData.logo ? `<img src="${imgUrl(projData.logo, 100)}" alt="" /><span>${escHtml(projData.logo.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-logo" value="${escHtml(projData.logo || "")}" />
+              </div>
+              <div class="field"><label>Hero Image *</label>
+                <div class="img-picker" onclick="window.__pickImage('${formId}-hero')">
+                  ${projData.heroImage ? `<img src="${imgUrl(projData.heroImage, 100)}" alt="" /><span>${escHtml(projData.heroImage.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-hero" value="${escHtml(projData.heroImage || "")}" />
+              </div>
+              <div class="field"><label>Gallery Images</label>
+                <div class="img-picker-multi" id="${formId}-gallery-grid" onclick="if(event.target===this) window.__pickMultiImage('${formId}-gallery')">
+                  ${images.length > 0 ? images.map(img => `<div class="thumb" data-path="${escHtml(img)}"><img src="${imgUrl(img, 100)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
+                </div>
+                <input type="hidden" id="${formId}-gallery" value='${escHtml(JSON.stringify(images))}' />
+              </div>
+            </div>
+            <div class="form-section">
+              <h4>Layout</h4>
+              <div class="field-row">
+                <div class="field"><label>Gallery Layout</label>
+                  <select id="${formId}-layout" ${isNew ? `onchange="window.__syncFormField('layout', this.value)"` : ""}>
+                    <option value="standard" ${projData.layout === "standard" ? "selected" : ""}>Standard</option>
+                    <option value="masonry" ${projData.layout === "masonry" ? "selected" : ""}>Masonry</option>
+                  </select>
+                </div>
+                <div class="field"><label>Footer Text (optional)</label>
+                  <input type="text" id="${formId}-footer" value="${escHtml(projData.footer || "")}" ${isNew ? `oninput="window.__syncFormField('footer', this.value)"` : ""} /></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="window.__saveProjectForm('${isNew ? "new" : slug}', ${isNew})">Save Project</button>
+          </div>`;
+          return html;
+        }
+
+        window.__newProject = function () {
+          editingState.projects = "new";
+          editingState.newSlug = "";
+          editingState.newFormData = {
+            title: "", description: "", client: "",
+            date: new Date().toISOString().split("T")[0],
+            tags: [], ndaLocked: false, portfolioLocked: false,
+            portfolioTitle: "", logo: "", heroImage: "", images: [],
+            layout: "standard", footer: "",
+          };
+          renderTab("projects");
+        };
+
+        window.__backToProjects = function () {
+          editingState.projects = "list";
+          editingState.newFormData = null;
+          renderTab("projects");
+        };
+
+        window.__deleteProject = async function (slug) {
+          const confirmed = await showConfirm(`Delete project "${slug}"? This will remove the .md file. Images are NOT deleted.`, "Delete Project");
+          if (!confirmed) return;
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "DELETE", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ slug }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Project "${slug}" deleted`, "success");
+              editingState.projects = "list";
+              await loadContent();
+              checkStatus();
+            } else {
+              showToast("Delete failed: " + json.error, "error");
+            }
+          } catch (e) { showToast("Delete failed: " + e.message, "error"); }
+        };
+
+        function _getProjectFormData() {
+          if (editingState.projects === "new") {
+            if (!editingState.newFormData) {
+              editingState.newFormData = {
+                title: "", description: "", client: "",
+                date: new Date().toISOString().split("T")[0],
+                tags: [], ndaLocked: false, portfolioLocked: false,
+                portfolioTitle: "", logo: "", heroImage: "", images: [],
+                layout: "standard", footer: "",
+              };
+            }
+            return editingState.newFormData;
+          }
+          const slug = editingState.editSlug;
+          return currentContent.projects?.[slug]?.data;
+        }
+
+        window.__pickImage = function (fieldId) {
+          openLibraryPicker({ mode: "single", onSelect: (path) => {
+            const projData = _getProjectFormData();
+            if (projData) {
+              const cPath = path.startsWith("src/") ? contentPath(path) : path;
+              if (fieldId.endsWith("-logo")) projData.logo = cPath;
+              else if (fieldId.endsWith("-hero")) projData.heroImage = cPath;
+            }
+            renderTab("projects");
+            requestAnimationFrame(() => setupGalleryReorder());
+          }});
+        };
+
+        window.__pickMultiImage = function (fieldId) {
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const projData = _getProjectFormData();
+            if (projData) {
+              if (!Array.isArray(projData.images)) projData.images = [];
+              paths.forEach(p => {
+                projData.images.push(p.startsWith("src/") ? contentPath(p) : p);
+              });
+            }
+            renderTab("projects");
+            requestAnimationFrame(() => setupGalleryReorder());
+          }});
+        };
+
+        window.__removeGalleryImage = function (fieldId, imgPath) {
+          const projData = _getProjectFormData();
+          if (projData && Array.isArray(projData.images)) {
+            projData.images = projData.images.filter(p => p !== imgPath);
+          }
+          renderTab("projects");
+          requestAnimationFrame(() => setupGalleryReorder());
+        };
+
+        window.__saveProjectForm = async function (slug, isNew) {
+          const formId = isNew ? "project-form-new" : `project-form-${slug}`;
+          const projData = _getProjectFormData();
+          if (!projData) { showToast("No project data", "error"); return; }
+
+          const title = document.getElementById(`${formId}-title`)?.value || projData.title || "";
+          const description = document.getElementById(`${formId}-desc`)?.value || projData.description || "";
+          const client = document.getElementById(`${formId}-client`)?.value || projData.client || "";
+          const date = document.getElementById(`${formId}-date`)?.value || projData.date || new Date().toISOString().split("T")[0];
+
+          const tagContainer = document.getElementById(`${formId}-tags`);
+          const tags = [];
+          if (tagContainer) {
+            tagContainer.querySelectorAll(".tag").forEach(el => {
+              const text = el.childNodes[0]?.textContent?.trim();
+              if (text) tags.push(text);
+            });
+          } else if (Array.isArray(projData.tags)) {
+            tags.push(...projData.tags);
+          }
+
+          const ndaLocked = document.getElementById(`${formId}-nda`)?.checked ?? projData.ndaLocked ?? false;
+          const portfolioLocked = document.getElementById(`${formId}-plock`)?.checked ?? projData.portfolioLocked ?? false;
+          const portfolioTitle = document.getElementById(`${formId}-ptitle`)?.value || projData.portfolioTitle || undefined;
+          const logo = projData.logo || "";
+          const heroImage = projData.heroImage || "";
+          const images = Array.isArray(projData.images) ? projData.images : [];
+          const layout = document.getElementById(`${formId}-layout`)?.value || projData.layout || "standard";
+          const footer = document.getElementById(`${formId}-footer`)?.value || projData.footer || undefined;
+
+          const missing = [];
+          if (!title) missing.push("Title");
+          if (!description) missing.push("Description");
+          if (!client) missing.push("Client");
+          if (!heroImage) missing.push("Hero Image");
+          if (missing.length > 0) {
+            showToast(`Required fields: ${missing.join(", ")}`, "error");
+            return;
+          }
+
+          let newSlug = slug;
+          if (isNew) {
+            const slugInput = document.getElementById(`${formId}-slug`);
+            newSlug = slugInput?.value?.trim() || "";
+            if (!newSlug) {
+              newSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            }
+            if (!newSlug) {
+              showToast("Could not generate slug from title", "error");
+              return;
+            }
+          }
+
+          const data = {
+            title, description, client, date, tags, ndaLocked, portfolioLocked,
+            ...(portfolioTitle ? { portfolioTitle } : {}),
+            ...(logo ? { logo } : {}),
+            heroImage,
+            images: [...images],
+            layout, ...(footer ? { footer } : {}),
+          };
+
+          try {
+            const res = await fetch("/admin/api/content", {
+              method: "PUT", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ collection: "projects", data, slug: newSlug }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Project "${newSlug}" saved`, "success");
+              editingState.projects = "list";
+              editingState.newFormData = null;
+              await loadContent();
+              checkStatus();
+            } else {
+              showToast("Save failed: " + json.error, "error");
+            }
+          } catch (e) { showToast("Save failed: " + e.message, "error"); }
+        };
+
+        let _libraryPickerResolve = null;
+
+        window.__toggleLibraryDir = function (el) {
+          const dir = el.closest(".library-dir");
+          if (dir) dir.classList.toggle("collapsed");
+        };
+
+        function openLibraryPicker({ mode, onSelect }) {
+          if (document.getElementById("library-picker-overlay")) return;
+          _libraryPickerResolve = onSelect;
+          const overlay = document.createElement("div");
+          overlay.className = "modal-overlay";
+          overlay.id = "library-picker-overlay";
+          let html = `<div class="modal" style="padding:20px; background:white; margin:20px">
+            <h2>Select Image${mode === "multi" ? "s" : ""}</h2>
+            <div style="margin-bottom:12px"><input type="text" id="picker-search" placeholder="Search images..." style="width:100%;padding:8px 12px;font-size:13px;border:1px solid #d0d0d0;border-radius:6px" oninput="window.__filterPicker()" /></div>
+            <div id="picker-grid">`;
+
+          const byDir = libraryData.byDir || {};
+          for (const [dir, files] of Object.entries(byDir)) {
+            html += `<div class="library-dir picker-dir collapsed" data-dir="${escHtml(dir)}">
+              <h4 onclick="window.__toggleLibraryDir(this)">${escHtml(dir || "general")} <span style="font-weight:400;color:#999;font-size:12px">(${files.length})</span></h4>
+              <div class="library-grid">`;
+            for (const file of files) {
+              const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" />` : "";
+              html += `<div class="library-item picker-item" data-path="${escHtml(file.path)}">
+                ${sel}
+                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
+                <div class="name">${escHtml(file.name)}</div>
+              </div>`;
+            }
+            html += `</div></div>`;
+          }
+
+          html += `</div>
+            <div class="modal-actions">
+              <button class="btn btn-secondary" onclick="window.__closeLibraryPicker()">Cancel</button>
+              <button class="btn btn-primary" onclick="window.__confirmLibraryPicker('${mode}')">${mode === "multi" ? "Select" : "Select"}</button>
+            </div>
+          </div>`;
+          overlay.innerHTML = html;
+          document.body.appendChild(overlay);
+
+          if (mode === "single") {
+            overlay.querySelectorAll(".picker-item").forEach(el => {
+              el.addEventListener("click", (e) => {
+                if (e.target.classList.contains("picker-cb")) return;
+                overlay.querySelectorAll(".picker-item").forEach(e => e.classList.remove("selected"));
+                el.classList.add("selected");
+              });
+            });
+          } else {
+            overlay.querySelectorAll(".picker-item").forEach(el => {
+              el.addEventListener("click", (e) => {
+                if (e.target.classList.contains("picker-cb")) return;
+                const cb = el.querySelector(".picker-cb");
+                if (cb) cb.checked = !cb.checked;
+              });
+            });
+          }
+        }
+
+        window.__closeLibraryPicker = function () {
+          const overlay = document.getElementById("library-picker-overlay");
+          if (overlay) overlay.remove();
+          _libraryPickerResolve = null;
+        };
+
+        window.__confirmLibraryPicker = function (mode) {
+          const overlay = document.getElementById("library-picker-overlay");
+          if (!overlay) return;
+          let selected = [];
+          if (mode === "single") {
+            const sel = overlay.querySelector(".picker-item.selected");
+            if (sel) selected = [sel.dataset.path];
+          } else {
+            overlay.querySelectorAll(".picker-cb:checked").forEach(cb => selected.push(cb.dataset.path));
+          }
+          if (selected.length === 0) { showToast("Please select at least one image", "info"); return; }
+          overlay.remove();
+          if (_libraryPickerResolve) _libraryPickerResolve(mode === "single" ? selected[0] : selected);
+          _libraryPickerResolve = null;
+        };
+
+        window.__filterPicker = function () {
+          const q = (document.getElementById("picker-search")?.value || "").toLowerCase();
+          document.querySelectorAll(".picker-dir").forEach(dir => {
+            let visible = false;
+            dir.querySelectorAll(".picker-item").forEach(item => {
+              const name = item.dataset.path.toLowerCase();
+              const match = !q || name.includes(q);
+              item.style.display = match ? "" : "none";
+              if (match) visible = true;
+            });
+            dir.style.display = visible ? "" : "none";
+            if (q && visible) dir.classList.remove("collapsed");
+            else if (!q) dir.classList.add("collapsed");
+          });
+        };
+
+        function renderLibraryHTML() {
+          const byDir = libraryData.byDir || {};
+          let html = `<div class="content-view"><h3>Media Library</h3>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-secondary" onclick="window.__createFolder()">New Folder</button>
+            </div>
+            <div class="upload-zone" id="upload-zone">
+              <p>Click or drop images to upload</p>
+              <input type="file" id="upload-input" accept="image/*" multiple />
+              <select id="upload-folder-select" style="margin-top:8px;padding:4px 8px;border:1px solid #d0d0d0;border-radius:4px">
+                <option value="general">general</option>`;
+          for (const dir of Object.keys(byDir)) {
+            if (dir !== "general") {
+              html += `<option value="${escHtml(dir)}">${escHtml(dir)}</option>`;
+            }
+          }
+          html += `</select></div>`;
+          for (const [dir, files] of Object.entries(byDir)) {
+            html += `<div class="library-dir collapsed">
+              <h4 onclick="window.__toggleLibraryDir(this)">
+                <span>${escHtml(dir || "general")} (${files.length})</span>
+                <button class="btn-icon" onclick="event.stopPropagation();window.__deleteFolder('${escHtml(dir)}')" title="Delete folder">&#128465;</button>
+              </h4>
+              <div class="library-grid">`;
+            if (files.length === 0) {
+              html += `<p style="grid-column:1/-1;text-align:center;color:#999;font-size:13px;padding:16px 0">No images in this folder</p>`;
+            } else {
+              for (const file of files) {
+                html += `<div class="library-item" data-path="${escHtml(file.path)}">
+                  <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
+                  <div class="name">${escHtml(file.name)}</div>
+                  <button class="delete-btn" onclick="event.stopPropagation();window.__deleteLibraryImage('${escHtml(file.path)}')">&times;</button>
+                </div>`;
+              }
+            }
+            html += `</div></div>`;
+          }
+          html += `</div>`;
+          return html;
+        }
+
+        function fileToBase64(file) {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const ALLOWED_UPLOAD_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "image/avif"]);
+        const MAX_UPLOAD_SIZE_MB = 20;
+
+        function validateUploadFile(file) {
+          if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
+            return `"${file.name}" is not a supported image format. Use PNG, JPEG, WebP, GIF, SVG, or AVIF.`;
+          }
+          if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
+            return `"${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum size is ${MAX_UPLOAD_SIZE_MB} MB.`;
+          }
+          return null;
+        }
+
+        async function uploadFile(file) {
+          const validationError = validateUploadFile(file);
+          if (validationError) {
+            showToast(validationError, "error");
+            return;
+          }
+          const base64 = await fileToBase64(file);
+          const folderSelect = document.getElementById("upload-folder-select");
+          const subdir = folderSelect ? folderSelect.value : "general";
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: file.name, data: base64, subdir }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) showToast(`Uploaded ${file.name}`, "success");
+            else showToast(`Upload failed: ${json.error}`, "error");
+          } catch (e) { showToast(`Upload error: ${e.message}`, "error"); }
+        }
+
+        function setupUpload() {
+          const zone = document.getElementById("upload-zone");
+          const input = document.getElementById("upload-input");
+          if (!zone || !input) return;
+          zone.addEventListener("click", () => input.click());
+          input.addEventListener("change", async () => {
+            const files = input.files;
+            if (!files.length) return;
+            for (const file of files) await uploadFile(file);
+            input.value = "";
+            await refreshLibrary();
+          });
+          zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.style.borderColor = "#2563eb"; });
+          zone.addEventListener("dragleave", () => { zone.style.borderColor = "#d0d0d0"; });
+          zone.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            zone.style.borderColor = "#d0d0d0";
+            const files = e.dataTransfer.files;
+            if (!files.length) return;
+            for (const file of files) await uploadFile(file);
+            await refreshLibrary();
+          });
+        }
+
+        window.__deleteLibraryImage = async function (path) {
+          const confirmed = await showConfirm("Delete this image? This cannot be undone.", "Delete Image");
+          if (!confirmed) return;
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "DELETE", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ path }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast("Image deleted", "success");
+              await refreshLibrary();
+            } else showToast("Delete failed: " + json.error, "error");
+          } catch (e) { showToast("Delete error: " + e.message, "error"); }
+        };
+
+        window.__createFolder = async function () {
+          const name = prompt("Enter folder name:");
+          if (!name || !name.trim()) return;
+          const folderName = name.trim().replace(/[^a-zA-Z0-9_\-\/]/g, "").replace(/\//g, "");
+          if (!folderName) { showToast("Invalid folder name", "error"); return; }
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "createFolder", name: folderName }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Folder "${folderName}" created`, "success");
+              await refreshLibrary();
+            } else showToast("Create folder failed: " + json.error, "error");
+          } catch (e) { showToast("Create folder error: " + e.message, "error"); }
+        };
+
+        window.__deleteFolder = async function (dirName) {
+          const confirmed = await showConfirm(`Delete folder "${dirName}" and all its contents?`, "Delete Folder");
+          if (!confirmed) return;
+          try {
+            const res = await fetch("/admin/api/library", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "deleteFolder", name: dirName }),
+            });
+            const json = await safeJsonResponse(res);
+            if (json.success) {
+              showToast(`Folder "${dirName}" deleted`, "success");
+              await refreshLibrary();
+            } else showToast("Delete folder failed: " + json.error, "error");
+          } catch (e) { showToast("Delete folder error: " + e.message, "error"); }
+        };
+
+        async function refreshLibrary() {
+          try {
+            const res = await fetch("/admin/api/library");
+            const json = await safeJsonResponse(res);
+            libraryData = json;
+            const panel = document.getElementById("panel-library");
+            if (panel) {
+              panel.innerHTML = renderLibraryHTML();
+              requestAnimationFrame(() => {
+                setupUpload();
+                setupLightboxClicks(panel);
+              });
+            }
+          } catch (e) { showToast("Failed to refresh library: " + e.message, "error"); }
+        }
+
+        function setupSortableGrid(gridId, onReorder) {
+          if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+          const grid = document.getElementById(gridId);
+          if (!grid) return;
+          sortableInstances[gridId] = new Sortable(grid, {
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            onEnd: () => {
+              const items = [...grid.querySelectorAll("[data-path]")];
+              onReorder(items);
+            }
+          });
+        }
+
+        function setupSortableList(listId, onReorder) {
+          if (sortableInstances[listId]) sortableInstances[listId].destroy();
+          const list = document.getElementById(listId);
+          if (!list) return;
+          sortableInstances[listId] = new Sortable(list, {
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            handle: ".drag-handle", direction: "vertical",
+            onEnd: () => {
+              const items = [...list.querySelectorAll("[data-slug]")];
+              onReorder(items);
+            }
+          });
+        }
+
+        function setupGalleryReorder() {
+          const formId = editingState.projects === "new" ? "project-form-new" : `project-form-${editingState.editSlug}`;
+          const gridId = `${formId}-gallery-grid`;
+          if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+          const grid = document.getElementById(gridId);
+          if (!grid || grid.querySelectorAll(".thumb").length < 2) return;
+          sortableInstances[gridId] = new Sortable(grid, {
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            onEnd: () => {
+              const projData = _getProjectFormData();
+              if (!projData) return;
+              const thumbs = [...grid.querySelectorAll(".thumb[data-path]")];
+              projData.images = thumbs.map(t => t.dataset.path);
+              const hiddenInput = document.getElementById(`${formId}-gallery`);
+              if (hiddenInput) hiddenInput.value = JSON.stringify(projData.images);
+            }
+          });
+        }
+
+        function showConfirm(message, title = "Confirm") {
+          return new Promise((resolve) => {
+            const overlay = document.createElement("div");
+            overlay.className = "confirm-overlay";
+            overlay.innerHTML = `<div class="confirm-modal" style="padding:24px;">
+              <h3>${escHtml(title)}</h3>
+              <p>${escHtml(message)}</p>
+              <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+              </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            window.scrollTo(0, document.body.scrollHeight);
+            overlay.querySelector("#confirm-cancel").addEventListener("click", () => {
+              overlay.remove(); resolve(false);
+            });
+            overlay.querySelector("#confirm-ok").addEventListener("click", () => {
+              overlay.remove(); resolve(true);
+            });
+            overlay.addEventListener("click", (e) => {
+              if (e.target === overlay) { overlay.remove(); resolve(false); }
+            });
+          });
+        }
+
+        function openLightbox(imgUrl) {
+          const container = document.getElementById("lightboxContainer");
+          container.innerHTML = `<div class="lightbox-overlay">
+            <button class="lightbox-close" id="lightbox-close">&times;</button>
+            <img src="${escHtml(imgUrl)}" alt="" />
+          </div>`;
+          const overlay = container.querySelector(".lightbox-overlay");
+          overlay.addEventListener("click", (e) => {
+            if (e.target === overlay || e.target.id === "lightbox-close") container.innerHTML = "";
+          });
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") container.innerHTML = "";
+          }, { once: true });
+        }
+
+        function setupLightboxClicks(containerEl) {
+          if (!containerEl) return;
+          containerEl.querySelectorAll("img").forEach((img) => {
+            img.style.cursor = "zoom-in";
+            img.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const src = img.getAttribute("src") || img.src;
+              if (src) openLightbox(src);
+            });
+          });
+        }
+
+        async function handlePublish() {
+          publishBtn.disabled = true;
+          publishBtn.textContent = "Publishing...";
+          try {
+            const res = await fetch("/admin/api/publish", { method: "POST" });
+            const result = await safeJsonResponse(res);
+            if (result.success) {
+              showToast(`Published ${result.fileCount} file(s). <a href="${result.commitUrl}" target="_blank">View commit</a>`, "success", 8000);
+            } else {
+              let msg = result.error;
+              if (result.validationErrors) {
+                const parts = [];
+                for (const [collection, errors] of Object.entries(result.validationErrors)) {
+                  parts.push(`<strong>${collection}</strong>: ${errors.join("; ")}`);
+                }
+                msg = parts.join("<br>");
+              }
+              showToast(`Publish failed: ${msg} <br><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="window.__retryPublish()">Retry</button>`, "error", 12000);
+            }
+          } catch (e) {
+            showToast(`Publish error: ${e.message} <br><button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="window.__retryPublish()">Retry</button>`, "error", 12000);
+          } finally {
+            publishBtn.textContent = "Publish";
+            checkStatus();
+          }
+        }
+
+        window.__retryPublish = function () {
+          handlePublish();
+        };
+
+        async function handleRevert() {
+          const confirmed = await showConfirm("Revert all changes? This will discard all unsaved edits.", "Revert Changes");
+          if (!confirmed) return;
+          revertBtn.disabled = true;
+          revertBtn.textContent = "Reverting...";
+          try {
+            const res = await fetch("/admin/api/revert", { method: "POST" });
+            const result = await safeJsonResponse(res);
+            if (result.success) {
+              showToast(`Reverted ${result.revertedCount} file(s)`, "success");
+              await checkStatus();
+            } else {
+              showToast(`Revert failed: ${result.error}`, "error");
+            }
+          } catch (e) {
+            showToast(`Revert error: ${e.message}`, "error");
+          } finally {
+            revertBtn.textContent = "Revert";
+            checkStatus();
+          }
+        }
+
+        document.addEventListener("click", (e) => {
+          if (e.target.closest("#publishBtn")) { handlePublish(); return; }
+          if (e.target.closest("#revertBtn")) { handleRevert(); return; }
+
+          if (e.target.closest(".edit-project-btn")) {
+            const slug = e.target.closest(".edit-project-btn").dataset.slug;
+            editingState.projects = "edit";
+            editingState.editSlug = slug;
+            renderTab("projects");
+            return;
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            const overlay = document.getElementById("library-picker-overlay");
+            if (overlay) overlay.remove();
+          }
+        });
+
+        document.addEventListener("input", (e) => {
+          const tagInput = e.target.closest(".tag-input input");
+          if (!tagInput) return;
+          if (e.inputType === "insertText" && tagInput.value.includes(",")) {
+            const tag = tagInput.value.replace(",", "").trim();
+            if (tag) {
+              const tagEl = document.createElement("span");
+              tagEl.className = "tag";
+              tagEl.innerHTML = `${escHtml(tag)}<span class="remove-tag">&times;</span>`;
+              tagInput.parentNode.insertBefore(tagEl, tagInput);
+            }
+            tagInput.value = "";
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const tagInput = e.target.closest(".tag-input input");
+            if (!tagInput) return;
+            e.preventDefault();
+            const tag = tagInput.value.trim();
+            if (tag) {
+              const tagEl = document.createElement("span");
+              tagEl.className = "tag";
+              tagEl.innerHTML = `${escHtml(tag)}<span class="remove-tag">&times;</span>`;
+              tagInput.parentNode.insertBefore(tagEl, tagInput);
+              tagInput.value = "";
+            }
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          const removeTag = e.target.closest(".remove-tag");
+          if (removeTag) {
+            removeTag.closest(".tag").remove();
+          }
+        });
+
+        checkStatus();
+        loadContent();
+        setInterval(checkStatus, 5000);
       })();
     </script>
   </body>
