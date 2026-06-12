@@ -205,6 +205,50 @@ const tabs = [
       :global(.portfolio-project .info .client) { font-size: 12px; color: #666; }
       :global(.portfolio-project .toggle) { margin-left: auto; }
       :global(.portfolio-project .image-override) { display: flex; align-items: center; gap: 6px; }
+      :global(.portfolio-project-row) {
+        display: flex; align-items: center; gap: 12px; width: 100%;
+      }
+      :global(.portfolio-override-strip) {
+        display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 2px 44px;
+      }
+      :global(.portfolio-override-thumb) {
+        position: relative; width: 56px; height: 42px; border-radius: 4px;
+        overflow: hidden; border: 1px solid #e0e0e0; cursor: grab; flex-shrink: 0;
+      }
+      :global(.portfolio-override-thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+      :global(.portfolio-override-thumb .remove-override) {
+        position: absolute; top: 0; right: 0; width: 16px; height: 16px;
+        background: rgba(220,38,38,0.85); color: #fff; border: none; border-radius: 0 0 0 4px;
+        font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.15s;
+      }
+      :global(.portfolio-override-thumb:hover .remove-override) { opacity: 1; }
+      :global(.portfolio-override-add) {
+        width: 56px; height: 42px; border: 1px dashed #d0d0d0; border-radius: 4px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #999; font-size: 18px; flex-shrink: 0;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      :global(.portfolio-override-add:hover) { border-color: #2563eb; color: #2563eb; }
+      :global(.portfolio-override-thumb.sortable-ghost) { opacity: 0.3; }
+      :global(.portfolio-override-thumb.sortable-drag) { opacity: 0.8; }
+      :global(.portfolio-toggle) {
+        position: relative; width: 40px; height: 22px; flex-shrink: 0;
+      }
+      :global(.portfolio-toggle input) { opacity: 0; width: 0; height: 0; }
+      :global(.portfolio-toggle .slider) {
+        position: absolute; inset: 0; background: #d0d0d0; border-radius: 22px;
+        cursor: pointer; transition: background 0.2s;
+      }
+      :global(.portfolio-toggle .slider::before) {
+        content: ""; position: absolute; width: 16px; height: 16px;
+        left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+        transition: transform 0.2s;
+      }
+      :global(.portfolio-toggle input:checked + .slider) { background: #111; }
+      :global(.portfolio-toggle input:checked + .slider::before) { transform: translateX(18px); }
+      :global(.portfolio-project.excluded) { opacity: 0.5; }
+      :global(.portfolio-project.excluded .info .name) { text-decoration: line-through; }
 
       :global(.project-form) { max-width: 720px; }
       :global(.project-form .form-section) { margin-bottom: 24px; }
@@ -418,6 +462,7 @@ const tabs = [
             const libJson = await safeJsonResponse(libRes);
             currentContent = contentJson.data;
             libraryData = libJson;
+            editingState.portfolioExcluded = new Set();
             renderContent();
           } catch (e) {
             showToast("Failed to load content: " + e.message, "error");
@@ -541,31 +586,60 @@ const tabs = [
         function renderPortfolio(data) {
           const projectsData = data?.data?.projects || [];
           const allProjects = currentContent.projects || {};
+          const excluded = editingState.portfolioExcluded || new Set();
+          const includedProjects = projectsData.filter(e => !excluded.has(typeof e === "string" ? e : e.slug));
+
           let html = `<div class="content-view"><h3>Portfolio Grid</h3>
             <p style="font-size:13px;color:#666;margin-bottom:12px">Drag to reorder. Toggle to include/exclude. Optional per-project image overrides.</p>
             <button class="btn btn-primary btn-sm" onclick="window.__savePortfolio()" style="margin-bottom:12px">Save Portfolio</button>
             <div id="portfolio-list">`;
+
+          if (projectsData.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No projects yet</h2>
+              <p>Add projects from the Projects tab first, then come back to curate your portfolio grid.</p>
+            </div>`;
+          } else if (includedProjects.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No projects included</h2>
+              <p>All projects are excluded. Toggle some on to show them on the portfolio grid.</p>
+            </div>`;
+          }
+
           for (const entry of projectsData) {
             const slug = typeof entry === "string" ? entry : entry.slug;
             const overrideImages = typeof entry === "object" ? entry.images : undefined;
             const project = allProjects[slug];
             const title = project?.data?.title || slug;
             const client = project?.data?.client || "";
-            const isIncluded = true;
-            html += `<div class="portfolio-project" data-slug="${slug}">
-              <span class="drag-handle">&#9776;</span>
-              <div class="info">
-                <div class="name">${title}</div>
-                <div class="client">${client}</div>
+            const isExcluded = excluded.has(slug);
+            html += `<div class="portfolio-project${isExcluded ? " excluded" : ""}" data-slug="${slug}">
+              <div class="portfolio-project-row">
+                <span class="drag-handle">&#9776;</span>
+                <label class="portfolio-toggle" title="${isExcluded ? "Excluded from grid" : "Included in grid"}">
+                  <input type="checkbox" ${!isExcluded ? "checked" : ""} onchange="window.__togglePortfolioProject('${slug}', this.checked)" />
+                  <span class="slider"></span>
+                </label>
+                <div class="info">
+                  <div class="name">${title}</div>
+                  <div class="client">${client}</div>
+                </div>
+                <div class="image-override">
+                  ${overrideImages && overrideImages.length > 0
+                    ? `<span style="font-size:11px;color:#666">${overrideImages.length} override(s)</span>`
+                    : `<span style="font-size:11px;color:#999">no override</span>`}
+                  <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__setPortfolioOverride('${slug}')">Override</button>
+                  ${overrideImages ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__clearPortfolioOverride('${slug}')">Clear</button>` : ""}
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__removePortfolioProject('${slug}')">Remove</button>
               </div>
-              <div class="image-override">
-                ${overrideImages && overrideImages.length > 0
-                  ? `<span style="font-size:11px;color:#666">${overrideImages.length} override(s)</span>`
-                  : `<span style="font-size:11px;color:#999">no override</span>`}
-                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__setPortfolioOverride('${slug}')">Override</button>
-                ${overrideImages ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__clearPortfolioOverride('${slug}')">Clear</button>` : ""}
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();window.__removePortfolioProject('${slug}')">Remove</button>
+              ${overrideImages && overrideImages.length > 0 ? `<div class="portfolio-override-strip" data-slug="${slug}">
+                ${overrideImages.map((img, i) => `<div class="portfolio-override-thumb" data-path="${escHtml(img)}" data-index="${i}">
+                  <img src="${imgUrl(img, 120)}" alt="" loading="lazy" />
+                  <button class="remove-override" onclick="event.stopPropagation();window.__removeOverrideImage('${slug}', ${i})">&times;</button>
+                </div>`).join("")}
+                <div class="portfolio-override-add" onclick="event.stopPropagation();window.__addOverrideImage('${slug}')" title="Add override image">+</div>
+              </div>` : ""}
             </div>`;
           }
           html += `</div>
@@ -585,11 +659,23 @@ const tabs = [
           return html;
         }
 
+        window.__togglePortfolioProject = function (slug, checked) {
+          if (!editingState.portfolioExcluded) editingState.portfolioExcluded = new Set();
+          if (checked) {
+            editingState.portfolioExcluded.delete(slug);
+          } else {
+            editingState.portfolioExcluded.add(slug);
+          }
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
         window.__removePortfolioProject = async function (slug) {
           const confirmed = await showConfirm(`Remove "${slug}" from the portfolio grid?`, "Remove Project");
           if (!confirmed) return;
           const data = currentContent.portfolio?.data || { projects: [] };
           data.projects = data.projects.filter(e => (typeof e === "string" ? e : e.slug) !== slug);
+          if (editingState.portfolioExcluded) editingState.portfolioExcluded.delete(slug);
           renderTab("portfolio");
           setupPortfolioDnD();
         };
@@ -622,13 +708,42 @@ const tabs = [
           setupPortfolioDnD();
         };
 
+        window.__removeOverrideImage = function (slug, index) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+          if (idx === -1) return;
+          const entry = data.projects[idx];
+          if (typeof entry === "string") return;
+          entry.images.splice(index, 1);
+          if (entry.images.length === 0) data.projects[idx] = slug;
+          renderTab("portfolio");
+          setupPortfolioDnD();
+        };
+
+        window.__addOverrideImage = function (slug) {
+          const data = currentContent.portfolio?.data || { projects: [] };
+          openLibraryPicker({ mode: "multi", onSelect: (paths) => {
+            const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+            if (idx === -1) return;
+            const entry = data.projects[idx];
+            const existing = typeof entry === "object" && Array.isArray(entry.images) ? entry.images : [];
+            const newImages = paths.map(p => contentPath(p));
+            data.projects[idx] = { slug, images: [...existing, ...newImages] };
+            renderTab("portfolio");
+            setupPortfolioDnD();
+          }});
+        };
+
         window.__savePortfolio = async function () {
           const data = currentContent.portfolio?.data;
           if (!data) return;
+          const excluded = editingState.portfolioExcluded || new Set();
+          const filteredProjects = data.projects.filter(e => !excluded.has(typeof e === "string" ? e : e.slug));
+          const saveData = { ...data, projects: filteredProjects };
           try {
             const res = await fetch("/admin/api/content", {
               method: "PUT", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ collection: "portfolio", data }),
+              body: JSON.stringify({ collection: "portfolio", data: saveData }),
             });
             const json = await safeJsonResponse(res);
             if (json.success) { showToast("Portfolio saved", "success"); checkStatus(); }
@@ -646,6 +761,22 @@ const tabs = [
               if (existing) reordered.push(existing);
             });
             data.projects = reordered;
+          });
+          document.querySelectorAll(".portfolio-override-strip").forEach((strip) => {
+            const slug = strip.dataset.slug;
+            const gridId = `override-strip-${slug}`;
+            if (sortableInstances[gridId]) sortableInstances[gridId].destroy();
+            sortableInstances[gridId] = new Sortable(strip, {
+              ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+              filter: ".portfolio-override-add",
+              onEnd: () => {
+                const data = currentContent.portfolio?.data || { projects: [] };
+                const idx = data.projects.findIndex(e => (typeof e === "string" ? e : e.slug) === slug);
+                if (idx === -1) return;
+                const thumbs = [...strip.querySelectorAll(".portfolio-override-thumb[data-path]")];
+                data.projects[idx] = { slug, images: thumbs.map(t => t.dataset.path) };
+              }
+            });
           });
         }
 
