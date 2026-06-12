@@ -13,14 +13,26 @@ const projectMap = new Map(projects.map((p) => [p.id, p]));
 function parseFmImages(filePath: string): { path: string; description: string | null }[] {
   const raw = readFileSync(filePath, "utf-8");
   const fm = raw.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
-  const section = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m)?.[1] ?? "";
+  const imgKeyRe = /^images:\s*$/m;
+  const imgStart = fm.search(imgKeyRe);
+  if (imgStart === -1) return [];
+  const afterKey = fm.slice(imgStart);
+  const lines = afterKey.split("\n");
+  let endLine = lines.length;
+  for (let j = 1; j < lines.length; j++) {
+    if (/^[A-Za-z]\w*:/.test(lines[j])) {
+      endLine = j;
+      break;
+    }
+  }
+  const section = lines.slice(0, endLine).join("\n");
   const entries: { path: string; description: string | null }[] = [];
-  const lines = section.split("\n").filter((l) => l.trim());
-  for (let i = 0; i < lines.length; i++) {
-    const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+  const sectionLines = section.split("\n").filter((l) => l.trim());
+  for (let i = 0; i < sectionLines.length; i++) {
+    const srcMatch = sectionLines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
     if (srcMatch) {
       let description: string | null = null;
-      const nextLine = lines[i + 1];
+      const nextLine = sectionLines[i + 1];
       if (nextLine) {
         const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
         if (descMatch) {
@@ -31,7 +43,7 @@ function parseFmImages(filePath: string): { path: string; description: string | 
       entries.push({ path: srcMatch[1], description });
       continue;
     }
-    const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+    const stringMatch = sectionLines[i].match(/^\s*-\s+"([^"]+)"/);
     if (stringMatch) {
       entries.push({ path: stringMatch[1], description: null });
     }

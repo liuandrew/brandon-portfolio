@@ -11,6 +11,7 @@ logo: "../../assets/warner_bros/Warner_Bros_Logo.svg.png"
 heroImage: "../../assets/warner_bros/JIRO_TheFarmExtFrontEntranceA_Co_v01.webp"
 images:
   - src: "../../assets/warner_bros/JIRO_PeggySmokehouseGroundsExtA_Morning_Lt_v01.webp"
+    description: "Morning lighting study for Peggy's Smokehouse"
   - src: "../../assets/warner_bros/JIRO_JiroSushiRestaurantIntRemodeledB_Co_v02.webp"
   - src: "../../assets/warner_bros/JIRO_OldMasterSushiBarStorefront_Front_lt_v04.webp"
   - src: "../../assets/warner_bros/JIRO_SakeBreweryIntA_lighting_v01.webp"

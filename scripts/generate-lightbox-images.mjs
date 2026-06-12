@@ -43,6 +43,48 @@ async function addFooter(inputPath, outputPath, title) {
   console.log(`  ✓ ${basename(outputPath)}`);
 }
 
+function extractSection(fm, key) {
+  const re = new RegExp(`^${key}:\\s*$`, 'm');
+  const startIdx = fm.search(re);
+  if (startIdx === -1) return '';
+  const afterKey = fm.slice(startIdx);
+  const lines = afterKey.split('\n');
+  let endLine = lines.length;
+  for (let j = 1; j < lines.length; j++) {
+    if (/^[A-Za-z]\w*:/.test(lines[j])) {
+      endLine = j;
+      break;
+    }
+  }
+  return lines.slice(0, endLine).join('\n');
+}
+
+function parseImageEntries(section) {
+  const items = [];
+  const lines = section.split('\n').filter(l => l.trim());
+  for (let i = 0; i < lines.length; i++) {
+    const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+    if (srcMatch) {
+      let description = null;
+      const nextLine = lines[i + 1];
+      if (nextLine) {
+        const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
+        if (descMatch) {
+          description = descMatch[1];
+          i++;
+        }
+      }
+      items.push({ path: srcMatch[1], description });
+      continue;
+    }
+    const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+    if (stringMatch) {
+      items.push({ path: stringMatch[1], description: null });
+    }
+  }
+  return items;
+}
+
 function parseFrontmatter(filePath) {
   const content = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
   const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
@@ -52,31 +94,7 @@ function parseFrontmatter(filePath) {
   const footer = nonCommentFm.match(/^footer:\s*"([^"]+)"/m)?.[1] ?? null;
   const heroImage = nonCommentFm.match(/^heroImage:\s*"([^"]+)"/m)?.[1] ?? null;
 
-  const images = [];
-  const imagesSection = nonCommentFm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m);
-  if (imagesSection) {
-    const lines = imagesSection[1].split('\n').filter(l => l.trim());
-    for (let i = 0; i < lines.length; i++) {
-      const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
-      if (srcMatch) {
-        let description = null;
-        const nextLine = lines[i + 1];
-        if (nextLine) {
-          const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
-          if (descMatch) {
-            description = descMatch[1];
-            i++;
-          }
-        }
-        images.push({ path: srcMatch[1], description });
-        continue;
-      }
-      const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
-      if (stringMatch) {
-        images.push({ path: stringMatch[1], description: null });
-      }
-    }
-  }
+  const images = parseImageEntries(extractSection(nonCommentFm, 'images'));
 
   return { title, footer, heroImage, images };
 }
@@ -86,31 +104,7 @@ function parsePersonalFrontmatter(filePath) {
   const fm = content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
   const title = fm.match(/^title:\s*"([^"]+)"/m)?.[1] ?? basename(filePath, '.md');
 
-  const images = [];
-  const imagesSection = fm.match(/^images:\s*\n((?:\s*-\s*[^\n]+\n?(?:\s+[^\-\s][^\n]*\n?)*)+)/m);
-  if (imagesSection) {
-    const lines = imagesSection[1].split('\n').filter(l => l.trim());
-    for (let i = 0; i < lines.length; i++) {
-      const srcMatch = lines[i].match(/^\s*-\s+src:\s*"?([^"\n]+)"?/);
-      if (srcMatch) {
-        let description = null;
-        const nextLine = lines[i + 1];
-        if (nextLine) {
-          const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
-          if (descMatch) {
-            description = descMatch[1];
-            i++;
-          }
-        }
-        images.push({ path: srcMatch[1], description });
-        continue;
-      }
-      const stringMatch = lines[i].match(/^\s*-\s+"?([^"\n]+)"?$/);
-      if (stringMatch) {
-        images.push({ path: stringMatch[1], description: null });
-      }
-    }
-  }
+  const images = parseImageEntries(extractSection(fm, 'images'));
 
   return { title, images };
 }

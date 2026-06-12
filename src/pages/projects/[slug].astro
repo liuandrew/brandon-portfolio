@@ -29,15 +29,27 @@ function fmString(key: string): string | null {
 }
 
 function fmImages(key: string): { path: string; description: string | null }[] {
-  const re = new RegExp(`^${key}:\\s*\\n((?:\\s*-\\s*[^\\n]+\\n?(?:\\s+[^\\-\\s][^\\n]*\\n?)*)+)`, "m");
-  const section = fmBody.match(re)?.[1] ?? "";
+  const re = new RegExp(`^${key}:\\s*$`, "m");
+  const startIdx = fmBody.search(re);
+  if (startIdx === -1) return [];
+  const afterKey = fmBody.slice(startIdx);
+  const lines = afterKey.split("\n");
+  let endLine = lines.length;
+  for (let j = 1; j < lines.length; j++) {
+    if (/^[A-Za-z]\w*:/.test(lines[j])) {
+      endLine = j;
+      break;
+    }
+  }
+  const section = lines.slice(0, endLine).join("\n");
+
   const items: { path: string; description: string | null }[] = [];
-  const lines = section.split("\n").filter((l) => l.trim());
-  for (let i = 0; i < lines.length; i++) {
-    const srcMatch = lines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
+  const sectionLines = section.split("\n").filter((l) => l.trim());
+  for (let i = 0; i < sectionLines.length; i++) {
+    const srcMatch = sectionLines[i].match(/^\s*-\s+src:\s*"([^"]+)"/);
     if (srcMatch) {
       let description: string | null = null;
-      const nextLine = lines[i + 1];
+      const nextLine = sectionLines[i + 1];
       if (nextLine) {
         const descMatch = nextLine.match(/^\s+description:\s*"([^"]*)"/);
         if (descMatch) {
@@ -48,7 +60,7 @@ function fmImages(key: string): { path: string; description: string | null }[] {
       items.push({ path: srcMatch[1], description });
       continue;
     }
-    const stringMatch = lines[i].match(/^\s*-\s+"([^"]+)"/);
+    const stringMatch = sectionLines[i].match(/^\s*-\s+"([^"]+)"/);
     if (stringMatch) {
       items.push({ path: stringMatch[1], description: null });
     }
