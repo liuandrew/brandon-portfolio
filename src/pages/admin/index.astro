@@ -44,7 +44,6 @@ const tabs = [
       .btn {
         padding: 8px 16px; font-size: 13px; font-weight: 500; border: none;
         border-radius: 6px; cursor: pointer; font-family: inherit;
-        transition: background 0.15s, opacity 0.15s;
       }
       .btn:disabled { opacity: 0.4; cursor: not-allowed; }
       .btn-primary { background: #111; color: #fff; }
@@ -61,7 +60,7 @@ const tabs = [
       .tab-btn {
         padding: 12px 20px; font-size: 14px; font-weight: 500; border: none;
         background: none; color: #666; cursor: pointer;
-        border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+        border-bottom: 2px solid transparent;
         font-family: inherit;
       }
       .tab-btn:hover { color: #111; }
@@ -76,16 +75,12 @@ const tabs = [
       .toast {
         padding: 12px 20px; border-radius: 8px; font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.2s ease; max-width: 420px; line-height: 1.4;
+        max-width: 420px; line-height: 1.4;
       }
       .toast.success { background: #065f46; color: #fff; }
       .toast.error { background: #991b1b; color: #fff; }
       .toast.info { background: #1e3a5f; color: #fff; }
       .toast a { color: #93c5fd; }
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
       :global(.content-view) { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; }
       :global(.content-view h3) { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
       :global(.field) { margin-bottom: 16px; }
@@ -117,7 +112,7 @@ const tabs = [
       }
       :global(.image-grid-item) {
         position: relative; border: 2px solid #e0e0e0; border-radius: 8px;
-        overflow: hidden; background: #fff; cursor: grab; transition: border-color 0.15s;
+        overflow: hidden; background: #fff; cursor: grab;
       }
       :global(.image-grid-item:hover) { border-color: #999; }
       :global(.image-grid-item.dragging) { opacity: 0.4; }
@@ -131,7 +126,7 @@ const tabs = [
         position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
         border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff;
         font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.15s;
+        opacity: 0;
       }
       :global(.image-grid-item:hover .remove-btn) { opacity: 1; }
       :global(.library-dir) { margin-bottom: 24px; }
@@ -145,7 +140,6 @@ const tabs = [
       :global(.library-item) {
         position: relative; border: 2px solid transparent; border-radius: 6px;
         overflow: hidden; cursor: pointer; background: #fff;
-        transition: border-color 0.15s;
       }
       :global(.library-item:hover) { border-color: #999; }
       :global(.library-item.selected) { border-color: #2563eb; }
@@ -155,12 +149,12 @@ const tabs = [
         position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
         border-radius: 50%; border: none; background: rgba(220,38,38,0.8); color: #fff;
         font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.15s;
+        opacity: 0;
       }
       :global(.library-item:hover .delete-btn) { opacity: 1; }
       :global(.upload-zone) {
         border: 2px dashed #d0d0d0; border-radius: 8px; padding: 24px;
-        text-align: center; color: #999; cursor: pointer; transition: border-color 0.15s; margin-bottom: 16px;
+        text-align: center; color: #999; cursor: pointer; margin-bottom: 16px;
       }
       :global(.upload-zone:hover) { border-color: #2563eb; color: #2563eb; }
       :global(.upload-zone input) { display: none; }
@@ -180,7 +174,6 @@ const tabs = [
         display: flex; align-items: center; gap: 12px;
         padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px;
         margin-bottom: 8px; background: #fff; cursor: grab;
-        transition: border-color 0.15s, box-shadow 0.15s;
       }
       :global(.portfolio-project.dragging) { opacity: 0.4; }
       :global(.portfolio-project.drag-over) { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
@@ -200,7 +193,7 @@ const tabs = [
       :global(.img-picker) {
         display: flex; align-items: center; gap: 10px;
         padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
-        min-height: 44px; cursor: pointer; transition: border-color 0.15s;
+        min-height: 44px; cursor: pointer;
       }
       :global(.img-picker:hover) { border-color: #2563eb; }
       :global(.img-picker img) { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
@@ -208,7 +201,7 @@ const tabs = [
       :global(.img-picker-multi) {
         display: flex; flex-wrap: wrap; gap: 8px;
         padding: 10px 12px; border: 1px solid #d0d0d0; border-radius: 6px;
-        min-height: 44px; cursor: pointer; transition: border-color 0.15s;
+        min-height: 44px; cursor: pointer;
       }
       :global(.img-picker-multi:hover) { border-color: #2563eb; }
       :global(.img-picker-multi .thumb) {
@@ -248,7 +241,6 @@ const tabs = [
         position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
         border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff;
         font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        transition: background 0.15s;
       }
       .lightbox-overlay .lightbox-close:hover { background: rgba(0,0,0,0.8); }
 
@@ -268,21 +260,6 @@ const tabs = [
       /* Compact thumbnails */
       :global(.image-grid) { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
       :global(.image-grid-item img) { height: 80px; }
-
-      /* Loading shimmer */
-      :global(.image-grid-item.loading img) { opacity: 0.3; }
-      :global(.image-grid-item.loading) {
-        background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-        background-size: 200% 100%; animation: shimmer 1.2s ease-in-out infinite;
-      }
-      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-      /* Toast slide-out */
-      .toast.removing { animation: slideOut 0.2s ease forwards; }
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
     </style>
   </head>
   <body>
@@ -334,10 +311,11 @@ const tabs = [
         let editingState = { projects: "list" };
         let sortableInstances = {};
 
-        function imgUrl(contentRelPath) {
+        function imgUrl(contentRelPath, width = 0) {
           if (!contentRelPath) return "";
           const rootRel = contentRelPath.replace(/^\.\.\/\.\.\//, "src/");
-          return `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
+          const base = `/admin/api/library?img=${encodeURIComponent(rootRel)}`;
+          return width > 0 ? `${base}&w=${width}` : base;
         }
 
         async function safeJsonResponse(res) {
@@ -475,8 +453,8 @@ const tabs = [
             </div>
             <div class="image-grid" id="homepage-grid">`;
           images.forEach((img, i) => {
-            html += `<div class="image-grid-item loading" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img)}" alt="" loading="lazy" onload="this.closest('.image-grid-item').classList.remove('loading')" onerror="this.closest('.image-grid-item').classList.remove('loading')" />
+            html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
               <div class="name">${img.split("/").pop()}</div>
               <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
             </div>`;
@@ -655,8 +633,8 @@ const tabs = [
             </div>
             <div class="image-grid" id="personal-grid">`;
           images.forEach((img, i) => {
-            html += `<div class="image-grid-item loading" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img)}" alt="" loading="lazy" onload="this.closest('.image-grid-item').classList.remove('loading')" onerror="this.closest('.image-grid-item').classList.remove('loading')" />
+            html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+              <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
               <div class="name">${img.split("/").pop()}</div>
               <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
             </div>`;
@@ -794,19 +772,19 @@ const tabs = [
               <h4>Images</h4>
               <div class="field"><label>Logo (shown on portfolio grid card)</label>
                 <div class="img-picker" onclick="window.__pickImage('${formId}-logo')">
-                  ${projData.logo ? `<img src="${imgUrl(projData.logo)}" alt="" /><span>${escHtml(projData.logo.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                  ${projData.logo ? `<img src="${imgUrl(projData.logo, 100)}" alt="" /><span>${escHtml(projData.logo.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
                 </div>
                 <input type="hidden" id="${formId}-logo" value="${escHtml(projData.logo || "")}" />
               </div>
               <div class="field"><label>Hero Image *</label>
                 <div class="img-picker" onclick="window.__pickImage('${formId}-hero')">
-                  ${projData.heroImage ? `<img src="${imgUrl(projData.heroImage)}" alt="" /><span>${escHtml(projData.heroImage.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
+                  ${projData.heroImage ? `<img src="${imgUrl(projData.heroImage, 100)}" alt="" /><span>${escHtml(projData.heroImage.split("/").pop())}</span>` : `<span class="placeholder">Click to select image...</span>`}
                 </div>
                 <input type="hidden" id="${formId}-hero" value="${escHtml(projData.heroImage || "")}" />
               </div>
               <div class="field"><label>Gallery Images</label>
                 <div class="img-picker-multi" onclick="window.__pickMultiImage('${formId}-gallery')">
-                  ${images.length > 0 ? images.map(img => `<div class="thumb"><img src="${imgUrl(img)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
+                  ${images.length > 0 ? images.map(img => `<div class="thumb"><img src="${imgUrl(img, 100)}" alt="" /><button class="remove" onclick="event.stopPropagation();window.__removeGalleryImage('${formId}-gallery', '${escHtml(img)}')">&times;</button></div>`).join("") : `<span class="placeholder">Click to select images...</span>`}
                 </div>
                 <input type="hidden" id="${formId}-gallery" value='${escHtml(JSON.stringify(images))}' />
               </div>
@@ -952,7 +930,7 @@ const tabs = [
               const sel = mode === "multi" ? `<input type="checkbox" class="picker-cb" data-path="${escHtml(file.path)}" style="position:absolute;top:4px;left:4px;z-index:2" />` : "";
               html += `<div class="library-item picker-item" data-path="${escHtml(file.path)}">
                 ${sel}
-                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}" alt="" loading="lazy" />
+                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
                 <div class="name">${escHtml(file.name)}</div>
               </div>`;
             }
@@ -1027,7 +1005,7 @@ const tabs = [
               <div class="library-grid">`;
             for (const file of files) {
               html += `<div class="library-item" data-path="${escHtml(file.path)}">
-                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}" alt="" loading="lazy" />
+                <img src="/admin/api/library?img=${encodeURIComponent(file.path)}&w=200" alt="" loading="lazy" />
                 <div class="name">${escHtml(file.name)}</div>
                 <button class="delete-btn" onclick="event.stopPropagation();window.__deleteLibraryImage('${escHtml(file.path)}')">&times;</button>
               </div>`;
@@ -1114,7 +1092,7 @@ const tabs = [
           const grid = document.getElementById(gridId);
           if (!grid) return;
           sortableInstances[gridId] = new Sortable(grid, {
-            animation: 200, ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
             onEnd: () => {
               const items = [...grid.querySelectorAll("[data-path]")];
               onReorder(items);
@@ -1127,7 +1105,7 @@ const tabs = [
           const list = document.getElementById(listId);
           if (!list) return;
           sortableInstances[listId] = new Sortable(list, {
-            animation: 200, ghostClass: "sortable-ghost", dragClass: "sortable-drag",
+            ghostClass: "sortable-ghost", dragClass: "sortable-drag",
             handle: ".drag-handle", direction: "vertical",
             onEnd: () => {
               const items = [...list.querySelectorAll("[data-slug]")];

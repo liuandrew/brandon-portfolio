@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, mkdirSync } from "fs";
 import { resolve, dirname, extname, relative } from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
 import { markChanged } from "./admin-state.mjs";
 import { readAllCollections, readCollection, writeCollection, createProject, deleteProject } from "./content-service.mjs";
 import { publish, getChanged, hasChanges } from "./github-publish.mjs";
@@ -14,6 +15,8 @@ const MIME_MAP = {
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
   ".webp": "image/webp", ".gif": "image/gif", ".svg": "image/svg+xml", ".avif": "image/avif",
 };
+
+const thumbnailCache = new Map();
 
 function sendJson(res, data, status = 200) {
   res.writeHead(status, { "Content-Type": "application/json" });
@@ -93,7 +96,33 @@ async function handleLibrary(req, res) {
         res.writeHead(404); res.end();
         return;
       }
+
+      const width = parseInt(url.searchParams.get("w") || "0", 10);
       const ext = extname(abs).toLowerCase();
+
+      if (width > 0 && (ext === ".png" || ext === ".jpg" || ext === ".jpeg" || ext === ".webp" || ext === ".avif")) {
+        const cacheKey = `${abs}:${width}`;
+        let cached = thumbnailCache.get(cacheKey);
+        if (!cached) {
+          try {
+            cached = await sharp(abs)
+              .resize(width)
+              .webp({ quality: 70 })
+              .toBuffer();
+            thumbnailCache.set(cacheKey, cached);
+            if (thumbnailCache.size > 500) {
+              const firstKey = thumbnailCache.keys().next().value;
+              thumbnailCache.delete(firstKey);
+            }
+          } catch {
+            cached = readFileSync(abs);
+          }
+        }
+        res.writeHead(200, { "Content-Type": "image/webp", "Cache-Control": "public, max-age=3600" });
+        res.end(cached);
+        return;
+      }
+
       const contentType = MIME_MAP[ext] || "application/octet-stream";
       const buf = readFileSync(abs);
       res.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache" });
