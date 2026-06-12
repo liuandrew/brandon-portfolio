@@ -149,6 +149,7 @@ async function handleLibrary(req, res) {
       if (!folderPath.startsWith(ASSETS)) return sendError(res, "Invalid path", 400);
       if (existsSync(folderPath)) return sendError(res, "Folder already exists", 409);
       mkdirSync(folderPath, { recursive: true });
+      markChanged(`src/assets/${name}`);
       return sendJson(res, { success: true });
     }
 
