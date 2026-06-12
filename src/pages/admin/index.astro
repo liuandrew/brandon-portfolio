@@ -480,13 +480,20 @@ const tabs = [
               <button class="btn btn-primary btn-sm" onclick="window.__saveHomepage()">Save Homepage</button>
             </div>
             <div class="image-grid" id="homepage-grid">`;
-          images.forEach((img, i) => {
-            html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
-              <div class="name">${img.split("/").pop()}</div>
-              <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
+          if (images.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No images yet</h2>
+              <p>Add your first image to the homepage carousel.</p>
             </div>`;
-          });
+          } else {
+            images.forEach((img, i) => {
+              html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+                <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
+                <div class="name">${img.split("/").pop()}</div>
+                <button class="remove-btn" onclick="event.stopPropagation();window.__removeHomepageImage(${i})">&times;</button>
+              </div>`;
+            });
+          }
           html += `</div></div>`;
           return html;
         }
@@ -658,13 +665,20 @@ const tabs = [
               <button class="btn btn-primary btn-sm" onclick="window.__savePersonal()">Save Personal</button>
             </div>
             <div class="image-grid" id="personal-grid">`;
-          images.forEach((img, i) => {
-            html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
-              <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
-              <div class="name">${img.split("/").pop()}</div>
-              <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
+          if (images.length === 0) {
+            html += `<div class="empty-state" style="min-height:20vh">
+              <h2>No images yet</h2>
+              <p>Add your first image to the personal gallery.</p>
             </div>`;
-          });
+          } else {
+            images.forEach((img, i) => {
+              html += `<div class="image-grid-item" data-index="${i}" data-path="${img}">
+                <img src="${imgUrl(img, 200)}" alt="" loading="lazy" />
+                <div class="name">${img.split("/").pop()}</div>
+                <button class="remove-btn" onclick="event.stopPropagation();window.__removePersonalImage(${i})">&times;</button>
+              </div>`;
+            });
+          }
           html += `</div></div>`;
           return html;
         }
